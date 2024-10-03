@@ -4,12 +4,198 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Landing Page</title>
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <style>
+        .navbar{
+            position:absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 10;
+        }
+        .navbar-brand{
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 30px;
+            color: black;
+        }
+        .logo {
+            height: 70px;
+            margin: 0 10px;
+            position: relative;
+            top: 30px;
+            transform: translateY(-50%);
+        }
+        .bg {
+            background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(img/bsu.jpg);
+            background-size: cover;
+            background-attachment: fixed;
+        }
+        .btn {
+            text-decoration: none;
+            border-radius: 16px;
+        }
+        #contact{
+            background: #efefef;
+        }
+
+    </style>
 </head>
 <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark py-4">
+        <div class="container">
+            <a href="#" class="navbar-brand">
+                <img class="logo" src="img/bsulogo.png" alt="Logo">LIBRALINK
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navmenu">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item mx-2">
+                        <a href="#" class="nav-link text-dark">Home</a>
+                    </li>
+                    <li class="nav-item mx-2">
+                        <a href="#about" class="nav-link text-dark">About</a>
+                    </li>
+                    <li class="nav-item mx-2">
+                        <a href="#contact" class="nav-link text-dark">Contact</a>
+                    </li>
+                    <li class="nav-item mx-2"></li>
+                    <a href="php/admin-student.php"><button type="button" class="btn">SIGN-IN</button></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <a href="php/admin-student.php"><button type="button">Login</button></a>
+    <!-- Home Section -->
+    <section class="bg text-dark p-5 d-flex align-items-center justify-content-center vh-100" style="position: relative;">
+        <div class="container text-center">
+            <div class="d-lg-flex align-items-center justify-content-center">
+                <div>
+                    <h1>Welcome to LibraLink!</h1>
+                    <p class="lead my-4 font">
+                        A streamlined platform designed to make library management simple and efficient 
+                        for both students and librarians. Whether you're borrowing materials or managing inventory, 
+                        LibraLink offers a seamless experience tailored for academic environments. 
+                    </p>
+                    <button class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#libralink">Start Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <script src="js/bootstrap.min.js"></script>
+
+    <!-- About Section -->
+    <section id="about" class="about p-5 bg-light text-dark vh-100 d-flex align-items-center">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h1>ABOUT US</h1>
+                <p>At LibraLink, we are committed to transforming the way academic libraries 
+                    manage their resources and student interactions. Our platform integrates 
+                    student logging, borrowing, and inventory management into one seamless 
+                    system. Designed for simplicity and efficiency, LibraLink streamlines the 
+                    borrowing process for students while providing librarians with powerful 
+                    tools to track inventory and maintain organized records. We believe that 
+                    an organized library is key to enhancing the academic experience, and our 
+                    solution ensures smooth operations for both users and staff.
+                </p>
+            </div>
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="about-content">
+                        <h2>Our Mission</h2>
+                        <div class="d-flex align-items-start mb-4">
+                            <div class="me-5">
+                                <i class="bi bi-bar-chart-fill"></i>
+                            </div>
+                            <div class="about-text">
+                                <p>Our mission is to provide an all-in-one library management system 
+                                    that enhances the academic experience by streamlining the borrowing 
+                                    and logging processes. We aim to empower librarians with advanced 
+                                    tools for inventory control while offering students a simple and 
+                                    intuitive platform for accessing and borrowing resources.</p>
+                            </div>
+                        </div>
+                        <h2>Our Vision</h2>
+                        <div class="d-flex align-items-start">
+                            <div class="me-5">
+                                <i class="bi bi-lightbulb-fill"></i>
+                            </div>
+                            <div class="about-text">
+                                <p>We envision a future where academic libraries operate with maximum efficiency, 
+                                    offering students seamless access to resources, and allowing librarians to 
+                                    manage inventory effortlessly. LibraLink strives to be at the forefront of 
+                                    this transformation, ensuring that libraries remain dynamic and easily accessible 
+                                    hubs of knowledge and learning.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img src="img/books.png" class="img-fluid" alt="Books">
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Contact Section -->
+    <section id="contact" class="p-5 text-dark">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h1>CONTACT US</h1>
+                <p>
+                    At LibraLink, we value your feedback and inquiries. Our team is here to assist you with any 
+                    questions you may have about our library services, resources, or your experience with our 
+                    platform. Don't hesitate to reach out—we're committed to providing you with the best possible support!
+                </p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h3>Opening Hours</h3><br>
+                    <p><b>Monday to Friday</b></p>
+                    <p>7:00 AM - 6:00 PM</p>
+                    <p><b>Saturday</b></p>
+                    <p>8:00 AM - 5:00 PM</p>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <h3>Get In Touch</h3><br>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-globe me-2"></i>
+                        <p class="mb-0">library.batstate-u.edu.ph</p>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-telephone-fill me-2"></i>
+                        <p class="mb-0">(+63 43) 980-0385 loc. 3110</p>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-envelope-fill me-2"></i>
+                        <p class="mb-0">library.lipa@g.batstate-u.edu.ph</p>
+                    </div>
+                </div>                
+
+                <div class="col-md-4 mb-4">
+                    <h3>Follow Us</h3>
+                    <ul class="social-icons">
+                        <li><a href="https://www.facebook.com/library.lipa/" class="text-dark"><i class="bi bi-facebook"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <div class="bottom-bar">
+                    <p>&copy; 2024 LibraLink &#124; All Rights Reserved</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
