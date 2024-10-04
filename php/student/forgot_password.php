@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Login</title>
+    <title>Forgot Password</title>
     <link href="../../css/bootstrap.min.css" rel="stylesheet">
 </head>
 
@@ -83,48 +83,49 @@
                                 echo '<script>alert("'.$_SESSION['error'].'");</script>';
                                 unset($_SESSION['error']); // remove error message from session
                             }
-                            if (isset($_SESSION['success'])) {
+                            if(isset($_SESSION['success'])){
                                 echo '<script>alert("'.$_SESSION['success'].'");</script>';
-                                unset($_SESSION['success']); // remove success message from session
+                                unset($_SESSION['success']); // remove error message from session
                             }
 
                             // Check if the form has been submitted
                             if (isset($_POST['submit'])) {
-                                $email = $_POST['email'];
-                                $password = $_POST['password'];
+                                $email = mysqli_real_escape_string($conn, $_POST['email']);
+                                $password = mysqli_real_escape_string($conn, $_POST['password']);
+                                $confirmPassword = mysqli_real_escape_string($conn, $_POST['confirmPassword']);
 
-                                // Use prepared statements to retrieve user data
-                                $stmt = $conn->prepare("SELECT * FROM student_table WHERE email = ?");
-                                $stmt->bind_param("s", $email);
-                                $stmt->execute();
-                                $result = $stmt->get_result();
-                                $row = $result->fetch_assoc();
-
-                                if (is_array($row) && !empty($row)) {
-                                    // Verify password
-                                    if (password_verify($password, $row['password'])) {
-                                        // Login successful, redirect to dashboard
-                                        $_SESSION['user_id'] = $row['student_id'];
-                                        $_SESSION['full_name'] = $row['full_name'];
-                                        $_SESSION['email'] = $row['email'];
-                                        header("Location: student_home.php");
-                                        exit;
-                                    } else {
-                                        // Login failed, store error message in session
-                                        $_SESSION['error'] = 'Invalid email or password';
-                                        header('Location: student-login.php');
-                                        exit;
-                                    }
-                                } else {
-                                    $_SESSION['error'] = 'USER NOT FOUND!';
-                                    header('Location: student-login.php');
+                                if ($password !== $confirmPassword) {
+                                    $_SESSION['error'] = "Passwords do not match!";
+                                    header('Location: forgot_password.php');
                                     exit;
+                                } else {
+                                    $confirmPassword = $_POST['confirmPassword'];
+                                    $hashed_password = password_hash($confirmPassword, PASSWORD_DEFAULT);
+
+                                    // Find the user in the student table
+                                    $result = mysqli_query($conn, "SELECT * FROM student_table WHERE email='$email'") or die("Select Error");
+                                    $row = mysqli_fetch_assoc($result);
+
+                                    if (!empty($row)) {
+                                        // If the user is found, update his/her password
+                                        $sql = "UPDATE student_table SET password = '$hashed_password' WHERE email = '$email'";
+                                        $result = mysqli_query($conn, $sql);
+                                        if ($result) {
+                                            $_SESSION['success'] = "Password reset successfully!";
+                                            header("Location: student-login.php");
+                                            exit;
+                                        } else {
+                                            $_SESSION['error'] = "Password reset unsuccessfully!";
+                                            header('Location: ' . $_SERVER['PHP_SELF']);
+                                            exit;
+                                        }
+                                    }
                                 }
                             }
 
                         ?>
-                        <form action="student-login.php" method="post" style="background: rgba(97, 97, 97, 0.2); backdrop-filter: blur(5px);">
-                            <h2>Welcome, Ka-Spartan</h2><br>
+                        <form action="forgot_password.php" method="post" style="background: rgba(97, 97, 97, 0.2); backdrop-filter: blur(5px);">
+                            <h2>Reset Your Password</h2><br>
                             <div class="content">
                                 <div class="mb-4">
                                     <div class="input-group">
@@ -136,14 +137,14 @@
                                     <input type="password" class="form-control" id="password" name="password" autocomplete="off" placeholder="Password" style="border-radius: 0.375rem; width: auto;" required>
                                     </div>
                                 </div>
-
-                                <div class="mb-5 d-flex align-items-center justify-content-center">
-                                    <button type="submit" name="submit" class="btn btn-primary w-40">Login</button>
+                                <div class="mb-4">
+                                    <div class="input-group">
+                                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" autocomplete="off" placeholder="Confirm Password" style="border-radius: 0.375rem; width: auto;" required>
+                                    </div>
                                 </div>
 
-                                <div style="font-size: 0.80rem;">
-                                    <a class="float-start link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="student_register.php">Don't have account? Register here</a>
-                                    <span><a class="float-end link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="forgot_password.php">Forgot Password?</a></span>
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <button type="submit" name="submit" class="btn btn-primary w-40">Confirm</button>
                                 </div>
                             </div>
                         </form>

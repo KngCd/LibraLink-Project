@@ -14,11 +14,16 @@
         left: 0;
         width: 100%;
         z-index: 10;
+        backdrop-filter: blur(5px);
     }
     .navbar-brand{
         font-family: 'Times New Roman', Times, serif;
         font-size: 30px;
         color: black;
+    }
+    .navbar-brand:hover{
+        color: black;
+        text-decoration: underline;
     }
     .logo {
         height: 70px;
@@ -26,6 +31,11 @@
         position: relative;
         top: 30px;
         transform: translateY(-50%);
+    }
+    .bg {
+        background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(../../img/bsu.jpg);
+        background-size: cover;
+        background-attachment: fixed;
     }
     main section .card{
         width: 18rem;
@@ -42,9 +52,9 @@
 
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark py-4 bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark py-4">
         <div class="container">
-            <a href="#" class="navbar-brand">
+            <a href="admin-login.php" class="navbar-brand">
                 <img class="logo" src="../../img/bsulogo.png" alt="Logo">LIBRALINK
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
@@ -53,7 +63,7 @@
             <div class="collapse navbar-collapse" id="navmenu">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item mx-2">
-                        <a href="admin-login.php" class="btn btn-dark text-light">LOGOUT</a>
+                        <a href="admin-login.php" class="btn btn-primary text-light">LOGOUT</a>
                     </li>
                 </ul>
             </div>
@@ -71,22 +81,24 @@
         $result2 = mysqli_num_rows($query2);
     ?>
 
-    <main>
-        <section class="text-dark p-5 d-flex align-items-center justify-content-center vh-100 bg-dark" style="position: relative;">
+    <main class="bg">
+        <section class="text-dark p-5 d-flex align-items-center justify-content-center vh-100" style="position: relative;">
             <div class="container">
                 <div class="row">
                     <div class="d-flex align-items-center justify-content-center col-lg-4 col-md-6 col-sm-12 w-100">
                         <div class="card me-4">
                             <div class="card-body">
                                 <h5 class="card-title">Total Student Register</h5>
-                                <p class="card-text"><?php echo $result ?></p>
+                                <hr>
+                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $result ?></b></h6>
                                 <button class="btn btn-primary" popovertarget="total-register">View</button>
                             </div>
                         </div>
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Total Student Accepted</h5>
-                                <p class="card-text"><?php echo $result2 ?></p>
+                                <hr>
+                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $result2 ?></b></h6>
                                 <button class="btn btn-primary" popovertarget="accepted-student">View</button>
                             </div>
                         </div>
@@ -143,15 +155,19 @@
                                         $email = $_POST['email'];
 
                                         $password = $_POST['password'];
-                                        $hash = password_hash($password, PASSWORD_DEFAULT);
 
                                         $program = $_POST['program'];
                                         $department = $_POST['department'];
 
                                         if ($_POST['approve'] == 'yes') {
-                                            // Insert the details into another database table
-                                            $query = "INSERT INTO student_table (student_id, full_name, email, password, program, department) VALUES ('$student_id', '$full_name', '$email', '$hash', '$program', '$department')";
-                                            mysqli_query($conn, $query);
+                                            // Check if the student_id already exists in the student_table
+                                            $check_query = "SELECT * FROM student_table WHERE student_id = '$student_id'";
+                                            $check_result = mysqli_query($conn, $check_query);
+                                            if (mysqli_num_rows($check_result) == 0) {
+                                                // Insert the details into another database table
+                                                $query = "INSERT INTO student_table (student_id, full_name, email, password, program, department) VALUES ('$student_id', '$full_name', '$email', '$password', '$program', '$department')";
+                                                mysqli_query($conn, $query);
+                                            }
 
                                             // Delete the details from the current table
                                             $delete_query = "DELETE FROM verification_table WHERE student_id = '$student_id'";
