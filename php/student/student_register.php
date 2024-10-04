@@ -48,7 +48,10 @@
                                 // Get the username and password from the form
                                 $fullname = mysqli_real_escape_string($conn, $_POST['fullName']);
                                 $email = mysqli_real_escape_string($conn, $_POST['email']);
+
                                 $password = mysqli_real_escape_string($conn, $_POST['password']);
+                                $hash = password_hash($password, PASSWORD_DEFAULT);
+                                
                                 $program = mysqli_real_escape_string($conn, $_POST['program']);
                                 $department = mysqli_real_escape_string($conn, $_POST['department']);
 
@@ -72,7 +75,7 @@
 
                                     // Prepare the SQL statement
                                     $stmt = $conn->prepare("INSERT INTO verification_table (full_name, email, password, program, department, cor, cor_filetype, id_file, id_filetype) VALUES (?,?,?,?,?,?,?,?,?)");
-                                    $stmt->bind_param("sssssssss", $fullname, $email, $password, $program, $department, $corContent, $fileTypeCOR, $idContent, $fileTypeID);
+                                    $stmt->bind_param("sssssssss", $fullname, $email, $hash, $program, $department, $corContent, $fileTypeCOR, $idContent, $fileTypeID);
                                     
                                     // Execute the statement and check for success
                                     if ($stmt->execute()) {

@@ -6,9 +6,233 @@
     <title>Admin Dashboard</title>
     <link href="../../css/bootstrap.min.css" rel="stylesheet">
 </head>
+
+<style>
+    .navbar{
+        position:absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 10;
+    }
+    .navbar-brand{
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 30px;
+        color: black;
+    }
+    .logo {
+        height: 70px;
+        margin: 0 10px;
+        position: relative;
+        top: 30px;
+        transform: translateY(-50%);
+    }
+    main section .card{
+        width: 18rem;
+    }
+    ::backdrop {
+        backdrop-filter: blur(3px);
+    }
+    table th,td{
+        padding: 10px;
+        text-align: center;
+        border: 1px solid black;
+    }
+</style>
+
 <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark py-4 bg-primary">
+        <div class="container">
+            <a href="#" class="navbar-brand">
+                <img class="logo" src="../../img/bsulogo.png" alt="Logo">LIBRALINK
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navmenu">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item mx-2">
+                        <a href="admin-login.php" class="btn btn-dark text-light">LOGOUT</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <?php
+        require_once '../db_config.php';
+
+        // Fetch the classes created by the teacher from the database
+        $query = mysqli_query($conn, "SELECT *FROM verification_table");
+        $result = mysqli_num_rows($query);
+
+        $query2 = mysqli_query($conn, "SELECT *FROM student_table");
+        $result2 = mysqli_num_rows($query2);
+    ?>
+
+    <main>
+        <section class="text-dark p-5 d-flex align-items-center justify-content-center vh-100 bg-dark" style="position: relative;">
+            <div class="container">
+                <div class="row">
+                    <div class="d-flex align-items-center justify-content-center col-lg-4 col-md-6 col-sm-12 w-100">
+                        <div class="card me-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Student Register</h5>
+                                <p class="card-text"><?php echo $result ?></p>
+                                <button class="btn btn-primary" popovertarget="total-register">View</button>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Student Accepted</h5>
+                                <p class="card-text"><?php echo $result2 ?></p>
+                                <button class="btn btn-primary" popovertarget="accepted-student">View</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div popover id="total-register">
+                    <?php
+                        // Fetch the classes created by the teacher from the database
+                        $query = mysqli_query($conn, "SELECT * FROM verification_table");
+                        
+                        // Check if the query was successful
+                        if ($query) {
+                            // Display the rows
+                            echo "<table style='width: 100%; border: 1px solid black; border-collapse: collapse;'>";
+                            echo "<tr>";
+                            echo "<th>ID</th>";
+                            echo "<th>Name</th>";
+                            echo "<th>Email</th>";
+                            echo "<th>Program</th>";
+                            echo "<th>Department</th>";
+                            echo "<th>COR</th>";
+                            echo "<th>ID</th>";
+                            echo "<th>Approve</th>";
+                            echo "</tr>";
+                            while ($row = mysqli_fetch_assoc($query)) {
+                                echo "<tr>";
+                                echo "<td>" . $row['student_id'] . "</td>";
+                                echo "<td>" . $row['full_name'] . "</td>";
+                                echo "<td>" . $row['email'] . "</td>";
+                                echo "<td>" . $row['program'] . "</td>";
+                                echo "<td>" . $row['department'] . "</td>";
+                                if($row['cor_filetype'] === 'pdf'){
+                                    echo '<td><a href="#" class="view-pdf-link-2" onclick="viewPDF(\''. base64_encode($row['cor']). '\', \''. htmlspecialchars($row['full_name'], ENT_QUOTES) .'\')">View COR</a></td>';
+                                }
+                                if($row['id_filetype'] === 'pdf'){
+                                    echo '<td><a href="#" class="view-pdf-link-2" onclick="viewPDF(\''. base64_encode($row['id_file']). '\', \''. htmlspecialchars($row['full_name'], ENT_QUOTES) .'\')">View ID</a></td>';
+                                }
+                                echo "<td>
+                                    <form action='' method='post'>
+                                        <input type='hidden' name='student_id' value='" . $row['student_id'] . "'>
+                                        <input type='hidden' name='full_name' value='" . $row['full_name'] . "'>
+                                        <input type='hidden' name='email' value='" . $row['email'] . "'>
+                                        <input type='hidden' name='password' value='" . $row['password'] . "'>
+                                        <input type='hidden' name='program' value='" . $row['program'] . "'>
+                                        <input type='hidden' name='department' value='" . $row['department'] . "'>
+                                        <button type='submit' name='approve' value='yes' class='btn btn-success'>Yes</button>
+                                        <button type='submit' name='approve' value='no' class='btn btn-danger'>No</button>
+                                    </form>
+                                </td>";
+                                    if (isset($_POST['approve'])) {
+                                        $student_id = $_POST['student_id'];
+                                        $full_name = $_POST['full_name'];
+                                        $email = $_POST['email'];
+
+                                        $password = $_POST['password'];
+                                        $hash = password_hash($password, PASSWORD_DEFAULT);
+
+                                        $program = $_POST['program'];
+                                        $department = $_POST['department'];
+
+                                        if ($_POST['approve'] == 'yes') {
+                                            // Insert the details into another database table
+                                            $query = "INSERT INTO student_table (student_id, full_name, email, password, program, department) VALUES ('$student_id', '$full_name', '$email', '$hash', '$program', '$department')";
+                                            mysqli_query($conn, $query);
+
+                                            // Delete the details from the current table
+                                            $delete_query = "DELETE FROM verification_table WHERE student_id = '$student_id'";
+                                            $delete_result = mysqli_query($conn, $delete_query);
+                                        } elseif ($_POST['approve'] == 'no') {
+                                            // Delete the details from the current table
+                                            $delete_query = "DELETE FROM verification_table WHERE student_id = '$student_id'";
+                                            $delete_result = mysqli_query($conn, $delete_query);
+                                        }
+                                    }
+                            }
+                            if(mysqli_num_rows($query) === 0){
+                                echo "<td colspan='9'>No records found</td>";
+                            }
+                            echo "</tr>";
+                            echo "</table> <br>";
+                        } else {
+                            echo "Error fetching data: " . mysqli_error($conn);
+                        }
+                    ?>
+                    <button popovertarget="total-register" popovertargetaction="hide">Close</button>
+                </div>
+                <div popover id="accepted-student">
+                    <?php
+                        // Fetch the classes created by the teacher from the database
+                        $query = mysqli_query($conn, "SELECT * FROM student_table");
+                        
+                        // Check if the query was successful
+                        if ($query) {
+                            // Display the rows
+                            echo "<table style='width: 100%; border: 1px solid black; border-collapse: collapse;'>";
+                            echo "<tr>";
+                            echo "<th>ID</th>";
+                            echo "<th>Name</th>";
+                            echo "<th>Email</th>";
+                            echo "<th>Program</th>";
+                            echo "<th>Department</th>";
+                            echo "<th>Approve</th>";
+                            echo "</tr>";
+                            while ($row = mysqli_fetch_assoc($query)) {
+                                echo "<tr>";
+                                echo "<td>" . $row['student_id'] . "</td>";
+                                echo "<td>" . $row['full_name'] . "</td>";
+                                echo "<td>" . $row['email'] . "</td>";
+                                echo "<td>" . $row['program'] . "</td>";
+                                echo "<td>" . $row['department'] . "</td>";
+                                echo "<td><button type='button' class='btn btn-success' disabled>Yes</button></td>";
+                                if(mysqli_num_rows($query) === 0){
+                                echo "<td colspan='9'>No records found</td>";
+                                }
+                            echo "</tr>";
+                            }
+                            echo "</table> <br>";
+                        } else {
+                            echo "Error fetching data: " . mysqli_error($conn);
+                        }
+                    ?>
+                    <button popovertarget="accepted-student" popovertargetaction="hide">Close</button>
+                </div>
+        </section>
+    </main>
     
 
     <script src="../../js/bootstrap.min.js"></script>
+    <script>
+        function viewPDF(data, filename) {
+            const byteCharacters = atob(data);
+            const byteNumbers = new Uint8Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const blob = new Blob([byteNumbers], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            
+            const newWindow = window.open(url, '_blank', 'toolbar=yes,scrollbars=yes,resizable=yes,status=yes');
+            if (newWindow) {
+                newWindow.document.title = 'COR_' + filename + '.pdf';
+            } else {
+                alert('Please allow popups for this website');
+            }
+        }
+      </script>
 </body>
 </html>
