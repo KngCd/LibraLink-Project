@@ -52,10 +52,6 @@
                 $stmt->execute();
                 $result = $stmt->get_result();
                 $row = $result->fetch_assoc();
-
-                // // Display additional user data
-                // echo "<br>Program: " . $row['program'];
-                // echo "<br>Department: " . $row['department'];
                 
                 // Check if the logout button was clicked
                 if (isset($_POST['submit'])) {

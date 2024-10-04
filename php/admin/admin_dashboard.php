@@ -37,9 +37,6 @@
         background-size: cover;
         background-attachment: fixed;
     }
-    main section .card{
-        width: 18rem;
-    }
     ::backdrop {
         backdrop-filter: blur(3px);
     }
@@ -48,27 +45,33 @@
         text-align: center;
         border: 1px solid black;
     }
+    form{
+        padding: 35px 40px;
+        width: 400px;
+    }
 </style>
 
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark py-4">
-        <div class="container">
-            <a href="admin-login.php" class="navbar-brand">
-                <img class="logo" src="../../img/bsulogo.png" alt="Logo">LIBRALINK
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navmenu">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item mx-2">
-                        <a href="admin-login.php" class="btn btn-primary text-light">LOGOUT</a>
-                    </li>
-                </ul>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark py-4">
+            <div class="container">
+                <a href="admin-login.php" class="navbar-brand">
+                    <img class="logo" src="../../img/bsulogo.png" alt="Logo">LIBRALINK
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navmenu">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item mx-2">
+                            <a href="admin-login.php" class="btn btn-primary text-light">LOGOUT</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
     <?php
         require_once '../db_config.php';
@@ -79,14 +82,22 @@
 
         $query2 = mysqli_query($conn, "SELECT *FROM student_table");
         $result2 = mysqli_num_rows($query2);
+
+        $query3 = mysqli_query($conn, "SELECT *FROM book_table");
+        $result3 = mysqli_num_rows($query3);
+
+        if(isset($_SESSION['message'])) {
+            echo "<script>alert('" . $_SESSION['message'] . "')</script>";
+            unset($_SESSION['message']);
+        }
     ?>
 
     <main class="bg">
         <section class="text-dark p-5 d-flex align-items-center justify-content-center vh-100" style="position: relative;">
-            <div class="container">
+            <div class="container overflow-hidden">
                 <div class="row">
-                    <div class="d-flex align-items-center justify-content-center col-lg-4 col-md-6 col-sm-12 w-100">
-                        <div class="card me-4">
+                    <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
+                        <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Total Student Register</h5>
                                 <hr>
@@ -94,12 +105,24 @@
                                 <button class="btn btn-primary" popovertarget="total-register">View</button>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Total Student Accepted</h5>
                                 <hr>
                                 <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $result2 ?></b></h6>
                                 <button class="btn btn-primary" popovertarget="accepted-student">View</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Books</h5>
+                                <hr>
+                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $result3 ?></b></h6>
+                                <button class="btn btn-primary" popovertarget="books">View</button>
                             </div>
                         </div>
                     </div>
@@ -188,7 +211,7 @@
                             echo "Error fetching data: " . mysqli_error($conn);
                         }
                     ?>
-                    <button popovertarget="total-register" popovertargetaction="hide">Close</button>
+                    <button class="btn btn-primary" popovertarget="total-register" popovertargetaction="hide">Close</button>
                 </div>
                 <div popover id="accepted-student">
                     <?php
@@ -215,17 +238,53 @@
                                 echo "<td>" . $row['program'] . "</td>";
                                 echo "<td>" . $row['department'] . "</td>";
                                 echo "<td><button type='button' class='btn btn-success' disabled>Yes</button></td>";
-                                if(mysqli_num_rows($query) === 0){
+                            }
+                            if(mysqli_num_rows($query) === 0){
                                 echo "<td colspan='9'>No records found</td>";
                                 }
                             echo "</tr>";
-                            }
                             echo "</table> <br>";
                         } else {
                             echo "Error fetching data: " . mysqli_error($conn);
                         }
                     ?>
-                    <button popovertarget="accepted-student" popovertargetaction="hide">Close</button>
+                    <button class="btn btn-primary" popovertarget="accepted-student" popovertargetaction="hide">Close</button>
+                </div>
+                <div popover id="books">
+                    <?php
+                        // Fetch the classes created by the teacher from the database
+                        $query = mysqli_query($conn, "SELECT * FROM book_table");
+                        
+                        // Check if the query was successful
+                        if ($query) {
+                            // Display the rows
+                            echo "<table style='width: 100%; border: 1px solid black; border-collapse: collapse;'>";
+                            echo "<tr>";
+                            echo "<th>Book ID</th>";
+                            echo "<th>Title</th>";
+                            echo "<th>Author</th>";
+                            echo "<th>Genre</th>";
+                            echo "<th>Description</th>";
+                            echo "</tr>";
+                            while ($row = mysqli_fetch_assoc($query)) {
+                                echo "<tr>";
+                                echo "<td>" . $row['book_id'] . "</td>";
+                                echo "<td>" . $row['title'] . "</td>";
+                                echo "<td>" . $row['author'] . "</td>";
+                                echo "<td>" . $row['genre'] . "</td>";
+                                echo "<td>" . $row['description'] . "</td>";
+                            }
+                            if(mysqli_num_rows($query) === 0){
+                                echo "<td colspan='5'>No records found</td>";
+                            }
+                            echo "</tr>";
+                            echo "</table> <br>";
+                        } else {
+                            echo "Error fetching data: " . mysqli_error($conn);
+                        }
+                    ?>
+                    <span><a href="add_books.php"><button type='button' class='btn btn-success'>Add Books</button></a><span>
+                    <button class="btn btn-primary" popovertarget="books" popovertargetaction="hide">Close</button>
                 </div>
         </section>
     </main>
