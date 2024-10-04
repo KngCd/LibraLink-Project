@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Login</title>
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <style>
@@ -39,7 +39,7 @@
                     <div class="row">
                         <div class="text-container d-flex justify-content-center flex-column col-lg-6 col-md-6 col-sm-12 col-12 
                         mt-lg-5 mt-md-5 mt-sm-5 mt-5 mb-5">
-                            <a href="admin-student.php" class="text-dark"><h1 style="font-size: 4rem;">LibraLink</h1></a>
+                            <a href="../admin-student.php" class="text-dark"><h1 style="font-size: 4rem;">LibraLink</h1></a>
                             <h4>Integrated System for Student Logging,<br>
                             Borrowing, and Inventory Management</h4>
                         </div>
@@ -66,7 +66,7 @@
                                     </div>
 
                                     <div style="font-size: 0.80rem;">
-                                        <a class="float-start link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="#">Don't have account? Register here</a>
+                                        <a class="float-start link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="student_register.php">Don't have account? Register here</a>
                                         <span><a class="float-end link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="#">Forgot Password?</a></span>
                                     </div>
 
@@ -79,6 +79,6 @@
         </div>
     </main>
 
-    <script src="../js/bootstrap.min.js"></script>
+    <script src="../../js/bootstrap.min.js"></script>
 </body>
 </html>

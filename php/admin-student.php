@@ -35,12 +35,12 @@
             <div class="row px-5 py-4">
                 <section class="d-flex justify-content-center align-items-center 
                 bg-secondary text-center col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-sm-12">
-                    <div><a href="admin-login.php"><h1 style="font-size: 5rem;">ADMIN</h1></a></div>
+                    <div><a href="admin/admin-login.php"><h1 style="font-size: 5rem;">ADMIN</h1></a></div>
                 </section>
 
                 <section class="d-flex justify-content-center align-items-center 
                 bg-secondary text-center col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-sm-12">
-                    <div><a href="student-login.php"><h1 style="font-size: 5rem;">STUDENT</h1></a></div>
+                    <div><a href="student/student-login.php"><h1 style="font-size: 5rem;">STUDENT</h1></a></div>
                 </section>
             </div>
         </div>
