@@ -40,15 +40,15 @@
     ::backdrop {
         backdrop-filter: blur(3px);
     }
-    table th,td{
+    table, th,td{
         padding: 10px;
         text-align: center;
         border: 1px solid black;
     }
-    form{
+    /* form{
         padding: 35px 40px;
         width: 400px;
-    }
+    } */
 </style>
 
 <body>
@@ -128,7 +128,7 @@
                     </div>
                 </div>
             </div>
-                <div popover id="total-register">
+                <div popover id="total-register" class="container">
                     <?php
                         // Fetch the student who registers
                         $query = mysqli_query($conn, "SELECT * FROM verification_table");
@@ -140,6 +140,7 @@
                             echo "<tr>";
                             echo "<th>ID</th>";
                             echo "<th>Name</th>";
+                            echo "<th>Contact Number</th>";
                             echo "<th>Email</th>";
                             echo "<th>Program</th>";
                             echo "<th>Department</th>";
@@ -151,6 +152,7 @@
                                 echo "<tr>";
                                 echo "<td>" . $row['student_id'] . "</td>";
                                 echo "<td>" . $row['full_name'] . "</td>";
+                                echo "<td>" . $row['contact_num'] . "</td>";
                                 echo "<td>" . $row['email'] . "</td>";
                                 echo "<td>" . $row['program'] . "</td>";
                                 echo "<td>" . $row['department'] . "</td>";
@@ -164,6 +166,7 @@
                                     <form action='' method='post'>
                                         <input type='hidden' name='student_id' value='" . $row['student_id'] . "'>
                                         <input type='hidden' name='full_name' value='" . $row['full_name'] . "'>
+                                        <input type='hidden' name='contact' value='" . $row['contact_num'] . "'>
                                         <input type='hidden' name='email' value='" . $row['email'] . "'>
                                         <input type='hidden' name='password' value='" . $row['password'] . "'>
                                         <input type='hidden' name='program' value='" . $row['program'] . "'>
@@ -175,6 +178,7 @@
                                     if (isset($_POST['approve'])) {
                                         $student_id = $_POST['student_id'];
                                         $full_name = $_POST['full_name'];
+                                        $contact = $_POST['contact'];
                                         $email = $_POST['email'];
 
                                         $password = $_POST['password'];
@@ -188,7 +192,7 @@
                                             $check_result = mysqli_query($conn, $check_query);
                                             if (mysqli_num_rows($check_result) == 0) {
                                                 // Insert the details into another database table
-                                                $query = "INSERT INTO student_table (student_id, full_name, email, password, program, department) VALUES ('$student_id', '$full_name', '$email', '$password', '$program', '$department')";
+                                                $query = "INSERT INTO student_table (student_id, full_name, contact_num, email, password, program, department) VALUES ('$student_id', '$full_name', '$contact', '$email', '$password', '$program', '$department')";
                                                 mysqli_query($conn, $query);
                                             }
 
@@ -225,6 +229,7 @@
                             echo "<tr>";
                             echo "<th>ID</th>";
                             echo "<th>Name</th>";
+                            echo "<th>Contact Number</th>";
                             echo "<th>Email</th>";
                             echo "<th>Program</th>";
                             echo "<th>Department</th>";
@@ -234,6 +239,7 @@
                                 echo "<tr>";
                                 echo "<td>" . $row['student_id'] . "</td>";
                                 echo "<td>" . $row['full_name'] . "</td>";
+                                echo "<td>" . $row['contact_num'] . "</td>";
                                 echo "<td>" . $row['email'] . "</td>";
                                 echo "<td>" . $row['program'] . "</td>";
                                 echo "<td>" . $row['department'] . "</td>";

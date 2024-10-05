@@ -77,6 +77,7 @@
                     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         // Get the username and password from the form
                         $fullname = mysqli_real_escape_string($conn, $_POST['fullName']);
+                        $contact = mysqli_real_escape_string($conn, $_POST['contact']);
                         $email = mysqli_real_escape_string($conn, $_POST['email']);
 
                         $password = $_POST['password'];
@@ -104,9 +105,9 @@
                             $idContent = file_get_contents($_FILES['id']['tmp_name']);
 
                             // Prepare the SQL statement
-                            $stmt = $conn->prepare("INSERT INTO verification_table (full_name, email, password, program, 
-                            department, cor, cor_filetype, id_file, id_filetype) VALUES (?,?,?,?,?,?,?,?,?)");
-                            $stmt->bind_param("sssssssss", $fullname, $email, $hash, $program, $department, $corContent, 
+                            $stmt = $conn->prepare("INSERT INTO verification_table (full_name, contact_num, email, password, program, 
+                            department, cor, cor_filetype, id_file, id_filetype) VALUES (?,?,?,?,?,?,?,?,?,?)");
+                            $stmt->bind_param("ssssssssss", $fullname, $contact, $email, $hash, $program, $department, $corContent, 
                             $fileTypeCOR, $idContent, $fileTypeID);
                             
                             // Execute the statement and check for success
@@ -133,6 +134,11 @@
                         </div>
                         <div class="mb-2">
                             <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Contact Number" name="contact" id="contact" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="input-group">
                                 <input type="email" class="form-control" placeholder="Email" name="email" id="email" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
                             </div>
                         </div>
@@ -143,14 +149,15 @@
                         </div>
                         <div class="mb-2">
                             <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Program" name="program" id="program" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
+                                <input type="text" class="form-control" placeholder="Program" name="program" id="program" autocomplete="off" required style="border-radius: 0.375rem; width: 40%;">
+                                <input type="text" class="form-control ms-1" placeholder="Department" name="department" id="department" autocomplete="off" required style="border-radius: 0.375rem; width: 40%;">
                             </div>
                         </div>
-                        <div class="mb-2">
+                        <!-- <div class="mb-2">
                             <div class="input-group">
                                 <input type="text" class="form-control" placeholder="Department" name="department" id="department" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
                             </div>
-                        </div>
+                        </div> -->
                         <div class="mb-2">
                             <div class="input-group">
                                 <label for="cor">Upload your COR</label>
