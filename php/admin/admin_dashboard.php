@@ -130,7 +130,7 @@
             </div>
                 <div popover id="total-register">
                     <?php
-                        // Fetch the classes created by the teacher from the database
+                        // Fetch the student who registers
                         $query = mysqli_query($conn, "SELECT * FROM verification_table");
                         
                         // Check if the query was successful
@@ -215,7 +215,7 @@
                 </div>
                 <div popover id="accepted-student">
                     <?php
-                        // Fetch the classes created by the teacher from the database
+                        // Fetch the accepted student on the database
                         $query = mysqli_query($conn, "SELECT * FROM student_table");
                         
                         // Check if the query was successful

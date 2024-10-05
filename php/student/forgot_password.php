@@ -85,7 +85,7 @@
                             }
                             if(isset($_SESSION['success'])){
                                 echo '<script>alert("'.$_SESSION['success'].'");</script>';
-                                unset($_SESSION['success']); // remove error message from session
+                                unset($_SESSION['success']); // remove success message from session
                             }
 
                             // Check if the form has been submitted

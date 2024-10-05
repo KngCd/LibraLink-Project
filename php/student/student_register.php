@@ -104,8 +104,10 @@
                             $idContent = file_get_contents($_FILES['id']['tmp_name']);
 
                             // Prepare the SQL statement
-                            $stmt = $conn->prepare("INSERT INTO verification_table (full_name, email, password, program, department, cor, cor_filetype, id_file, id_filetype) VALUES (?,?,?,?,?,?,?,?,?)");
-                            $stmt->bind_param("sssssssss", $fullname, $email, $hash, $program, $department, $corContent, $fileTypeCOR, $idContent, $fileTypeID);
+                            $stmt = $conn->prepare("INSERT INTO verification_table (full_name, email, password, program, 
+                            department, cor, cor_filetype, id_file, id_filetype) VALUES (?,?,?,?,?,?,?,?,?)");
+                            $stmt->bind_param("sssssssss", $fullname, $email, $hash, $program, $department, $corContent, 
+                            $fileTypeCOR, $idContent, $fileTypeID);
                             
                             // Execute the statement and check for success
                             if ($stmt->execute()) {
