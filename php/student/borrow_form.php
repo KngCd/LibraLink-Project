@@ -118,7 +118,7 @@
 
                             // Execute the query and check for errors
                             if (mysqli_query($conn, $query)) {
-                                echo "<script>alert('Borrow Successful!');</script>";
+                                echo "<script>alert('Borrow Successful!'); window.location.href='student_home.php';</script>";
                             } else {
                                 echo "Error: " . mysqli_error($conn);
                                 echo "<script>alert('Borrow Unsuccessful!');</script>";
