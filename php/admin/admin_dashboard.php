@@ -8,14 +8,6 @@
 </head>
 
 <style>
-    .navbar{
-        position:absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 10;
-        backdrop-filter: blur(5px);
-    }
     .navbar-brand{
         font-family: 'Times New Roman', Times, serif;
         font-size: 30px;
@@ -32,7 +24,7 @@
         top: 30px;
         transform: translateY(-50%);
     }
-    .bg {
+    body{
         background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(../../img/bsu.jpg);
         background-size: cover;
         background-attachment: fixed;
@@ -45,16 +37,17 @@
         text-align: center;
         border: 1px solid black;
     }
-    /* form{
-        padding: 35px 40px;
-        width: 400px;
-    } */
+    #total-register, #accepted-student, #books, #total-stocks, #total-borrowed, #total-available{
+        border-radius: 10px;
+        border: 1px solid lightgray;
+    }
 </style>
 
 <body>
-    <!-- Navbar -->
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark py-4">
+
+    <header class="sticky-top z-1" style="backdrop-filter: blur(5px);">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg" style="background: none;">
             <div class="container">
                 <a href="admin-login.php" class="navbar-brand">
                     <img class="logo" src="../../img/bsulogo.png" alt="Logo">LIBRALINK
@@ -86,15 +79,27 @@
         $query3 = mysqli_query($conn, "SELECT *FROM book_table");
         $result3 = mysqli_num_rows($query3);
 
+        $query4 = mysqli_query($conn, "SELECT SUM(stocks) AS total_stocks FROM inventory_table");
+        $result4 = mysqli_fetch_assoc($query4);
+        if($result4['total_stocks'] == 0){
+            $sum_stocks = 0;
+        }
+        else{
+            $sum_stocks = $result4['total_stocks'];
+        }
+
+        $query5 = mysqli_query($conn, "SELECT *FROM borrow_table");
+        $total_borrow = mysqli_num_rows($query5);
+
         if(isset($_SESSION['message'])) {
             echo "<script>alert('" . $_SESSION['message'] . "')</script>";
             unset($_SESSION['message']);
         }
     ?>
 
-    <main class="bg">
-        <section class="text-dark p-5 d-flex align-items-center justify-content-center vh-100" style="position: relative;">
-            <div class="container overflow-hidden">
+    <main>
+        <section class="text-dark m-5 d-flex align-items-center justify-content-center">
+            <div class="container">
                 <div class="row">
                     <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
                         <div class="card">
@@ -119,7 +124,7 @@
                     <div class="col-lg-4 col-md-6 col-sm-12 col-12">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">Total Books</h5>
+                                <h5 class="card-title">Total Books Currently Available</h5>
                                 <hr>
                                 <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $result3 ?></b></h6>
                                 <button class="btn btn-primary" popovertarget="books">View</button>
@@ -127,8 +132,42 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Stocks of Book</h5>
+                                <hr>
+                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $sum_stocks ?></b></h6>
+                                <button class="btn btn-primary" popovertarget="total-stocks">View</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Borrowed Book</h5>
+                                <hr>
+                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $total_borrow ?></b></h6>
+                                <button class="btn btn-primary" popovertarget="total-borrowed">View</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Available Stocks</h5>
+                                <hr>
+                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $sum_stocks - $total_borrow ?></b></h6>
+                                <button class="btn btn-primary" popovertarget="total-available">View</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-                <div popover id="total-register" class="container">
+                <div popover id="total-register" class="container p-3">
                     <?php
                         // Fetch the student who registers
                         $query = mysqli_query($conn, "SELECT * FROM verification_table");
@@ -217,7 +256,8 @@
                     ?>
                     <button class="btn btn-primary" popovertarget="total-register" popovertargetaction="hide">Close</button>
                 </div>
-                <div popover id="accepted-student">
+
+                <div popover id="accepted-student" class="container p-3">
                     <?php
                         // Fetch the accepted student on the database
                         $query = mysqli_query($conn, "SELECT * FROM student_table");
@@ -256,9 +296,10 @@
                     ?>
                     <button class="btn btn-primary" popovertarget="accepted-student" popovertargetaction="hide">Close</button>
                 </div>
-                <div popover id="books">
+
+                <div popover id="books" class="container p-3">
                     <?php
-                        // Fetch the classes created by the teacher from the database
+                        // Fetch the books available
                         $query = mysqli_query($conn, "SELECT * FROM book_table");
                         
                         // Check if the query was successful
@@ -291,6 +332,138 @@
                     ?>
                     <span><a href="add_books.php"><button type='button' class='btn btn-success'>Add Books</button></a><span>
                     <button class="btn btn-primary" popovertarget="books" popovertargetaction="hide">Close</button>
+                </div>
+
+                <div popover id="total-stocks" class="container p-3">
+                    <?php
+                        // fetch the books with their current stocks
+                        $query = mysqli_query($conn, "SELECT b.book_id, b.title, i.status, COALESCE(i.stocks, 0) AS stocks
+                                                FROM book_table AS b
+                                                LEFT JOIN inventory_table AS i ON b.book_id = i.book_id");// we're using the COALESCE function to replace NULL values in the stocks column with
+                        
+                        // Check if the query was successful
+                        if ($query) {
+                            // Display the rows
+                            echo "<table style='width: 100%; border: 1px solid black; border-collapse: collapse;'>";
+                            echo "<tr>";
+                            echo "<th>Book ID</th>";
+                            echo "<th>Title</th>";
+                            echo "<th>Status</th>";
+                            echo "<th>Stocks</th>";
+                            echo "</tr>";
+                            while ($row = mysqli_fetch_assoc($query)) {
+                                echo "<tr>";
+                                echo "<td>" . $row['book_id'] . "</td>";
+                                echo "<td>" . $row['title'] . "</td>";
+                                echo "<td>" . ($row['stocks'] == 0 ? 'Not Available' : $row['status']) . "</td>";
+                                echo "<td>" . $row['stocks'] . "</td>";
+                                }
+                            if(mysqli_num_rows($query) === 0){
+                                echo "<td colspan='4'>No records found</td>";
+                            }
+                            echo "</tr>";
+                            echo "</table> <br>";
+                        } else {
+                            echo "Error fetching data: " . mysqli_error($conn);
+                        }
+                    ?>
+                    <span><a href="add_stocks.php"><button type='button' class='btn btn-success'>Add Stocks</button></a><span>
+                    <button class="btn btn-primary" popovertarget="total-stocks" popovertargetaction="hide">Close</button>
+                </div>
+
+                <div popover id="total-borrowed" class="container p-3">
+                    <?php
+                        // fetch the borrowed books with their details
+                        $query = mysqli_query($conn, "SELECT s.full_name, s.email, s.contact_num, s.program, s.department, b.title, br.status, br.date_borrowed, br.due_date
+                                                    FROM borrow_table AS br
+                                                    INNER JOIN student_table AS s ON br.student_id = s.student_id
+                                                    INNER JOIN book_table AS b ON br.book_id = b.book_id");
+
+                        // Check if the query was successful
+                        if ($query) {
+                            // Display the rows
+                            echo "<table style='width: 100%; border: 1px solid black; border-collapse: collapse;'>";
+                            echo "<tr>";
+                            echo "<th>Full Name</th>";
+                            echo "<th>Email</th>";
+                            echo "<th>Contact Number</th>";
+                            echo "<th>Program</th>";
+                            echo "<th>Department</th>";
+                            echo "<th>Book Title</th>";
+                            echo "<th>Status</th>";
+                            echo "<th>Date Borrowed</th>";
+                            echo "<th>Due Date</th>";
+                            echo "</tr>";
+                            while ($row = mysqli_fetch_assoc($query)) {
+                                echo "<tr>";
+                                echo "<td>" . $row['full_name'] . "</td>";
+                                echo "<td>" . $row['email'] . "</td>";
+                                echo "<td>" . $row['contact_num'] . "</td>";
+                                echo "<td>" . $row['program'] . "</td>";
+                                echo "<td>" . $row['department'] . "</td>";
+                                echo "<td>" . $row['title'] . "</td>";
+                                echo "<td>" . $row['status'] . "</td>";
+                                echo "<td>" . $row['date_borrowed'] . "</td>";
+                                echo "<td>" . $row['due_date'] . "</td>";
+                                echo "</tr>";
+                            }
+                            if (mysqli_num_rows($query) === 0) {
+                                echo "<tr>";
+                                echo "<td colspan='9'>No records found</td>";
+                                echo "</tr>";
+                            }
+                            echo "</table> <br>";
+                        } else {
+                            echo "Error fetching data: " . mysqli_error($conn);
+                        }
+                    ?>
+                    <button class="btn btn-primary" popovertarget="total-stocks" popovertargetaction="hide">Close</button>
+                </div>
+
+                <div popover id="total-available" class="container p-3">
+                    <?php
+                        // fetch the books with their current stocks
+                        $query = mysqli_query($conn, "SELECT b.book_id, b.title, i.status, COALESCE(i.stocks, 0) AS stocks
+                                                    FROM book_table AS b
+                                                    LEFT JOIN inventory_table AS i ON b.book_id = i.book_id");
+
+                        // Check if the query was successful
+                        if ($query) {
+                            // Display the rows
+                            echo "<table style='width: 100%; border: 1px solid black; border-collapse: collapse;'>";
+                            echo "<tr>";
+                            echo "<th>Book Title</th>";
+                            echo "<th>Stocks</th>";
+                            echo "<th>Borrowed</th>";
+                            echo "<th>Available Stocks</th>";
+                            echo "</tr>";
+                            while ($row = mysqli_fetch_assoc($query)) {
+                                // Get the number of borrowed copies
+                                $borrowed_query = "SELECT COUNT(*) as borrowed FROM borrow_table WHERE book_id = '" . $row['book_id'] . "'";
+                                $borrowed_result = mysqli_query($conn, $borrowed_query);
+                                $borrowed_row = mysqli_fetch_assoc($borrowed_result);
+                                $borrowed = $borrowed_row['borrowed'];
+
+                                $available_stocks = $row['stocks'] - $borrowed;
+
+                                echo "<tr>";
+                                echo "<td>" . $row['title'] . "</td>";
+                                echo "<td>" . $row['stocks'] . "</td>";
+                                echo "<td>" . $borrowed . "</td>";
+                                echo "<td>" . $available_stocks . "</td>";
+                                echo "</tr>";
+                            }
+                            if (mysqli_num_rows($query) === 0) {
+                                echo "<tr>";
+                                echo "<td colspan='4'>No records found</td>";
+                                echo "</tr>";
+                            }
+                            echo "</table> <br>";
+                        } else {
+                            echo "Error fetching data: " . mysqli_error($conn);
+                        }
+                    ?>
+                    <button class="btn btn-primary" popovertarget="total-available" popovertargetaction="hide">Close</button>
                 </div>
         </section>
     </main>

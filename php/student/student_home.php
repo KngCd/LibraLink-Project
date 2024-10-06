@@ -7,14 +7,6 @@
     <link href="../../css/bootstrap.min.css" rel="stylesheet">
 </head>
 <style>
-    .navbar{
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 10;
-        /* backdrop-filter: blur(5px); */
-    }
     .navbar-brand{
         font-family: 'Times New Roman', Times, serif;
         font-size: 30px;
@@ -31,7 +23,7 @@
         top: 30px;
         transform: translateY(-50%);
     }
-    .bg {
+    body{
         background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(../../img/bsu.jpg);
         background-size: cover;
         background-attachment: fixed;
@@ -45,6 +37,9 @@
                 $user_id = $_SESSION['user_id'];
                 $full_name = $_SESSION['full_name'];
                 $email = $_SESSION['email'];
+                $contact_num = $_SESSION['contact_num'];
+                $program = $_SESSION['program'];
+                $department = $_SESSION['department'];
 
                 // You can also retrieve more user data from the database if needed
                 $stmt = $conn->prepare("SELECT * FROM student_table WHERE student_id = ?");
@@ -64,44 +59,77 @@
             }
     ?>
 
-<!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark py-4">
-        <div class="container">
-            <a href="admin-login.php" class="navbar-brand">
-                <img class="logo" src="../../img/bsulogo.png" alt="Logo">
-                <?php echo 'Welcome, ' . $full_name . '!' ?>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navmenu">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item mx-2">
-                        <form action="student_home.php" method="post">
-                                <button type="submit" class="btn btn-primary" name="submit">Logout</button>
-                        </form>
-                    </li>
-                </ul>
+    <header class="sticky-top z-1" style="backdrop-filter: blur(5px);">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg" style="background: none;">
+            <div class="container">
+                <a href="student-login.php" class="navbar-brand">
+                    <img class="logo" src="../../img/bsulogo.png" alt="Logo">
+                    <?php echo 'Welcome, ' . $full_name . '!' ?>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navmenu">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item mx-2">
+                            <a href="student-login.php" class="btn btn-primary text-light">LOGOUT</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
-        <main class="bg">
-        <section class="text-dark p-5 d-flex align-items-center justify-content-center vh-100" style="position: relative;">
+    <main>
+        <section class="text-dark m-5 d-flex align-items-center justify-content-center">
             <div class="container">
                 <div class="row">
-                    <div class="d-flex align-items-center justify-content-center col-lg-4 col-md-6 col-sm-12 w-100">
-                        <div class="card me-4">
-                            <div class="card-body">
-                                <h5 class="card-title">Student Info</h5>
-                                <hr>
-                                <h6 class="card-text mb-4 text-center fs-3"><?php
-                                                        echo "Welcome, <b>$full_name!</b>";
-                                                        echo "<br>Student ID: $user_id";
-                                                        echo "<br>Email: $email";?></h6>
-                                <!-- <button class="btn btn-primary" popovertarget="total-register">View</button> -->
-                            </div>
-                        </div>
+                            <?php
+$query = mysqli_query($conn, "SELECT b.book_id, b.title, b.author, b.description, i.stocks, i.status 
+                            FROM book_table b 
+                            LEFT JOIN inventory_table i ON b.book_id = i.book_id");
+
+if ($query) {
+    while ($row = mysqli_fetch_assoc($query)) {
+        // Get the number of borrowed copies
+        $borrowed_query = "SELECT COUNT(*) as borrowed FROM borrow_table WHERE book_id = '" . $row['book_id'] . "'";
+        $borrowed_result = mysqli_query($conn, $borrowed_query);
+        $borrowed_row = mysqli_fetch_assoc($borrowed_result);
+        $borrowed = $borrowed_row['borrowed'];
+
+        // Calculate the number of available copies
+        $available = $row['stocks'] - $borrowed;
+
+        // Check if the user has already borrowed this book
+        $user_id = $_SESSION['user_id']; // assuming you have a session variable for the user ID
+        $already_borrowed_query = "SELECT * FROM borrow_table WHERE book_id = '" . $row['book_id'] . "' AND student_id = '$user_id'";
+        $already_borrowed_result = mysqli_query($conn, $already_borrowed_query);
+        $already_borrowed = mysqli_num_rows($already_borrowed_result) > 0;
+
+        echo '<div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <span><h1 class="card-title">' . $row['title'] . '</h1> <h6>' . $available . ' of ' . $row['stocks'] . ' available</h6></span>
+                    <h3 class="card-text mb-4 text-center">' . $row['author'] . '</h3>
+                    <h5 class="card-text mb-4 text-center">' . $row['description'] . '</h5>';
+
+        if ($row['status'] == 'Available' && !$already_borrowed) {
+            echo '<a href="borrow_form.php?book_id=' . $row['book_id'] . '"><button class="btn btn-success">' . $row['status'] . '</button></a>';
+        } else {
+            if ($already_borrowed) {
+                echo '<button class="btn btn-danger disabled">You have already borrowed it</button>';
+            } else {
+                echo '<button class="btn btn-danger disabled">' . $row['status'] . '</button>';
+            }
+        }
+
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+}
+                            ?>
                     </div>
                 </div>
             </div>

@@ -45,9 +45,6 @@
         border-radius: 56px;
         width: 400px;
     }
-    section{
-        padding: 124px 40px;
-    }
 </style>
 
 <body>
@@ -55,7 +52,7 @@
 <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark py-4">
         <div class="container">
-            <a href="#" class="navbar-brand">
+            <a href="admin_dashboard.php" class="navbar-brand">
                 <img class="logo" src="../../img/bsulogo.png" alt="Logo">LIBRALINK
             </a>
         </div>
@@ -110,7 +107,7 @@
                                 </div>
                                 <div class="mb-2">
                                     <div class="input-group">
-                                        <input type="tex" class="form-control" placeholder="Genre" name="genre" id="genre" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
+                                        <input type="text" class="form-control" placeholder="Genre" name="genre" id="genre" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
                                     </div>
                                 </div>
                                 <div class="mb-3">

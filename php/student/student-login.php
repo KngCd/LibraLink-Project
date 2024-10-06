@@ -107,6 +107,9 @@
                                         $_SESSION['user_id'] = $row['student_id'];
                                         $_SESSION['full_name'] = $row['full_name'];
                                         $_SESSION['email'] = $row['email'];
+                                        $_SESSION['contact_num'] = $row['contact_num'];
+                                        $_SESSION['program'] = $row['program'];
+                                        $_SESSION['department'] = $row['department'];
                                         header("Location: student_home.php");
                                         exit;
                                     } else {
