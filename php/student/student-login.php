@@ -45,8 +45,11 @@
         border-radius: 56px;
         width: 400px;
     }
-    section{
+    /* section{
         padding: 90px 40px;
+    } */
+    ::placeholder {
+        color: black !important; 
     }
 </style>
 
@@ -126,27 +129,33 @@
                             }
 
                         ?>
-                        <form action="student-login.php" method="post" style="background: rgba(97, 97, 97, 0.2); backdrop-filter: blur(5px);">
+
+                        <form action="student-login.php" method="post" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
                             <h2>Welcome, Ka-Spartan</h2><br>
                             <div class="content">
-                                <div class="mb-4">
+                                <div class="mb-3">
                                     <div class="input-group">
-                                    <input type="email" class="form-control" id="email" name="email" autocomplete="off" placeholder="Email" style="border-radius: 0.375rem; width: auto;" required>
+                                    <input type="email" class="form-control" id="email" name="email" autocomplete="off" placeholder="Email" style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
                                     </div>
                                 </div>
-                                <div class="mb-4">
+                                <div class="mb-3">
                                     <div class="input-group">
-                                    <input type="password" class="form-control" id="password" name="password" autocomplete="off" placeholder="Password" style="border-radius: 0.375rem; width: auto;" required>
+                                    <input type="password" class="form-control" id="password" name="password" autocomplete="off" placeholder="Password" style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
                                     </div>
                                 </div>
 
-                                <div class="mb-5 d-flex align-items-center justify-content-center">
-                                    <button type="submit" name="submit" class="btn btn-primary w-40">Login</button>
+                                <div class="mb-3" style="font-size:0.90rem;">
+                                <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                                <label class="form-check-label" for="exampleCheck1">Remember me</label>
+                                <span><a class="float-end link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="forgot_password.php">Forgot Password?</a></span>
                                 </div>
 
-                                <div style="font-size: 0.80rem;">
-                                    <a class="float-start link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="student_register.php">Don't have account? Register here</a>
-                                    <span><a class="float-end link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="forgot_password.php">Forgot Password?</a></span>
+                                <div class="mb-2 d-flex align-items-center justify-content-center">
+                                    <button type="submit" name="submit" class="btn btn-danger w-100">Login</button>
+                                </div>
+
+                                <div style="font-size: 0.90rem;">
+                                    <a class="link-register float-start link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="student_register.php">Don't have an account? <b>Register</b></a>
                                 </div>
                             </div>
                         </form>

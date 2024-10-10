@@ -28,6 +28,22 @@
         background-size: cover;
         background-attachment: fixed;
     }
+    .book-label {
+        font-size: 14px;
+        padding: 5px 10px;
+        border-radius: 10px;
+        background-color: #34C759;
+        color: #fff;
+    }
+
+    .book-label-container {
+        margin-top: 10px;
+    }
+
+    .not-available {
+        background-color: #DC4C64;
+    }
+
 </style>
 <body>
     <?php
@@ -84,52 +100,85 @@
     <main>
         <section class="text-dark m-5 d-flex align-items-center justify-content-center">
             <div class="container">
-                <div class="row">
-                            <?php
-$query = mysqli_query($conn, "SELECT b.book_id, b.title, b.author, b.description, i.stocks, i.status 
-                            FROM book_table b 
-                            LEFT JOIN inventory_table i ON b.book_id = i.book_id");
+                <div class="row gx-5 gy-5">
+                    <?php
+                        $query = mysqli_query($conn, "SELECT b.book_id, b.title, b.author, b.description, i.stocks, i.status 
+                                                    FROM book_table b 
+                                                    LEFT JOIN inventory_table i ON b.book_id = i.book_id");
 
-if ($query) {
-    while ($row = mysqli_fetch_assoc($query)) {
-        // Get the number of borrowed copies
-        $borrowed_query = "SELECT COUNT(*) as borrowed FROM borrow_table WHERE book_id = '" . $row['book_id'] . "'";
-        $borrowed_result = mysqli_query($conn, $borrowed_query);
-        $borrowed_row = mysqli_fetch_assoc($borrowed_result);
-        $borrowed = $borrowed_row['borrowed'];
+                        if ($query) {
+                            while ($row = mysqli_fetch_assoc($query)) {
+                                // Get the number of borrowed copies
+                                $borrowed_query = "SELECT COUNT(*) as borrowed FROM borrow_table WHERE book_id = '" . $row['book_id'] . "'";
+                                $borrowed_result = mysqli_query($conn, $borrowed_query);
+                                $borrowed_row = mysqli_fetch_assoc($borrowed_result);
+                                $borrowed = $borrowed_row['borrowed'];
 
-        // Calculate the number of available copies
-        $available = $row['stocks'] - $borrowed;
+                                // Calculate the number of available copies
+                                $available = $row['stocks'] - $borrowed;
 
-        // Check if the user has already borrowed this book
-        $user_id = $_SESSION['user_id']; // assuming you have a session variable for the user ID
-        $already_borrowed_query = "SELECT * FROM borrow_table WHERE book_id = '" . $row['book_id'] . "' AND student_id = '$user_id'";
-        $already_borrowed_result = mysqli_query($conn, $already_borrowed_query);
-        $already_borrowed = mysqli_num_rows($already_borrowed_result) > 0;
+                                // Check if the user has already borrowed this book
+                                $user_id = $_SESSION['user_id']; // assuming you have a session variable for the user ID
+                                $already_borrowed_query = "SELECT * FROM borrow_table WHERE book_id = '" . $row['book_id'] . "' AND student_id = '$user_id'";
+                                $already_borrowed_result = mysqli_query($conn, $already_borrowed_query);
+                                $already_borrowed = mysqli_num_rows($already_borrowed_result) > 0;
 
-        echo '<div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <span><h1 class="card-title">' . $row['title'] . '</h1> <h6>' . $available . ' of ' . $row['stocks'] . ' available</h6></span>
-                    <h3 class="card-text mb-4 text-center">' . $row['author'] . '</h3>
-                    <h5 class="card-text mb-4 text-center">' . $row['description'] . '</h5>';
+                                echo '<div class="col-md-4 col-lg-3 col-sm-6">
+                                    <div class="book-wrapper text-center"> <!-- Add a wrapper element -->
+                                        <a href="#" class="book-link" data-bs-toggle="modal" data-bs-target="#bookModal' . $row['book_id'] . '">
+                                            <img src="../../img/book' . $row['book_id'] . '.jpg" alt="" width="200" height="300">
+                                        </a>
+                                        <div class="book-label-container"> <!-- Add a container for the book label -->
+                                            ';
+                                            if ($available > 0 && !$already_borrowed) {
+                                                echo '<div class="book-label">Available</div>';
+                                            } else {
+                                                if ($already_borrowed) {
+                                                    echo '<div class="book-label not-available">You Already Borrowed it</div>';
+                                                } else {
+                                                    echo '<div class="book-label not-available">Not Available</div>';
+                                                }
+                                            }
+                                            echo '
+                                        </div>
+                                    </div>
+                                </div>';
 
-        if ($row['status'] == 'Available' && !$already_borrowed) {
-            echo '<a href="borrow_form.php?book_id=' . $row['book_id'] . '"><button class="btn btn-success">' . $row['status'] . '</button></a>';
-        } else {
-            if ($already_borrowed) {
-                echo '<button class="btn btn-danger disabled">You have already borrowed it</button>';
-            } else {
-                echo '<button class="btn btn-danger disabled">' . $row['status'] . '</button>';
-            }
-        }
+                                echo '<!-- Book Modal -->
+                                <div class="modal fade" id="bookModal' . $row['book_id'] . '" tabindex="-1" aria-labelledby="bookModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="bookModalLabel">' . $row['title'] . '</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <span><h1 class="card-title">' . $row['title'] . '</h1> <h6>' . $available . ' of ' . $row['stocks'] . ' available</h6></span>
+                                                        <h3 class="card-text mb-4 text-center">' . $row['author'] . '</h3>
+                                                        <h5 class="card-text mb-4 text-center">' . $row['description'] . '</h5>';
 
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-    }
-}
-                            ?>
+                                if ($available > 0 && !$already_borrowed) {
+                                    echo '<a href="borrow_form.php?book_id=' . $row['book_id'] . '"><button class="btn btn-success">Borrow</button></a>';
+                                } else {
+                                    if ($already_borrowed) {
+                                        echo '<button class="btn btn-danger disabled">You have already borrowed it</button>';
+                                    } else {
+                                        echo '<button class="btn btn-danger disabled">' . ($available == 0 ? 'Out of stock' : $row['status']) . '</button>';
+                                    }
+                                }
+
+                                echo '</div>
+                                 </div>
+                               </div>
+                              </div>
+                            </div>
+                          </div>';
+                                        
+                                }
+                        }
+                        ?>
                     </div>
                 </div>
             </div>
@@ -139,3 +188,25 @@ if ($query) {
     <script src="../../js/bootstrap.min.js"></script>
 </body>
 </html>
+
+<?php 
+                                // echo '<div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
+                                //     <div class="card">
+                                //         <div class="card-body">
+                                //             <span><h1 class="card-title">' . $row['title'] . '</h1> <h6>' . $available . ' of ' . $row['stocks'] . ' available</h6></span>
+                                //             <h3 class="card-text mb-4 text-center">' . $row['author'] . '</h3>
+                                //             <h5 class="card-text mb-4 text-center">' . $row['description'] . '</h5>';
+
+                                // if ($available > 0 && !$already_borrowed) {
+                                //     echo '<a href="borrow_form.php?book_id=' . $row['book_id'] . '"><button class="btn btn-success">Available</button></a>';
+                                // } else {
+                                //     if ($already_borrowed) {
+                                //         echo '<button class="btn btn-danger disabled">You have already borrowed it</button>';
+                                //     } else {
+                                //         echo '<button class="btn btn-danger disabled">' . ($available == 0 ? 'Out of stock' : $row['status']) . '</button>';
+                                //     }
+                                // }
+                                // echo '</div>';
+                                // echo '</div>';
+                                // echo '</div>';
+?>

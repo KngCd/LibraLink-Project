@@ -48,6 +48,9 @@
     section{
         padding: 124px 40px;
     }
+    ::placeholder {
+        color: black !important; 
+    }
 </style>
 
 <body>
@@ -111,22 +114,22 @@
                         ?>
 
                         <!-- Display the login form -->
-                        <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" style="background: rgba(97, 97, 97, 0.2); backdrop-filter: blur(5px);">
+                        <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
                             <h2 class="text-center">Welcome, Admin!</h2><br>
                             <div class="content">
                                 <div class="mb-4">
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="username" name="username" autocomplete="off" required placeholder="Username" style="border-radius: 0.375rem; width: auto;">
+                                        <input type="text" class="form-control" id="username" name="username" autocomplete="off" required placeholder="Username" style="border-radius: 16px; border: solid, 1px, black; width: auto;">
                                     </div>
                                 </div>
                                 <div class="mb-4">
                                     <div class="input-group">
-                                        <input type="password" class="form-control" id="password" name="password" autocomplete="off" required placeholder="Password" style="border-radius: 0.375rem; width: auto;">
+                                        <input type="password" class="form-control" id="password" name="password" autocomplete="off" required placeholder="Password" style="border-radius: 16px; border: solid, 1px, black; width: auto;">
                                     </div>
                                 </div>
 
                                 <div class="d-flex align-items-center justify-content-center">
-                                    <button type="submit" class="btn btn-primary w-40">Login</button>
+                                    <button type="submit" class="btn btn-danger w-100">Login</button>
                                 </div>
                             </div>
                         </form>

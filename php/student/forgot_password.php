@@ -48,6 +48,9 @@
     section{
         padding: 90px 40px;
     }
+    ::placeholder{
+        color: black !important;
+    }
 </style>
 
 <body>
@@ -124,27 +127,27 @@
                             }
 
                         ?>
-                        <form action="forgot_password.php" method="post" style="background: rgba(97, 97, 97, 0.2); backdrop-filter: blur(5px);">
+                        <form action="forgot_password.php" method="post" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
                             <h2>Reset Your Password</h2><br>
                             <div class="content">
                                 <div class="mb-4">
                                     <div class="input-group">
-                                    <input type="email" class="form-control" id="email" name="email" autocomplete="off" placeholder="Email" style="border-radius: 0.375rem; width: auto;" required>
+                                    <input type="email" class="form-control" id="email" name="email" autocomplete="off" placeholder="Email"style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
                                     </div>
                                 </div>
                                 <div class="mb-4">
                                     <div class="input-group">
-                                    <input type="password" class="form-control" id="password" name="password" autocomplete="off" placeholder="Password" style="border-radius: 0.375rem; width: auto;" required>
+                                    <input type="password" class="form-control" id="password" name="password" autocomplete="off" placeholder="Password" style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
                                     </div>
                                 </div>
                                 <div class="mb-4">
                                     <div class="input-group">
-                                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" autocomplete="off" placeholder="Confirm Password" style="border-radius: 0.375rem; width: auto;" required>
+                                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" autocomplete="off" placeholder="Confirm Password" style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
                                     </div>
                                 </div>
 
                                 <div class="d-flex align-items-center justify-content-center">
-                                    <button type="submit" name="submit" class="btn btn-primary w-40">Confirm</button>
+                                    <button type="submit" name="submit" class="btn btn-danger w-100">Confirm</button>
                                 </div>
                             </div>
                         </form>
