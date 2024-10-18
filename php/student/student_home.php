@@ -89,7 +89,7 @@
                 <div class="collapse navbar-collapse" id="navmenu">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item mx-2">
-                            <a href="student-login.php" class="btn btn-primary text-light">LOGOUT</a>
+                            <a href="student-login.php" class="btn btn-danger text-light">LOGOUT</a>
                         </li>
                     </ul>
                 </div>
@@ -102,6 +102,7 @@
             <div class="container">
                 <div class="row gx-5 gy-5">
                     <?php
+                        // Query all the books available
                         $query = mysqli_query($conn, "SELECT b.book_id, b.title, b.author, b.description, i.stocks, i.status 
                                                     FROM book_table b 
                                                     LEFT JOIN inventory_table i ON b.book_id = i.book_id");
@@ -144,7 +145,8 @@
                                     </div>
                                 </div>';
 
-                                echo '<!-- Book Modal -->
+                                // Book Modal
+                                echo '
                                 <div class="modal fade" id="bookModal' . $row['book_id'] . '" tabindex="-1" aria-labelledby="bookModalLabel" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">

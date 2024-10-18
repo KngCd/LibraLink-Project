@@ -117,20 +117,19 @@
                         <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
                             <h2 class="text-center">Welcome, Admin!</h2><br>
                             <div class="content">
-                                <div class="mb-4">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="username" name="username" autocomplete="off" required placeholder="Username" style="border-radius: 16px; border: solid, 1px, black; width: auto;">
-                                    </div>
+                                
+                                <div class="input-group mb-4">
+                                    <input type="text" class="form-control" id="username" name="username" autocomplete="off" required placeholder="Username" style="border-radius: 16px; border: solid, 1px, black; width: auto;">
                                 </div>
-                                <div class="mb-4">
-                                    <div class="input-group">
-                                        <input type="password" class="form-control" id="password" name="password" autocomplete="off" required placeholder="Password" style="border-radius: 16px; border: solid, 1px, black; width: auto;">
-                                    </div>
+                                
+                                <div class="input-group mb-4">
+                                    <input type="password" class="form-control" id="password" name="password" autocomplete="off" required placeholder="Password" style="border-radius: 16px; border: solid, 1px, black; width: auto;">
                                 </div>
 
                                 <div class="d-flex align-items-center justify-content-center">
                                     <button type="submit" class="btn btn-danger w-100">Login</button>
                                 </div>
+
                             </div>
                         </form>
                     </div>

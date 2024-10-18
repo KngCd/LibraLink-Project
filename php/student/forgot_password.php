@@ -58,7 +58,7 @@
 <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark py-4">
         <div class="container">
-            <a href="../admin-student.php" class="navbar-brand">
+            <a href="../student-login.php" class="navbar-brand">
                 <img class="logo" src="../../img/bsulogo.png" alt="Logo">LIBRALINK
             </a>
         </div>
@@ -93,7 +93,7 @@
 
                             // Check if the form has been submitted
                             if (isset($_POST['submit'])) {
-                                $email = mysqli_real_escape_string($conn, $_POST['email']);
+                                $email = mysqli_real_escape_string($conn, $_POST['email']); // get the details from the form
                                 $password = mysqli_real_escape_string($conn, $_POST['password']);
                                 $confirmPassword = mysqli_real_escape_string($conn, $_POST['confirmPassword']);
 
@@ -127,23 +127,21 @@
                             }
 
                         ?>
+
+                        <!-- Forgot Password Form -->
                         <form action="forgot_password.php" method="post" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
                             <h2>Reset Your Password</h2><br>
                             <div class="content">
-                                <div class="mb-4">
-                                    <div class="input-group">
+                                <div class="input-group mb-3">
                                     <input type="email" class="form-control" id="email" name="email" autocomplete="off" placeholder="Email"style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
-                                    </div>
                                 </div>
-                                <div class="mb-4">
-                                    <div class="input-group">
+
+                                <div class="input-group mb-3">
                                     <input type="password" class="form-control" id="password" name="password" autocomplete="off" placeholder="Password" style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
-                                    </div>
                                 </div>
-                                <div class="mb-4">
-                                    <div class="input-group">
+                                
+                                <div class="input-group mb-3">
                                     <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" autocomplete="off" placeholder="Confirm Password" style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
-                                    </div>
                                 </div>
 
                                 <div class="d-flex align-items-center justify-content-center">

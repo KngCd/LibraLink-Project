@@ -125,52 +125,42 @@
                             }
                         }
                     ?>
+
+                    <!-- Register Form -->
                     <form action="student_register.php" method="post" enctype="multipart/form-data" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
                         <h2 class="text-center">Create Your Account</h2><br>
                         <div class="content">
-                            <div class="mb-2">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Full Name" name="fullName" id="fullName" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
-                                </div>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" placeholder="Full Name" name="fullName" id="fullName" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
                             </div>
-                            <div class="mb-2">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Contact Number" name="contact" id="contact" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
-                                </div>
+
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" placeholder="Contact Number" name="contact" id="contact" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
                             </div>
-                            <div class="mb-2">
-                                <div class="input-group">
-                                    <input type="email" class="form-control" placeholder="Email" name="email" id="email" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
-                                </div>
+
+                            <div class="input-group mb-2">
+                                <input type="email" class="form-control" placeholder="Email" name="email" id="email" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
                             </div>
-                            <div class="mb-2">
-                                <div class="input-group">
-                                    <input type="password" class="form-control" placeholder="Password" name="password" id="password" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
-                                </div>
+
+                            <div class="input-group mb-2">
+                                <input type="password" class="form-control" placeholder="Password" name="password" id="password" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
                             </div>
-                            <div class="mb-2">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Program" name="program" id="program" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: 40%;">
-                                    <input type="text" class="form-control ms-1" placeholder="Department" name="department" id="department" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: 40%;">
-                                </div>
+
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" placeholder="Program" name="program" id="program" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: 40%;">
+                                <input type="text" class="form-control ms-1" placeholder="Department" name="department" id="department" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: 40%;">
                             </div>
-                            <!-- <div class="mb-2">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Department" name="department" id="department" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
-                                </div>
-                            </div> -->
-                            <div class="mb-2">
-                                <div class="input-group">
-                                    <label for="cor">Upload your COR</label>
-                                    <input type="file" class="form-control" name="cor" id="cor" accept=".pdf" required style="border-radius: 0.375rem; border: solid, 1px, black; width: auto;">
-                                </div>
+
+                            <div class="input-group mb-2">
+                                <label for="cor">Upload your COR</label>
+                                <input type="file" class="form-control" name="cor" id="cor" accept=".pdf" required style="border-radius: 0.375rem; border: solid, 1px, black; width: auto;">
                             </div>
-                            <div class="mb-3">
-                                <div class="input-group">
-                                    <label for="id">Upload your ID</label>
-                                    <input type="file" class="form-control" name="id" id="id" accept=".pdf" required style="border-radius: 0.375rem; border: solid, 1px, black; width: auto;">
-                                </div>
+
+                            <div class="input-group mb-3">
+                                <label for="id">Upload your ID</label>
+                                <input type="file" class="form-control" name="id" id="id" accept=".pdf" required style="border-radius: 0.375rem; border: solid, 1px, black; width: auto;">
                             </div>
+                                
                             <div class="d-flex align-items-center justify-content-center">
                                 <button type="submit" class="btn btn-danger w-40">Register</button>
                             </div>

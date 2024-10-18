@@ -55,7 +55,7 @@
 
 <body>
     
-<!-- Navbar -->
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark py-4">
         <div class="container">
             <a href="../admin-student.php" class="navbar-brand">
@@ -107,7 +107,7 @@
                                     // Verify password
                                     if (password_verify($password, $row['password'])) {
                                         // Login successful, redirect to dashboard
-                                        $_SESSION['user_id'] = $row['student_id'];
+                                        $_SESSION['user_id'] = $row['student_id']; // pass the information using $_SESSION
                                         $_SESSION['full_name'] = $row['full_name'];
                                         $_SESSION['email'] = $row['email'];
                                         $_SESSION['contact_num'] = $row['contact_num'];
@@ -130,24 +130,22 @@
 
                         ?>
 
+                        <!-- Form for Student Login -->
                         <form action="student-login.php" method="post" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
                             <h2>Welcome, Ka-Spartan</h2><br>
                             <div class="content">
-                                <div class="mb-3">
-                                    <div class="input-group">
-                                    <input type="email" class="form-control" id="email" name="email" autocomplete="off" placeholder="Email" style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
+                                    <div class="input-group mb-3">
+                                        <input type="email" class="form-control" id="email" name="email" autocomplete="off" placeholder="Email" style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
                                     </div>
-                                </div>
-                                <div class="mb-3">
-                                    <div class="input-group">
-                                    <input type="password" class="form-control" id="password" name="password" autocomplete="off" placeholder="Password" style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
+
+                                    <div class="input-group mb-3">
+                                        <input type="password" class="form-control" id="password" name="password" autocomplete="off" placeholder="Password" style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
                                     </div>
-                                </div>
 
                                 <div class="mb-3" style="font-size:0.90rem;">
-                                <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                                <label class="form-check-label" for="exampleCheck1">Remember me</label>
-                                <span><a class="float-end link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="forgot_password.php">Forgot Password?</a></span>
+                                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                                    <label class="form-check-label" for="exampleCheck1">Remember me</label>
+                                    <span><a class="float-end link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="forgot_password.php">Forgot Password?</a></span>
                                 </div>
 
                                 <div class="mb-2 d-flex align-items-center justify-content-center">

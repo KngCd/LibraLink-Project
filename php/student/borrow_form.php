@@ -130,8 +130,11 @@
                             // Close the connection
                             mysqli_close($conn);
                     ?>
+
+                    <!-- Borrow Form -->
                     <div class="form-container col-12 d-flex align-items-center justify-content-center">
                         <form action="borrow_form.php" method="post" enctype="multipart/form-data" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
+                            
                             <h2>Fill-up Form</h2>
                             <h6 class="text-center">Please check your details below</h6>
 
@@ -139,37 +142,32 @@
                             <input type="hidden" class="form-control" value="<?php echo $user_id?>" name="user_id" id="user_id">
 
                             <div class="content">
-                                <div class="mb-2">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" value="<?php echo $full_name?>" name="username" id="username" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
-                                    </div>
+                                
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" value="<?php echo $full_name?>" name="username" id="username" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
                                 </div>
-                                <div class="mb-2">
-                                    <div class="input-group">
-                                        <input type="email" class="form-control" value="<?php echo $email?>" name="email" id="email" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
-                                    </div>
+
+                                <div class="input-group mb-2">
+                                    <input type="email" class="form-control" value="<?php echo $email?>" name="email" id="email" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
                                 </div>
-                                <div class="mb-2">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" value="<?php echo $contact_num?>" name="contact" id="contact" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
-                                    </div>
+
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" value="<?php echo $contact_num?>" name="contact" id="contact" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
                                 </div>
-                                <div class="mb-2">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" value="<?php echo $program?>" name="program" id="program" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
-                                    </div>
+                                
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" value="<?php echo $program?>" name="program" id="program" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
                                 </div>
-                                <div class="mb-2">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" value="<?php echo $department?>" name="department" id="department" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
-                                    </div>
+                                
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" value="<?php echo $department?>" name="department" id="department" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
                                 </div>
-                                 <div class="mb-3">
-                                    <div class="input-group">
-                                        <input class="form-control me-1 w-40" disabled value="<?php echo $row['title']?>" style="border-radius: 16px; border: solid, 1px, black;">
-                                        <input class="form-control w-40" disabled value="<?php echo $row['author']?>" style="border-radius: 16px; border: solid, 1px, black;">
-                                    </div>
+                                
+                                <div class="input-group mb-3">
+                                    <input class="form-control me-1 w-40" disabled value="<?php echo $row['title']?>" style="border-radius: 16px; border: solid, 1px, black;">
+                                    <input class="form-control w-40" disabled value="<?php echo $row['author']?>" style="border-radius: 16px; border: solid, 1px, black;">
                                 </div>
+                                
                                 <div class="d-flex align-items-center justify-content-center">
                                     <button type="submit" name="submit" class="btn btn-danger w-100">Confirm</button>
                                 </div>

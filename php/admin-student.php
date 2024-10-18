@@ -55,6 +55,7 @@
     <section class="bg vh-100 d-flex align-items-center justify-content-center">
         <div class="container">
             <div class="row">
+                <!-- For Admin Login -->
                 <div class="d-flex justify-content-center align-items-center 
                  text-center col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-sm-12">
                     <div class="card" style="width: 18rem;">
@@ -65,7 +66,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- For Student Login -->
                 <div class="d-flex justify-content-center align-items-center 
                  text-center col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-sm-12">
                     <div class="card" style="width: 18rem;">

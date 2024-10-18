@@ -182,18 +182,22 @@
     <?php
         require_once '../db_config.php';
 
-        // Fetch the classes created by the teacher from the database
+        // Fetch the registered students from the database
         $query = mysqli_query($conn, "SELECT *FROM verification_table");
         $result = mysqli_num_rows($query);
 
+        // Fetch the accepted students from the database
         $query2 = mysqli_query($conn, "SELECT *FROM student_table");
         $result2 = mysqli_num_rows($query2);
 
+        // Fetch the total books from the database
         $query3 = mysqli_query($conn, "SELECT *FROM book_table");
         $result3 = mysqli_num_rows($query3);
 
+        // Fetch the total stock of books from the database
         $query4 = mysqli_query($conn, "SELECT SUM(stocks) AS total_stocks FROM inventory_table");
         $result4 = mysqli_fetch_assoc($query4);
+
         if($result4['total_stocks'] == 0){
             $sum_stocks = 0;
         }
@@ -201,6 +205,7 @@
             $sum_stocks = $result4['total_stocks'];
         }
 
+        // Fetch the students who borrows a book/s from the database
         $query5 = mysqli_query($conn, "SELECT *FROM borrow_table");
         $total_borrow = mysqli_num_rows($query5);
 
@@ -489,33 +494,31 @@
                     <!-- <button class="btn btn-primary" popovertarget="books" popovertargetaction="hide">Close</button> -->
                      <button type="button" class='btn btn-success' data-bs-toggle="modal" data-bs-target="#addBooks">Add Books</button>
             </div>
-
+            <!-- Modal to add Books -->
             <div class="modal fade" id="addBooks" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered border-radius-3">
                     <div class="modal-content">
                         <div class="modal-body">
+                            <!-- Form for Adding Book -->
                             <form action="" method="post" enctype="multipart/form-data">
                                     <h2 class="text-center">Add Books</h2><br>
-                                        <div class="mb-2">
-                                            <div class="input-group">
-                                                <input type="text" class="form-control" placeholder="Title" name="title" id="title" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
-                                            </div>
+                                    
+                                        <div class="input-group mb-2">
+                                            <input type="text" class="form-control" placeholder="Title" name="title" id="title" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
                                         </div>
-                                        <div class="mb-2">
-                                            <div class="input-group">
-                                                <input type="text" class="form-control" placeholder="Author" name="author" id="author" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
-                                            </div>
+                                        
+                                        <div class="input-group mb-2">
+                                            <input type="text" class="form-control" placeholder="Author" name="author" id="author" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
                                         </div>
-                                        <div class="mb-2">
-                                            <div class="input-group">
-                                                <input type="text" class="form-control" placeholder="Genre" name="genre" id="genre" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
-                                            </div>
+                                        
+                                        <div class="input-group mb-2">
+                                            <input type="text" class="form-control" placeholder="Genre" name="genre" id="genre" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
                                         </div>
-                                        <div class="mb-3">
-                                            <div class="input-group">
-                                                <input type="text" class="form-control" placeholder="Description" name="description" id="description" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
-                                            </div>
+                                        
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" placeholder="Description" name="description" id="description" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
                                         </div>
+                                            
                                         <div class="d-flex align-items-center justify-content-center">
                                             <button type="submit" name="submit" class="btn btn-primary w-40">Add Book</button>
                                         </div>
@@ -684,7 +687,7 @@
                 <!-- <button class="btn btn-primary" popovertarget="total-stocks" popovertargetaction="hide">Close</button> -->
              </div>
 
-            
+             <!-- Modal for adding Book Stocks -->
              <div class="modal fade" id="addStocks" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
@@ -801,6 +804,7 @@
 
     <script src="../../js/bootstrap.min.js"></script>
     <script src="../../js/bootstrap.bundle.min.js"></script>
+    
     <script>
         function viewPDF(data, filename) {
             const byteCharacters = atob(data);
@@ -819,6 +823,7 @@
             }
         }
     </script>
+    
     <script>
         const links = document.querySelectorAll('#sidebar a');
         const contents = document.querySelectorAll('.content');
