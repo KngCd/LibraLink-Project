@@ -58,7 +58,7 @@
 <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark py-4">
         <div class="container">
-            <a href="../student-login.php" class="navbar-brand">
+            <a href="student-login.php" class="navbar-brand">
                 <img class="logo" src="../../img/bsulogo.png" alt="Logo">LIBRALINK
             </a>
         </div>
