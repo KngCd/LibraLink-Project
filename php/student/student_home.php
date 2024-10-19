@@ -6,9 +6,17 @@
     <title>Student Home</title>
     <link href="../../css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+    *{
+        font-family: "Work Sans", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 500;
+        font-style: normal;
+    }
     .navbar-brand{
-        font-family: 'Times New Roman', Times, serif;
+        /* font-family: 'Times New Roman', Times, serif; */
         font-size: 30px;
         color: black;
     }

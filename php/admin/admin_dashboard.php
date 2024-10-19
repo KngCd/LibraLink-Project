@@ -13,8 +13,15 @@
 </head>
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+    *{
+        font-family: "Work Sans", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 500;
+        font-style: normal;
+    }
     .navbar-brand{
-        font-family: 'Times New Roman', Times, serif;
+        /* font-family: 'Times New Roman', Times, serif; */
         font-size: 30px;
         color: black;
     }
@@ -98,7 +105,7 @@
         height: 10px;
     }
     .offcanvas-body::-webkit-scrollbar-thumb {
-        background-color: #e73737;
+        background-color: #ca1d1d;
         border-radius: 5px;
         box-shadow: none;
         cursor: pointer;
@@ -520,7 +527,7 @@
                                         </div>
                                             
                                         <div class="d-flex align-items-center justify-content-center">
-                                            <button type="submit" name="submit" class="btn btn-primary w-40">Add Book</button>
+                                            <button type="submit" name="submit" class="btn btn-danger w-40">Add Book</button>
                                         </div>
                                 </form>
                                 <?php

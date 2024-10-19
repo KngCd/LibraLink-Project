@@ -8,6 +8,13 @@
 </head>
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+    *{
+        font-family: "Work Sans", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 500;
+        font-style: normal;
+    }
     .navbar{
         position: fixed;
         top: 0;
@@ -17,7 +24,7 @@
         /* backdrop-filter: blur(5px); */
     }
     .navbar-brand{
-        font-family: 'Times New Roman', Times, serif;
+        /* font-family: 'Times New Roman', Times, serif; */
         font-size: 30px;
         color: black;
     }
@@ -130,7 +137,7 @@
 
                         <!-- Forgot Password Form -->
                         <form action="forgot_password.php" method="post" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
-                            <h2>Reset Your Password</h2><br>
+                            <h3>Reset Your Password</h3><br>
                             <div class="content">
                                 <div class="input-group mb-3">
                                     <input type="email" class="form-control" id="email" name="email" autocomplete="off" placeholder="Email"style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>

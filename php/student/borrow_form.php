@@ -135,7 +135,7 @@
                     <div class="form-container col-12 d-flex align-items-center justify-content-center">
                         <form action="borrow_form.php" method="post" enctype="multipart/form-data" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
                             
-                            <h2>Fill-up Form</h2>
+                            <h2 class="text-center">Fill-up Form</h2>
                             <h6 class="text-center">Please check your details below</h6>
 
                             <input type="hidden" class="form-control" value="<?php echo $book_id?>" name="book_id" id="book_id">

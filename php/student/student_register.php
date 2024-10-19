@@ -8,6 +8,13 @@
 </head>
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+    *{
+        font-family: "Work Sans", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 500;
+        font-style: normal;
+    }
     section form input{
         border-radius: 5px;
     }
@@ -24,7 +31,7 @@
         z-index: 10;
     }
     .navbar-brand{
-        font-family: 'Times New Roman', Times, serif;
+        /* font-family: 'Times New Roman', Times, serif; */
         font-size: 30px;
         color: black;
     }
@@ -66,7 +73,7 @@
                 <div class="row">
                     <div class="text-container d-flex justify-content-center flex-column col-lg-6 col-md-6 col-sm-12 col-12 
                     mt-lg-5 mt-md-5 mt-sm-5 mt-5 mb-5">
-                        <h1 style="font-size: 4rem;">Elevate your Library Experience</h1>
+                        <h1 style="font-size: 3.5rem;">Elevate your Library Experience</h1>
                     </div>
 
                     <div class="form-container col-lg-6 col-md-6 col-sm-12 col-12 d-flex align-items-center justify-content-center">
@@ -128,7 +135,7 @@
 
                     <!-- Register Form -->
                     <form action="student_register.php" method="post" enctype="multipart/form-data" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
-                        <h2 class="text-center">Create Your Account</h2><br>
+                        <h3 class="text-center">Create Your Account</h3><br>
                         <div class="content">
                             <div class="input-group mb-2">
                                 <input type="text" class="form-control" placeholder="Full Name" name="fullName" id="fullName" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
