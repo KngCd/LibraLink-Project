@@ -23,7 +23,7 @@
         left: 0;
         width: 100%;
         z-index: 10;
-        backdrop-filter: blur(5px);
+        /* backdrop-filter: blur(5px); */
     }
     .navbar-brand{
         /* font-family: 'Times New Roman', Times, serif; */
@@ -35,14 +35,15 @@
         text-decoration: underline;
     }
     .logo {
-        height: 70px;
-        margin: 0 10px;
-        position: relative;
-        top: 30px;
-        transform: translateY(-50%);
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+
+    .logo:hover {
+        transform: scale(1.1);
     }
     .bg {
-        background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(../img/bsu.jpg);
+        background: linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url(../img/bsu.jpg);
         background-size: cover;
         background-attachment: fixed;
     }
@@ -54,7 +55,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark py-4">
         <div class="container">
             <a href="../index.html" class="navbar-brand">
-                <img class="logo" src="../img/bsulogo.png" alt="Logo">LIBRALINK
+                <img class="img-fluid logo" src="../img/libra2.png" alt="Logo" style="height: 40px; width: auto;">
             </a>
         </div>
     </nav>
@@ -69,7 +70,7 @@
                         <img src="../img/admin.webp" class="card-img-top" alt="Admin">
                         <div class="card-body">
                             <h1 class="card-title">Admin</h1>
-                            <a href="admin/admin-login.php" class="btn btn-primary">Click Here!</a>
+                            <a href="admin/admin-login.php" class="btn btn-danger">Click Here!</a>
                         </div>
                     </div>
                 </div>
@@ -80,7 +81,7 @@
                         <img src="../img/student2.webp" class="card-img-top" alt="Student">
                         <div class="card-body">
                             <h1 class="card-title">Student</h1>
-                            <a href="student/student-login.php" class="btn btn-primary">Click Here!</a>
+                            <a href="student/student-login.php" class="btn btn-danger">Click Here!</a>
                         </div>
                     </div>
                 </div>

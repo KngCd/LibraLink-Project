@@ -33,11 +33,11 @@
         text-decoration: underline;
     }
     .logo {
-        height: 70px;
-        margin: 0 10px;
-        position: relative;
-        top: 30px;
-        transform: translateY(-50%);
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+    .logo:hover {
+        transform: scale(1.1);
     }
     .bg {
         background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(../../img/bsu.jpg);
@@ -62,11 +62,11 @@
 
 <body>
     
-<!-- Navbar -->
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark py-4">
         <div class="container">
             <a href="../admin-student.php" class="navbar-brand">
-                <img class="logo" src="../../img/bsulogo.png" alt="Logo">LIBRALINK
+                <img class="img-fluid logo" src="../../img/libra2.png" alt="Logo" style="height: 40px; width: auto;">
             </a>
         </div>
     </nav>

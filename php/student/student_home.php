@@ -25,11 +25,11 @@
         text-decoration: underline;
     }
     .logo {
-        height: 70px;
-        margin: 0 10px;
-        position: relative;
-        top: 30px;
-        transform: translateY(-50%);
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+    .logo:hover {
+        transform: scale(1.1);
     }
     body{
         background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(../../img/bsu.jpg);
@@ -88,10 +88,10 @@
         <nav class="navbar navbar-expand-lg" style="background: none;">
             <div class="container">
                 <a href="student-login.php" class="navbar-brand">
-                    <img class="logo" src="../../img/bsulogo.png" alt="Logo">
+                    <img class="img-fluid logo" src="../../img/cropped-libra2.png" alt="Logo" style="height: 40px; width: auto;">
                     <?php echo 'Welcome, ' . $full_name . '!' ?>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+                <button class="navbar-toggler bg-danger text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navmenu">

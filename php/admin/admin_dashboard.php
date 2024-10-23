@@ -30,11 +30,11 @@
         text-decoration: underline;
     }
     .logo {
-        height: 70px;
-        margin: 0 10px;
-        position: relative;
-        top: 30px;
-        transform: translateY(-50%);
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+    .logo:hover {
+        transform: scale(1.1);
     }
     main{
         position: absolute;
@@ -75,7 +75,6 @@
         justify-content: center;
         min-height: 100vh; /* Full height of the viewport */
     }
-
     .dashboard-item {
         padding: 10px;
     }
@@ -115,18 +114,30 @@
         border-radius: 0;
         box-shadow: none;
     }
-</style>
+    .main-content {
+        position: relative; /* Allows absolute positioning of child elements */
+        display: flex;
+        flex-direction: column; /* Stacks children vertically */
+        align-items: center; /* Centers children horizontally */
+    }
+    .navbar-brand {
+        position: absolute; /* Positions the logo absolutely */
+        top: 10px; /* Adjusts the distance from the top */
+        left: 10px; /* Adjusts the distance from the left */
+    }
+    </style>
 
 <body>
 
     <!-- SIDEBAR -->
     <div class="offcanvas offcanvas-start text-light" data-bs-scroll="true" tabindex="-1" data-bs-backdrop="false" data-bs-backdrop="static" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
-        <div class="offcanvas-header">
-            <a href="admin-login.php" class="navbar-brand text-light">
-                <img class="logo" src="../../img/bsulogo.png" alt="Logo">LIBRALINK
+        <div class="offcanvas-header mb-5">
+            <a href="admin-login.php" class="navbar-brand px-3">
+                <img class="img-fluid logo text-center" src="../../img/libra2.png" alt="Logo" style="height: 40px; width: auto;">
             </a>
             <!-- <button type="button" class="btn-close" aria-label="Close"></button> -->
         </div>
+        
         <div class="offcanvas-body" id="sidebar">
             <div class="dashboard-item">
                 <a href="#" class="dashboard-link" data-target="home">
@@ -168,7 +179,7 @@
             </div>
         </div>
             <hr>
-        <div class="offcanvas-footer">
+        <div class="offcanvas-footer text-center mb-2">
             <div class="dashboard-item">
                 <a href="admin-login.php" class="dashboard-link">
                     <i class="bi bi-box-arrow-left"></i>
@@ -222,7 +233,7 @@
         }
     ?>
 
-    <main class="main-content" style="position: relative;">
+    <main class="main-content">
         <!-- HOME -->
         <section class="container-fluid content active" id="home">
             <div class="container">
