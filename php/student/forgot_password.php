@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password</title>
     <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
 <style>
@@ -58,6 +62,30 @@
     ::placeholder{
         color: black !important;
     }
+    #email-error, #password-error, #confirmPassword-error{
+        color: red;
+        font-size: 0.90rem;
+        /* display: block; */
+    }
+    .input-group label{
+        display: block;
+        width: 100%;
+    }
+    .input-group input{
+        border-radius: 16px; 
+        border: solid, 1px, black; 
+        width: auto; 
+        display: block;
+        border-top-left-radius: 0; 
+        border-bottom-left-radius: 0;
+    }
+    .input-group span{
+        border-radius: 16px; 
+        border: solid, 1px, black; 
+        width: auto; 
+        border-top-right-radius: 0; 
+        border-bottom-right-radius: 0;
+    }
 </style>
 
 <body>
@@ -105,7 +133,7 @@
                                 $confirmPassword = mysqli_real_escape_string($conn, $_POST['confirmPassword']);
 
                                 if ($password !== $confirmPassword) {
-                                    $_SESSION['error'] = "Passwords do not match!";
+                                    // $_SESSION['error'] = "Passwords do not match!";
                                     header('Location: forgot_password.php');
                                     exit;
                                 } else {
@@ -136,19 +164,22 @@
                         ?>
 
                         <!-- Forgot Password Form -->
-                        <form action="forgot_password.php" method="post" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
+                        <form id="forgotForm" action="forgot_password.php" method="post" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
                             <h3>Reset Your Password</h3><br>
                             <div class="content">
                                 <div class="input-group mb-3">
-                                    <input type="email" class="form-control" id="email" name="email" autocomplete="off" placeholder="Email"style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
+                                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                    <input type="email" class="form-control" id="email" name="email" autocomplete="off" placeholder="Email">
                                 </div>
 
                                 <div class="input-group mb-3">
-                                    <input type="password" class="form-control" id="password" name="password" autocomplete="off" placeholder="Password" style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
+                                    <span class="input-group-text" onclick="togglePassword()"><i class="bi bi-eye-slash-fill" id="password-icon" style="cursor: pointer;"></i></span>
+                                    <input type="password" class="form-control" id="password" name="password" autocomplete="off" placeholder="Password">
                                 </div>
                                 
                                 <div class="input-group mb-3">
-                                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" autocomplete="off" placeholder="Confirm Password" style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
+                                    <span class="input-group-text" onclick="toggle()"><i class="bi bi-eye-slash-fill" id="password-icon2" style="cursor: pointer;"></i></span>
+                                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" autocomplete="off" placeholder="Confirm Password">
                                 </div>
 
                                 <div class="d-flex align-items-center justify-content-center">
@@ -164,5 +195,6 @@
     </main>
 
     <script src="../../js/bootstrap.min.js"></script>
+    <script src="../../js/loginValidate.js"></script>
 </body>
 </html>

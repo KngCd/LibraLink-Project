@@ -1,4 +1,45 @@
 body{
     background-color: #ca1d1d;
     background-color: #ffffff;
+    object-fit: fill;
 }
+
+
+
+                                /* if (isset($_POST['approve'])) {
+                                    $student_id = $_POST['student_id'];
+                                    $firstName = $_POST['firstName'];
+                                    $lastName = $_POST['lastName'];
+                                    $contact = $_POST['contact'];
+                                    $email = $_POST['email'];
+                                    $password = $_POST['password'];
+                                    $program = $_POST['program'];
+                                    $department = $_POST['department'];
+
+                                    if ($_POST['approve'] == 'yes') {
+                                        // Check if the student_id already exists in the student_table
+                                        $check_query = "SELECT * FROM student_table WHERE student_id = '$student_id'";
+                                        $check_result = mysqli_query($conn, $check_query);
+                                        if (mysqli_num_rows($check_result) == 0) {
+                                            // Insert the details into another database table
+                                            $query = "INSERT INTO student_table (student_id, first_name, last_name, contact_num, email, password, program, department) 
+                                            VALUES ('$student_id', '$firstName', '$lastName', '$contact', '$email', '$password', '$program', '$department')";
+                                            if(mysqli_query($conn, $query)){
+                                                echo "<script>alert('Student approved successfully!');</script>";
+                                            }
+                                            else{
+                                                echo "<script>alert('Error: Student not approved!');</script>";
+                                            }
+                                        }
+
+                                        // Delete the details from the current table
+                                        $delete_query = "DELETE FROM verification_table WHERE student_id = '$student_id'";
+                                        $delete_result = mysqli_query($conn, $delete_query);
+                                    } elseif ($_POST['approve'] == 'no') {
+                                        // Delete the details from the current table
+                                        $delete_query = "DELETE FROM verification_table WHERE student_id = '$student_id'";
+                                        if(mysqli_query($conn, $delete_query)){
+                                            echo "<script>alert('Student not approved!');</script>";
+                                        }
+                                    }
+                                } */

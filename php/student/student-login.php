@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Login</title>
     <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
 <style>
@@ -58,6 +62,30 @@
     ::placeholder {
         color: black !important; 
     }
+    #email-error, #password-error{
+        color: red;
+        font-size: 0.90rem;
+        /* display: block; */
+    }
+    .input-group label{
+        display: block;
+        width: 100%;
+    }
+    .input-group input{
+        border-radius: 16px; 
+        border: solid, 1px, black; 
+        width: auto; 
+        display: block;
+        border-top-left-radius: 0; 
+        border-bottom-left-radius: 0;
+    }
+    .input-group span{
+        border-radius: 16px; 
+        border: solid, 1px, black; 
+        width: auto; 
+        border-top-right-radius: 0; 
+        border-bottom-right-radius: 0;
+    }
 </style>
 
 <body>
@@ -98,6 +126,32 @@
                                 unset($_SESSION['success']); // remove success message from session
                             }
 
+                            // Initialize attempts if it doesn't exist
+                            if (!isset($_SESSION['sattempts'])) {
+                                $_SESSION['sattempts'] = 0;
+                            }
+
+                            // Initialize the timestamp for lockout if it doesn't exist
+                            if (!isset($_SESSION['slockout_time'])) {
+                                $_SESSION['slockout_time'] = null;
+                            }
+
+                            // Check if the user is locked out
+                            if ($_SESSION['slockout_time'] !== null) {
+                                $stime_since_lockout = time() - $_SESSION['slockout_time'];
+
+                                // If 3 minutes have passed, reset attempts and lockout time
+                                if ($stime_since_lockout >= 180) {
+                                    $_SESSION['sattempts'] = 0; // Reset attempts
+                                    $_SESSION['slockout_time'] = null; // Reset lockout time
+                                }
+                                // } else {
+                                //     // User is still locked out
+                                //     echo "<p>You are locked out. Please try again in " . (180 - $stime_since_lockout) . " seconds.</p>";
+                                //     exit; // Stop further processing
+                                // }
+                            }
+
                             // Check if the form has been submitted
                             if (isset($_POST['submit'])) {
                                 $email = $_POST['email'];
@@ -115,16 +169,29 @@
                                     if (password_verify($password, $row['password'])) {
                                         // Login successful, redirect to dashboard
                                         $_SESSION['user_id'] = $row['student_id']; // pass the information using $_SESSION
-                                        $_SESSION['full_name'] = $row['full_name'];
+                                        $_SESSION['first_name'] = $row['first_name'];
+                                        $_SESSION['last_name'] = $row['last_name'];
                                         $_SESSION['email'] = $row['email'];
                                         $_SESSION['contact_num'] = $row['contact_num'];
                                         $_SESSION['program'] = $row['program'];
                                         $_SESSION['department'] = $row['department'];
+                                        $_SESSION['profile_pic'] = $row['profile_pic'];
+
+                                        // Login successful, reset attempts and lockout time
+                                        $_SESSION['attempts'] = 0; // Reset attempts on successful login
+                                        $_SESSION['lockout_time'] = null; // Reset lockout time
                                         header("Location: student_home.php");
                                         exit;
                                     } else {
                                         // Login failed, store error message in session
-                                        $_SESSION['error'] = 'Invalid email or password';
+                                        // $_SESSION['error'] = 'Invalid email or password';
+                                        // Login failed
+                                        $_SESSION['sattempts']++; // Increment attempt counter on invalid login
+
+                                        // Check if maximum attempts reached
+                                        if ($_SESSION['sattempts'] >= 5) {
+                                            $_SESSION['slockout_time'] = time(); // Set lockout time to current time
+                                        }
                                         header('Location: student-login.php');
                                         exit;
                                     }
@@ -135,28 +202,48 @@
                                 }
                             }
 
+                            // // Check if the user is locked out
+                            // if ($_SESSION['lockout_time'] !== null) {
+                            //     // Calculate the time since lockout
+                            //     $time_since_lockout = time() - $_SESSION['lockout_time'];
+
+                            //     // If 3 minutes have passed, reset attempts and lockout time
+                            //     if ($time_since_lockout >= 180) {
+                            //         $_SESSION['attempts'] = 0; // Reset attempts
+                            //         $_SESSION['lockout_time'] = null; // Reset lockout time
+                            //     }
+                            // }
                         ?>
 
                         <!-- Form for Student Login -->
-                        <form action="student-login.php" method="post" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
+                        <form id="studentForm" action="student-login.php" method="post" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
                             <h3>Welcome, Ka-Spartan</h3><br>
                             <div class="content">
                                     <div class="input-group mb-3">
-                                        <input type="email" class="form-control" id="email" name="email" autocomplete="off" placeholder="Email" style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
+                                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                        <input type="email" class="form-control" id="email" name="email" autocomplete="off" placeholder="Email">
                                     </div>
 
                                     <div class="input-group mb-3">
-                                        <input type="password" class="form-control" id="password" name="password" autocomplete="off" placeholder="Password" style="border-radius: 16px; border: solid, 1px, black; width: auto;" required>
+                                        <span class="input-group-text" onclick="togglePassword()"><i class="bi bi-eye-slash-fill" id="password-icon" style="cursor: pointer;"></i></span>
+                                        <input type="password" class="form-control" id="password" name="password" autocomplete="off" placeholder="Password">
                                     </div>
 
-                                <div class="mb-3" style="font-size:0.90rem;">
-                                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                                    <label class="form-check-label" for="exampleCheck1">Remember me</label>
-                                    <span><a class="float-end link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="forgot_password.php">Forgot Password?</a></span>
+                                <div class="input-group mb-3 d-flex justify-content-end" style="font-size:0.90rem;">
+                                    <!-- <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                                    <label class="form-check-label" for="exampleCheck1">Remember me</label> -->
+                                    <a class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="forgot_password.php">Forgot Password?</a>
+                                </div>
+
+                                <div class="mb-3">
+                                    <!-- <?php if(isset($error)) { ?>
+                                        <div id="invalid" style="display: block; color: red;"><?php echo $error; ?></div>
+                                    <?php } ?> -->
+                                    <div id="attempt" style="display: none;"></div>
                                 </div>
 
                                 <div class="mb-2 d-flex align-items-center justify-content-center">
-                                    <button type="submit" name="submit" class="btn btn-danger w-100">Login</button>
+                                    <button type="submit" id="login-button" name="submit" class="btn btn-danger w-100">Login</button>
                                 </div>
 
                                 <div style="font-size: 0.90rem;">
@@ -165,6 +252,60 @@
                             </div>
                         </form>
 
+                        <script>
+                            window.onload = function() {
+                                const failedAttempt = document.getElementById('attempt');
+                                const attempts = <?php echo isset($_SESSION['sattempts']) ? $_SESSION['sattempts'] : 0; ?>;
+                                const lockoutTime = <?php echo isset($_SESSION['slockout_time']) ? $_SESSION['slockout_time'] : 'null'; ?>;
+                                const maxAttempts = 5; // Maximum allowed attempts
+
+                                // Check if the user is locked out
+                                if (lockoutTime !== null) {
+                                    const lockoutDuration = 180; // 180 seconds lockout duration
+
+                                    // Function to update the countdown
+                                    function updateCountdown() {
+                                        const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+                                        const remainingTime = lockoutDuration - (currentTime - lockoutTime); // Calculate remaining time
+
+                                        if (remainingTime > 0) {
+                                            failedAttempt.style.display = 'block';
+                                            failedAttempt.style.color = 'red';
+
+                                            const minutes = Math.floor(remainingTime / 60);
+                                            const seconds = remainingTime % 60;
+                                            failedAttempt.textContent = 'Maximum attempts reached. Please try again in ' + 
+                                                minutes + ':' + (seconds < 10 ? '0' + seconds : seconds);
+                                            
+                                            // Schedule the next update
+                                            setTimeout(updateCountdown, 1000); // Update every second
+                                        } else {
+                                            failedAttempt.textContent = ''; // Clear the message after the timer ends
+                                            document.getElementById('login-button').disabled = false; // Enable the button again
+                                        }
+                                    }
+
+                                    // Start the countdown
+                                    updateCountdown();
+                                    document.getElementById('login-button').disabled = true; // Disable login button
+                                    return; // Exit early if locked out
+                                }
+
+                                // Display attempts remaining
+                                if (attempts > 0) {
+                                    failedAttempt.style.display = 'block';
+                                    failedAttempt.style.color = 'red';
+                                    failedAttempt.textContent = 'Invalid credentials. Attempts remaining: ' + (maxAttempts - attempts);
+
+                                    // Disable login button if maximum attempts reached
+                                    if (attempts >= maxAttempts) {
+                                        document.getElementById('login-button').disabled = true;
+                                        failedAttempt.textContent = 'Maximum attempts reached. Please try again in 3 minutes';
+                                    }
+                                }
+                            };
+                        </script>
+
                     </div>
                 </div>
             </div>
@@ -172,5 +313,6 @@
     </main>
 
     <script src="../../js/bootstrap.min.js"></script>
+    <script src="../../js/loginValidate.js"></script>
 </body>
 </html>

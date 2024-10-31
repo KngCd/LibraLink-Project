@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Register</title>
     <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
 <style>
@@ -54,6 +58,31 @@
     ::placeholder {
         color: black !important; 
     }
+    #firstName-error, #lastName-error, #email-error, #password-error, #confirmPassword-error, 
+    #contact-error, #program-error, #department-error, #cor-error, #id-error, #pic-error{
+        color: red;
+        font-size: 0.90rem;
+        /* display: block; */
+    }
+    .input-group label{
+        display: block;
+        width: 100%;
+    }
+    .input-group input{
+        border-radius: 16px; 
+        border: solid, 1px, black; 
+        width: auto; 
+        display: block;
+        border-top-right-radius: 16px; 
+        border-bottom-right-radius: 16px;
+    }
+    /* .input-group span{
+        border-radius: 16px; 
+        border: solid, 1px, black; 
+        width: auto; 
+        border-top-right-radius: 0; 
+        border-bottom-right-radius: 0;
+    } */
 </style>
 
 <body>
@@ -68,8 +97,8 @@
     </nav>
     
     <main>
-        <section class="vh-100 d-flex align-items-center justify-content-center">
-            <div class="container">
+        <section class="d-flex align-items-center justify-content-center">
+            <div class="container mt-3 mb-3">
                 <div class="row">
                     <div class="text-container d-flex justify-content-center flex-column col-lg-6 col-md-6 col-sm-12 col-12 
                     mt-lg-5 mt-md-5 mt-sm-5 mt-5 mb-5">
@@ -84,7 +113,8 @@
                         // Check if the form has been submitted
                         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             // Get the username and password from the form
-                            $fullname = mysqli_real_escape_string($conn, $_POST['fullName']);
+                            $firstName = mysqli_real_escape_string($conn, $_POST['firstName']);
+                            $lastName = mysqli_real_escape_string($conn, $_POST['lastName']);
                             $contact = mysqli_real_escape_string($conn, $_POST['contact']);
                             $email = mysqli_real_escape_string($conn, $_POST['email']);
 
@@ -97,79 +127,110 @@
                             // Get file info
                             $fileCOR = basename($_FILES["cor"]["name"]);
                             $fileID = basename($_FILES["id"]["name"]);
+                            $filePic = basename($_FILES["pic"]["name"]);
                             
                             // Allow certain file formats
-                            $allowTypes = array('pdf');
+                            $allowTypesPDF = array('pdf');
+                            $allowTypesImage = array('jpg', 'jpeg', 'png');
 
-                            // Check if both files are PDF
+                            // Check file types
                             $fileTypeCOR = strtolower(pathinfo($fileCOR, PATHINFO_EXTENSION));
                             $fileTypeID = strtolower(pathinfo($fileID, PATHINFO_EXTENSION));
+                            $fileTypePic = strtolower(pathinfo($filePic, PATHINFO_EXTENSION));
 
-                            if (in_array($fileTypeCOR, $allowTypes) && in_array($fileTypeID, $allowTypes) &&
-                                $_FILES['cor']['error'] === UPLOAD_ERR_OK && $_FILES['id']['error'] === UPLOAD_ERR_OK) {
-
-                                // Get the file contents
-                                $corContent = file_get_contents($_FILES['cor']['tmp_name']);
-                                $idContent = file_get_contents($_FILES['id']['tmp_name']);
-
-                                // Prepare the SQL statement
-                                $stmt = $conn->prepare("INSERT INTO verification_table (full_name, contact_num, email, password, program, 
-                                department, cor, cor_filetype, id_file, id_filetype) VALUES (?,?,?,?,?,?,?,?,?,?)");
-                                $stmt->bind_param("ssssssssss", $fullname, $contact, $email, $hash, $program, $department, $corContent, 
-                                $fileTypeCOR, $idContent, $fileTypeID);
+                            // Check if COR and ID are PDFs and Profile Picture is an image
+                            if (in_array($fileTypeCOR, $allowTypesPDF) && in_array($fileTypeID, $allowTypesPDF) &&
+                                in_array($fileTypePic, $allowTypesImage) &&
+                                $_FILES['cor']['error'] === UPLOAD_ERR_OK && 
+                                $_FILES['id']['error'] === UPLOAD_ERR_OK && 
+                                $_FILES['pic']['error'] === UPLOAD_ERR_OK) {
                                 
-                                // Execute the statement and check for success
-                                if ($stmt->execute()) {
-                                    echo "<script>alert('Register Successful!'); window.location.href='student-login.php';</script>";
+                                // Check if the email is unique
+                                $emailCheckStmt = $conn->prepare("SELECT email FROM verification_table WHERE email = ?");
+                                $emailCheckStmt->bind_param("s", $email);
+                                $emailCheckStmt->execute();
+                                $emailCheckStmt->store_result();
+
+                                if ($emailCheckStmt->num_rows > 0) {
+                                    // Email already exists
+                                    echo "<script>alert('Email already exists! Please use a different email.'); window.location.href='student_register.php';</script>";
                                 } else {
-                                    echo "<script>alert('Uploading Failed!'); window.location.href='student_register.php';</script>";
+                                    // Get the file contents
+                                    $corContent = file_get_contents($_FILES['cor']['tmp_name']);
+                                    $idContent = file_get_contents($_FILES['id']['tmp_name']);
+                                    $picContent = file_get_contents($_FILES['pic']['tmp_name']);
+
+                                    // Prepare the SQL statement
+                                    $stmt = $conn->prepare("INSERT INTO verification_table (first_name, last_name, contact_num, email, password, program, 
+                                    department, cor, cor_filetype, id_file, id_filetype, profile_pic, pic_filetype) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                                    $stmt->bind_param("sssssssssssss", $firstName, $lastName, $contact, $email, $hash, $program, $department, $corContent, 
+                                    $fileTypeCOR, $idContent, $fileTypeID, $picContent, $fileTypePic);
+                                    
+                                    // Execute the statement and check for success
+                                    if ($stmt->execute()) {
+                                        echo "<script>alert('Register Successful!'); window.location.href='student-login.php';</script>";
+                                    } else {
+                                        echo "<script>alert('Uploading Failed!'); window.location.href='student_register.php';</script>";
+                                    }
+                                    
+                                    // Close the statement
+                                    $stmt->close();
                                 }
-                                
-                                // Close the statement
-                                $stmt->close();
+
+                                // Close the email check statement
+                                $emailCheckStmt->close();
                             } else {
-                                echo "<script>alert('Sorry, only PDF files are allowed to upload!'); window.location.href='student_register.php';</script>";
+                                echo "<script>alert('Sorry, only PDF files for COR and ID, and image files for Profile Picture are allowed to upload!'); window.location.href='student_register.php';</script>";
                             }
                         }
                     ?>
 
                     <!-- Register Form -->
-                    <form action="student_register.php" method="post" enctype="multipart/form-data" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
+                    <form id="registerForm" class="mt-3 mb-3" action="student_register.php" method="post" enctype="multipart/form-data" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
                         <h3 class="text-center">Create Your Account</h3><br>
                         <div class="content">
                             <div class="input-group mb-2">
-                                <input type="text" class="form-control" placeholder="Full Name" name="fullName" id="fullName" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
+                                <input type="text" class="form-control" placeholder="First Name" name="firstName" id="firstName" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
+                                <input type="text" class="form-control ms-1" placeholder="Last Name" name="lastName" id="lastName" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px; border-top-left-radius: 16px; border-bottom-left-radius: 16px; ">
                             </div>
 
                             <div class="input-group mb-2">
-                                <input type="text" class="form-control" placeholder="Contact Number" name="contact" id="contact" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
+                                <input type="text" class="form-control" placeholder="Contact Number" name="contact" id="contact" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
                             </div>
 
                             <div class="input-group mb-2">
-                                <input type="email" class="form-control" placeholder="Email" name="email" id="email" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
+                                <input type="email" class="form-control" placeholder="Email" name="email" id="email" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
                             </div>
 
                             <div class="input-group mb-2">
-                                <input type="password" class="form-control" placeholder="Password" name="password" id="password" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
+                                <input type="password" class="form-control" placeholder="Password" name="password" id="password" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
+                            </div>
+                            <div class="input-group mb-2">
+                                <input type="password" class="form-control" placeholder="Confirm Password" name="confirmPassword" id="confirmPassword" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
                             </div>
 
                             <div class="input-group mb-2">
-                                <input type="text" class="form-control" placeholder="Program" name="program" id="program" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: 40%;">
-                                <input type="text" class="form-control ms-1" placeholder="Department" name="department" id="department" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: 40%;">
+                                <input type="text" class="form-control" placeholder="Program" name="program" id="program" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
+                                <input type="text" class="form-control ms-1" placeholder="Department" name="department" id="department" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px; border-top-left-radius: 16px; border-bottom-left-radius: 16px; ">
                             </div>
 
                             <div class="input-group mb-2">
                                 <label for="cor">Upload your COR</label>
-                                <input type="file" class="form-control" name="cor" id="cor" accept=".pdf" required style="border-radius: 0.375rem; border: solid, 1px, black; width: auto;">
+                                <input type="file" class="form-control" name="cor" id="cor" accept=".pdf">
                             </div>
 
                             <div class="input-group mb-3">
                                 <label for="id">Upload your ID</label>
-                                <input type="file" class="form-control" name="id" id="id" accept=".pdf" required style="border-radius: 0.375rem; border: solid, 1px, black; width: auto;">
+                                <input type="file" class="form-control" name="id" id="id" accept=".pdf">
+                            </div>
+
+                            <div class="input-group mb-3">
+                                <label for="id">Upload your Profile Picture</label>
+                                <input type="file" class="form-control" name="pic" id="pic" accept="image/*">
                             </div>
                                 
                             <div class="d-flex align-items-center justify-content-center">
-                                <button type="submit" class="btn btn-danger w-40">Register</button>
+                                <button type="submit" class="btn btn-danger w-100">Register</button>
                             </div>
                         </div>
                     </form>
@@ -182,5 +243,6 @@
     </main>
 
     <script src="../../js/bootstrap.min.js"></script>
+    <script src="../../js/loginValidate.js"></script>
 </body>
 </html>

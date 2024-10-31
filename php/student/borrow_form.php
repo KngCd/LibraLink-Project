@@ -17,11 +17,11 @@
         text-decoration: underline;
     }
     .logo {
-        height: 70px;
-        margin: 0 10px;
-        position: relative;
-        top: 30px;
-        transform: translateY(-50%);
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+    .logo:hover {
+        transform: scale(1.1);
     }
     body{
         background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(../../img/bsu.jpg);
@@ -46,11 +46,13 @@
         session_start();
             if (isset($_SESSION['user_id'])) {
                 $user_id = $_SESSION['user_id'];
-                $full_name = $_SESSION['full_name'];
+                $firstName = $_SESSION['first_name'];
+                $lastName = $_SESSION['last_name'];
                 $email = $_SESSION['email'];
                 $contact_num = $_SESSION['contact_num'];
                 $program = $_SESSION['program'];
                 $department = $_SESSION['department'];
+                $profile = $_SESSION['profile_pic'];
 
                 $book_id = $_GET['book_id'];
 
@@ -68,8 +70,8 @@
         <nav class="navbar navbar-expand-lg" style="background: none;">
             <div class="container">
                 <a href="student_home.php" class="navbar-brand">
-                    <img class="logo" src="../../img/bsulogo.png" alt="Logo">
-                    <?php echo 'Welcome, ' . $full_name . '!' ?>
+                    <img class="img-fluid logo" src="../../img/cropped-libra2.png" alt="Logo" style="height: 40px; width: auto;">
+                    <?php echo 'Welcome, ' . $firstName . '!' ?>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
                     <span class="navbar-toggler-icon"></span>
@@ -144,7 +146,7 @@
                             <div class="content">
                                 
                                 <div class="input-group mb-2">
-                                    <input type="text" class="form-control" value="<?php echo $full_name?>" name="username" id="username" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
+                                    <input type="text" class="form-control" value="<?php echo $firstName . ' ' . $lastName?>" name="username" id="username" autocomplete="off" required style="border-radius: 16px; border: solid, 1px, black; width: auto;">
                                 </div>
 
                                 <div class="input-group mb-2">

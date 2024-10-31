@@ -24,13 +24,13 @@
         color: black;
         text-decoration: underline;
     }
-    .logo {
+    /* .logo {
         transition: transform 0.3s ease;
         cursor: pointer;
     }
     .logo:hover {
         transform: scale(1.1);
-    }
+    } */
     body{
         background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(../../img/bsu.jpg);
         background-size: cover;
@@ -59,11 +59,13 @@
         session_start();
             if (isset($_SESSION['user_id'])) {
                 $user_id = $_SESSION['user_id'];
-                $full_name = $_SESSION['full_name'];
+                $firstName = $_SESSION['first_name'];
+                $lastName = $_SESSION['last_name'];
                 $email = $_SESSION['email'];
                 $contact_num = $_SESSION['contact_num'];
                 $program = $_SESSION['program'];
                 $department = $_SESSION['department'];
+                $profile = $_SESSION['profile_pic'];
 
                 // You can also retrieve more user data from the database if needed
                 $stmt = $conn->prepare("SELECT * FROM student_table WHERE student_id = ?");
@@ -88,8 +90,8 @@
         <nav class="navbar navbar-expand-lg" style="background: none;">
             <div class="container">
                 <a href="student-login.php" class="navbar-brand">
-                    <img class="img-fluid logo" src="../../img/cropped-libra2.png" alt="Logo" style="height: 40px; width: auto;">
-                    <?php echo 'Welcome, ' . $full_name . '!' ?>
+                    <img class="img-fluid logo" src="data:image/jpeg;base64,<?php echo base64_encode($row['profile_pic']); ?>" alt="Logo" style="height: 40px; width: auto;">
+                    <?php echo 'Welcome, ' . $firstName . '!' ?>
                 </a>
                 <button class="navbar-toggler bg-danger text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
                     <span class="navbar-toggler-icon"></span>

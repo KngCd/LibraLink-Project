@@ -1,109 +1,217 @@
-
-
+/* FOR ADMIN LOGIN */
 $(document).ready(function(){
 
-    $("#myForm").validate({
-        rules:{
-            name:{
+    $("#adminForm").validate({
+        rules:{ 
+            username:{
                 required: true,
                 minlength: 4
             },
-            email:{
-                required: true
-            },
             password:{
                 required: true,
-                minlength: 8,
+                minlength: 5,
                 maxlength: 20
             }
         },
         messages:{
-            email:{
-                required: "This field is required!"
+            username:{
+                required: "Please enter your username"
             },
             password:{
-                required: "This field is required!"
+                required: "Please enter your password"
             }
         },
-        highlight: function(element) {
-            $(element).addClass('is-invalid');
+        highlight: function(element) { // this is when the form rules is not met
+            $(element).addClass('is-invalid'); // it will add this built-in class for invalid class in bootstrap
         },
-        unhighlight: function(element) {
-            $(element).removeClass('is-invalid');
-        }
-    });
-
-});
-
-$(document).ready(function(){
-
-    $("#myForm2").validate({
-        rules:{
-            name:{
-                required: true,
-                minlength: 4
-            },
-            email:{
-                required: true
-            },
-            password:{
-                required: true,
-                minlength: 8,
-                maxlength: 20
-            }
-        },
-        messages:{
-            email:{
-                required: "This field is required!"
-            },
-            password:{
-                required: "This field is required!"
-            }
-        },
-        highlight: function(element) {
-            $(element).addClass('is-invalid');
-        },
-        unhighlight: function(element) {
+        unhighlight: function(element) { 
             $(element).removeClass('is-invalid');
         },
         submitHandler: function(form) {
-            // Form is valid, redirect to login.html
-            window.alert("SUCCESS!");
-            window.location.href = "login.html";
+            form.submit();
         }
     });
+
 });
 
+/* FOR STUDENT LOGIN */
+$(document).ready(function(){
 
-function register(){
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    $("#studentForm").validate({
+        rules:{
+            email:{
+                required: true
+            },
+            password:{
+                required: true,
+                minlength: 5,
+                maxlength: 20
+            }
+        },
+        messages:{
+            email:{
+                required: "Please enter your email address"
+            },
+            password:{
+                required: "Please enter your password"
+            }
+        },
+        highlight: function(element) { // this is when the form rules is not met
+            $(element).addClass('is-invalid'); // it will add this built-in class for invalid class in bootstrap
+        },
+        unhighlight: function(element) { 
+            $(element).removeClass('is-invalid');
+        },
+        submitHandler: function(form) {
+            form.submit();
+        }
+    });
 
-    console.log(name);
-    console.log(email);
-    console.log(password);
-}
+});
 
-function login(){
-    event.preventDefault();
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const failedDiv = document.getElementById("failed");
+/* FOR STUDENT REGISTER */
+$(document).ready(function(){
 
-    console.log(email);
-    console.log(password);
+    // Custom validation method for contact number
+    $.validator.addMethod("validContact", function(value, element) {
+        // Check if the value starts with '09' and has a total of 11 characters
+        return this.optional(element) || (value.length === 11 && value.startsWith("09"));
+    }, "Contact number must be valid");
 
-    if(email === "testing@gmail.com" && password === "testing123"){
-        window.alert("SUCCESS LOGIN!");
-        document.getElementById("failed").style.display = "none";
-        window.location.href = "home.html";
-    }
-    else{
-        failedDiv.style.display = "block";
-        failedDiv.style.color = "red";
-    }
-}
+    $("#registerForm").validate({
+        rules:{
+            firstName:{
+                required: true
+            },
+            lastName:{
+                required: true
+            },
+            contact:{
+                required: true,
+                validContact: true // Only use the custom validation method
+            },
+            email:{
+                required: true,
+                email: true
+            },
+            password:{
+                required: true,
+                minlength: 5,
+                maxlength: 20
+            },
+            confirmPassword:{
+                required: true,
+                equalTo: "#password"
+            },
+            program:{
+                required: true
+            },
+            department:{
+                required: true
+            },
+            cor:{
+                required: true
+            },
+            id:{
+                required: true
+            },
+            pic:{
+                required: true
+            }
+        },
+        messages:{
+            firstName:{
+                required: "Please enter your first name"
+            },
+            lastName:{
+                required: "Please enter your last name"
+            },
+            contact:{
+                required: "Please enter your contact number",
+                validContact: "Contact number must be valid and please remove any special characters (e.g . '-')"
+            },
+            email:{
+                required: "Please enter your email address",
+                email: "Please provide a valid email"
+            },
+            password:{
+                required: "Please enter your password"
+            },
+            confirmPassword:{
+                required: "Please confirm your password",
+                equalTo: "Passwords do not match"
+            },
+            program:{
+                required: "Please enter your program"
+            },
+            department:{
+                required: "Please enter your department"
+            },
+            cor:{
+                required: "Please upload your COR"
+            },
+            id:{
+                required: "Please upload your ID"
+            },
+            pic:{
+                required: "Please upload your Profile Picture"
+            }
+        },
+        highlight: function(element) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function(element) { 
+            $(element).removeClass('is-invalid');
+        },
+        submitHandler: function(form) {
+            form.submit();
+        }
+    });
+
+});
+
+/* FOR FORGET PASSWORD */
+$(document).ready(function(){
+
+    $("#forgotForm").validate({
+        rules:{
+            email:{
+                required: true
+            },
+            password:{
+                required: true,
+                minlength: 5,
+                maxlength: 20
+            },
+            confirmPassword:{
+                required: true,
+                equalTo: "#password"
+            }
+        },
+        messages:{
+            email:{
+                required: "Please enter your email address"
+            },
+            password:{
+                required: "Please enter your password"
+            },
+            confirmPassword:{
+                required: "Please provide a password",
+                equalTo: "Passwords do not match"
+            }
+        },
+        highlight: function(element) { // this is when the form rules is not met
+            $(element).addClass('is-invalid'); // it will add this built-in class for invalid class in bootstrap
+        },
+        unhighlight: function(element) { 
+            $(element).removeClass('is-invalid');
+        },
+        submitHandler: function(form) {
+            form.submit();
+        }
+    });
+
+});
 
 function togglePassword() {
     const password = document.getElementById("password");
@@ -114,6 +222,20 @@ function togglePassword() {
         passwordIcon.classList.toggle("bi-eye-slash-fill");
     } else {
         password.type = "password";
+        passwordIcon.classList.toggle("bi-eye-fill");
+        passwordIcon.classList.toggle("bi-eye-slash-fill");
+    }
+}
+
+function toggle() {
+    var confirmPassword = document.getElementById("confirmPassword");
+    var passwordIcon = document.getElementById("password-icon2");
+    if (confirmPassword.type === "password") {
+        confirmPassword.type = "text";
+        passwordIcon.classList.toggle("bi-eye-fill");
+        passwordIcon.classList.toggle("bi-eye-slash-fill");
+    } else {
+        confirmPassword.type = "password";
         passwordIcon.classList.toggle("bi-eye-fill");
         passwordIcon.classList.toggle("bi-eye-slash-fill");
     }
