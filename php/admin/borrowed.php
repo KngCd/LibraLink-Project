@@ -141,6 +141,9 @@ $currentTime = date('H:i:s');
     .button{
         border-radius: 30px !important;
     }
+    form select, form select option{
+        cursor: pointer;
+    }
 </style>
 
 <body>
@@ -176,6 +179,12 @@ $currentTime = date('H:i:s');
                 <a href="accepted_student.php" class="dashboard-link">
                     <i class="bi bi-person-fill-check"></i>
                     <span>Accepted</span>
+                </a>
+            </div>
+            <div class="dashboard-item">
+                <a href="program_dept.php" class="dashboard-link">
+                    <i class="bi bi-buildings"></i>
+                    <span>Programs and Departments</span>
                 </a>
             </div>
             <div class="dashboard-item">
@@ -225,6 +234,14 @@ $currentTime = date('H:i:s');
 
             updateClock();
             setInterval(updateClock, 1000);
+
+            // Scroll to active link when the offcanvas is shown
+            document.getElementById('offcanvasWithBothOptions').addEventListener('shown.bs.offcanvas', function () {
+                const activeLink = document.getElementById('active');
+                if (activeLink) {
+                    activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
         </script>
     </div>
     <!-- END SIDEBAR -->    
@@ -380,7 +397,7 @@ $currentTime = date('H:i:s');
                     <form class="d-flex" method="GET">
                         <input class="form-control me-2 w-50" type="search" name="search" placeholder="Search" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
-                        <select name="program" class="form-control me-3" style="width: fit-content;">
+                        <select name="program" class="form-select me-3" style="width: fit-content;">
                             <option value="">All Programs</option>
                             <?php foreach ($programs as $program): ?>
                                 <option value="<?= htmlspecialchars($program) ?>" <?= $selected_program === $program ? 'selected' : '' ?>>
@@ -389,7 +406,7 @@ $currentTime = date('H:i:s');
                             <?php endforeach; ?>
                         </select>
 
-                        <select name="department" class="form-control me-3" style="width: fit-content;">
+                        <select name="department" class="form-select me-3" style="width: fit-content;">
                             <option value="">All Departments</option>
                             <?php foreach ($departments as $department): ?>
                                 <option value="<?= htmlspecialchars($department) ?>" <?= $selected_department === $department ? 'selected' : '' ?>>
@@ -398,7 +415,7 @@ $currentTime = date('H:i:s');
                             <?php endforeach; ?>
                         </select>
 
-                        <select name="borrow_date_filter" class="form-control me-3" style="width: fit-content;">
+                        <select name="borrow_date_filter" class="form-select me-3" style="width: fit-content;">
                             <option value="">All Borrow Dates</option>
                             <option value="today" <?= isset($_GET['borrow_date_filter']) && $_GET['borrow_date_filter'] === 'today' ? 'selected' : '' ?>>Today</option>
                             <option value="this_week" <?= isset($_GET['borrow_date_filter']) && $_GET['borrow_date_filter'] === 'this_week' ? 'selected' : '' ?>>This Week</option>
@@ -408,7 +425,7 @@ $currentTime = date('H:i:s');
                             <option value="past_month" <?= isset($_GET['borrow_date_filter']) && $_GET['borrow_date_filter'] === 'past_month' ? 'selected' : '' ?>>Past Month</option>
                         </select>
 
-                        <select name="due_date_filter" class="form-control w-25 me-3" style="width: fit-content;">
+                        <select name="due_date_filter" class="form-select w-25 me-3" style="width: fit-content;">
                             <option value="">All Due Dates</option>
                             <option value="today" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'today' ? 'selected' : '' ?>>Today</option>
                             <option value="this_week" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'this_week' ? 'selected' : '' ?>>This Week</option>
@@ -504,10 +521,10 @@ $currentTime = date('H:i:s');
                                                         <p>Program: " . $row['program'] . "</p>
                                                         <p>Department: " . $row['department'] . "</p>
                                                     </div>
-                                                    <form action='' method='post' style='margin-top: 20px;'>
+                                                    <!-- <form action='' method='post' style='margin-top: 20px;'>
                                                         <input type='hidden' name='delete_student_id' value='" . $row['student_id'] . "'>
                                                         <button type='submit' class='btn btn-danger'>Delete</button>
-                                                    </form>
+                                                    </form> -->
                                                 </div>
                                             </div>
                                         </div>

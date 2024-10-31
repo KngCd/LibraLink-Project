@@ -149,6 +149,9 @@ $currentTime = date('H:i:s');
     .button{
         border-radius: 30px !important;
     }
+    form select, form select option{
+        cursor: pointer;
+    }
 </style>
 
 <body>
@@ -184,6 +187,12 @@ $currentTime = date('H:i:s');
                 <a href="#" class="dashboard-link" id="active">
                     <i class="bi bi-person-fill-check"></i>
                     <span>Accepted</span>
+                </a>
+            </div>
+            <div class="dashboard-item">
+                <a href="program_dept.php" class="dashboard-link">
+                    <i class="bi bi-buildings"></i>
+                    <span>Programs and Departments</span>
                 </a>
             </div>
             <div class="dashboard-item">
@@ -233,6 +242,14 @@ $currentTime = date('H:i:s');
 
             updateClock();
             setInterval(updateClock, 1000);
+
+            // Scroll to active link when the offcanvas is shown
+            document.getElementById('offcanvasWithBothOptions').addEventListener('shown.bs.offcanvas', function () {
+                const activeLink = document.getElementById('active');
+                if (activeLink) {
+                    activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
         </script>
     </div>
     <!-- END SIDEBAR -->    
@@ -316,7 +333,7 @@ $currentTime = date('H:i:s');
                     <form class="d-flex" method="GET">
                         <input class="form-control me-2 w-50" type="search" name="search" placeholder="Search" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
-                        <select name="program" class="form-control w-25 me-3">
+                        <select name="program" class="form-select w-25 me-3">
                             <option value="">All Programs</option>
                             <?php foreach ($programs as $program): ?>
                                 <option value="<?= htmlspecialchars($program) ?>" <?= $selected_program === $program ? 'selected' : '' ?>>
@@ -325,7 +342,7 @@ $currentTime = date('H:i:s');
                             <?php endforeach; ?>
                         </select>
 
-                        <select name="department" class="form-control w-25 me-3">
+                        <select name="department" class="form-select w-25 me-3">
                             <option value="">All Departments</option>
                             <?php foreach ($departments as $department): ?>
                                 <option value="<?= htmlspecialchars($department) ?>" <?= $selected_department === $department ? 'selected' : '' ?>>
@@ -367,13 +384,14 @@ $currentTime = date('H:i:s');
                         $start_from = ($_SESSION['acurrent_page'] - 1) * $records_per_page;
                         $query = mysqli_query($conn, "SELECT * FROM student_table $where_query LIMIT $start_from, $records_per_page");
 
-                        echo "Total: $total_students";
+                        // echo "Total: $total_students";
 
                         // Check if the query was successful
                         if ($query) {
                             // Display the rows
                             echo "<div class='table-responsive'>";
-                            echo "<table class='table table-hover'>";
+                            echo "<table class='table table-hover caption-top'>";
+                            echo "<caption>Total: $total_students</caption>";
                             echo "<tr>";
                             echo "<th>ID</th>";
                             echo "<th>Name</th>";
@@ -406,7 +424,7 @@ $currentTime = date('H:i:s');
                                                         <p>Program: " . $row['program'] . "</p>
                                                         <p>Department: " . $row['department'] . "</p>
                                                     </div>
-                                                    <form action='' method='post' style='margin-top: 20px;'>
+                                                    <form action='' method='post' onsubmit='return confirmDelete();' style='margin-top: 20px;'>
                                                         <input type='hidden' name='delete_student_id' value='" . $row['student_id'] . "'>
                                                         <button type='submit' class='btn btn-danger'>Delete</button>
                                                     </form>
@@ -465,6 +483,11 @@ $currentTime = date('H:i:s');
                             $_SESSION['alert'] = ['message' => 'Error fetching data: ' . mysqli_error($conn), 'type' => 'danger'];
                         }
                     ?>
+                    <script>
+                        function confirmDelete() {
+                            return confirm("Are you sure you want to delete?");
+                        }
+                    </script>
                 </div>
                 
                 <div id="liveAlertPlaceholder"></div>

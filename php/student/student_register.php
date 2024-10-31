@@ -83,6 +83,9 @@
         border-top-right-radius: 0; 
         border-bottom-right-radius: 0;
     } */
+    form select, form select option{
+        cursor: pointer;
+    }
 </style>
 
 <body>
@@ -106,135 +109,203 @@
                     </div>
 
                     <div class="form-container col-lg-6 col-md-6 col-sm-12 col-12 d-flex align-items-center justify-content-center">
-                    <?php
-                        // Include the database configuration file
-                        require_once '../db_config.php';
+                        <?php
+                            // Include the database configuration file
+                            require_once '../db_config.php';
 
-                        // Check if the form has been submitted
-                        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                            // Get the username and password from the form
-                            $firstName = mysqli_real_escape_string($conn, $_POST['firstName']);
-                            $lastName = mysqli_real_escape_string($conn, $_POST['lastName']);
-                            $contact = mysqli_real_escape_string($conn, $_POST['contact']);
-                            $email = mysqli_real_escape_string($conn, $_POST['email']);
+                            // Fetch departments
+                            $departments = $conn->query("SELECT * FROM department_table");
 
-                            $password = $_POST['password'];
-                            $hash = password_hash($password, PASSWORD_DEFAULT);
-                            
-                            $program = mysqli_real_escape_string($conn, $_POST['program']);
-                            $department = mysqli_real_escape_string($conn, $_POST['department']);
+                            // Fetch programs (assuming there's a department_id in the programs table)
+                            $programs = $conn->query("SELECT p.id, p.name, p.department_id,  d.name AS department_name FROM program_table p JOIN department_table d ON p.department_id = d.id");
 
-                            // Get file info
-                            $fileCOR = basename($_FILES["cor"]["name"]);
-                            $fileID = basename($_FILES["id"]["name"]);
-                            $filePic = basename($_FILES["pic"]["name"]);
-                            
-                            // Allow certain file formats
-                            $allowTypesPDF = array('pdf');
-                            $allowTypesImage = array('jpg', 'jpeg', 'png');
-
-                            // Check file types
-                            $fileTypeCOR = strtolower(pathinfo($fileCOR, PATHINFO_EXTENSION));
-                            $fileTypeID = strtolower(pathinfo($fileID, PATHINFO_EXTENSION));
-                            $fileTypePic = strtolower(pathinfo($filePic, PATHINFO_EXTENSION));
-
-                            // Check if COR and ID are PDFs and Profile Picture is an image
-                            if (in_array($fileTypeCOR, $allowTypesPDF) && in_array($fileTypeID, $allowTypesPDF) &&
-                                in_array($fileTypePic, $allowTypesImage) &&
-                                $_FILES['cor']['error'] === UPLOAD_ERR_OK && 
-                                $_FILES['id']['error'] === UPLOAD_ERR_OK && 
-                                $_FILES['pic']['error'] === UPLOAD_ERR_OK) {
-                                
-                                // Check if the email is unique
-                                $emailCheckStmt = $conn->prepare("SELECT email FROM verification_table WHERE email = ?");
-                                $emailCheckStmt->bind_param("s", $email);
-                                $emailCheckStmt->execute();
-                                $emailCheckStmt->store_result();
-
-                                if ($emailCheckStmt->num_rows > 0) {
-                                    // Email already exists
-                                    echo "<script>alert('Email already exists! Please use a different email.'); window.location.href='student_register.php';</script>";
-                                } else {
-                                    // Get the file contents
-                                    $corContent = file_get_contents($_FILES['cor']['tmp_name']);
-                                    $idContent = file_get_contents($_FILES['id']['tmp_name']);
-                                    $picContent = file_get_contents($_FILES['pic']['tmp_name']);
-
-                                    // Prepare the SQL statement
-                                    $stmt = $conn->prepare("INSERT INTO verification_table (first_name, last_name, contact_num, email, password, program, 
-                                    department, cor, cor_filetype, id_file, id_filetype, profile_pic, pic_filetype) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-                                    $stmt->bind_param("sssssssssssss", $firstName, $lastName, $contact, $email, $hash, $program, $department, $corContent, 
-                                    $fileTypeCOR, $idContent, $fileTypeID, $picContent, $fileTypePic);
-                                    
-                                    // Execute the statement and check for success
-                                    if ($stmt->execute()) {
-                                        echo "<script>alert('Register Successful!'); window.location.href='student-login.php';</script>";
-                                    } else {
-                                        echo "<script>alert('Uploading Failed!'); window.location.href='student_register.php';</script>";
-                                    }
-                                    
-                                    // Close the statement
-                                    $stmt->close();
-                                }
-
-                                // Close the email check statement
-                                $emailCheckStmt->close();
-                            } else {
-                                echo "<script>alert('Sorry, only PDF files for COR and ID, and image files for Profile Picture are allowed to upload!'); window.location.href='student_register.php';</script>";
+                            // Store programs by department
+                            $programs_by_department = [];
+                            while ($row = $programs->fetch_assoc()) {
+                                $programs_by_department[$row['department_id']][] = $row;
                             }
-                        }
-                    ?>
+
+                            // Check if the form has been submitted
+                            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+                                // Get the username and password from the form
+                                $firstName = mysqli_real_escape_string($conn, $_POST['firstName']);
+                                $lastName = mysqli_real_escape_string($conn, $_POST['lastName']);
+                                $contact = mysqli_real_escape_string($conn, $_POST['contact']);
+                                $email = mysqli_real_escape_string($conn, $_POST['email']);
+
+                                $password = $_POST['password'];
+                                $hash = password_hash($password, PASSWORD_DEFAULT);
+                                
+                                // Assuming $department and $program are the IDs from the form submission
+                                $department_id = mysqli_real_escape_string($conn, $_POST['department']);
+                                $program_id = mysqli_real_escape_string($conn, $_POST['program']);
+                                
+                                // Fetch department name
+                                $department_result = $conn->query("SELECT name FROM department_table WHERE id = '$department_id'");
+                                $department_row = $department_result->fetch_assoc();
+                                $department_name = $department_row['name'] ?? null; // Use null coalescing to avoid undefined index
+
+                                // Fetch program name
+                                $program_result = $conn->query("SELECT name FROM program_table WHERE id = '$program_id'");
+                                $program_row = $program_result->fetch_assoc();
+                                $program_name = $program_row['name'] ?? null; // Use null coalescing to avoid undefined index
+
+                                // Get file info
+                                $fileCOR = basename($_FILES["cor"]["name"]);
+                                $fileID = basename($_FILES["id"]["name"]);
+                                $filePic = basename($_FILES["pic"]["name"]);
+                                
+                                // Allow certain file formats
+                                $allowTypesPDF = array('pdf');
+                                $allowTypesImage = array('jpg', 'jpeg', 'png');
+
+                                // Check file types
+                                $fileTypeCOR = strtolower(pathinfo($fileCOR, PATHINFO_EXTENSION));
+                                $fileTypeID = strtolower(pathinfo($fileID, PATHINFO_EXTENSION));
+                                $fileTypePic = strtolower(pathinfo($filePic, PATHINFO_EXTENSION));
+
+                                // Check if COR and ID are PDFs and Profile Picture is an image
+                                if (in_array($fileTypeCOR, $allowTypesPDF) && in_array($fileTypeID, $allowTypesPDF) &&
+                                    in_array($fileTypePic, $allowTypesImage) &&
+                                    $_FILES['cor']['error'] === UPLOAD_ERR_OK && 
+                                    $_FILES['id']['error'] === UPLOAD_ERR_OK && 
+                                    $_FILES['pic']['error'] === UPLOAD_ERR_OK) {
+                                    
+                                    // Check if the email is unique
+                                    $emailCheckStmt = $conn->prepare("SELECT email FROM verification_table WHERE email = ?");
+                                    $emailCheckStmt->bind_param("s", $email);
+                                    $emailCheckStmt->execute();
+                                    $emailCheckStmt->store_result();
+
+                                    if ($emailCheckStmt->num_rows > 0) {
+                                        // Email already exists
+                                        echo "<script>alert('Email already exists! Please use a different email.'); window.location.href='student_register.php';</script>";
+                                    } else {
+                                        // Get the file contents
+                                        $corContent = file_get_contents($_FILES['cor']['tmp_name']);
+                                        $idContent = file_get_contents($_FILES['id']['tmp_name']);
+                                        $picContent = file_get_contents($_FILES['pic']['tmp_name']);
+
+                                        // Prepare the SQL statement
+                                        $stmt = $conn->prepare("INSERT INTO verification_table (first_name, last_name, contact_num, email, password, program, 
+                                        department, cor, cor_filetype, id_file, id_filetype, profile_pic, pic_filetype) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                                        $stmt->bind_param("sssssssssssss", $firstName, $lastName, $contact, $email, $hash, $program_name, $department_name, 
+                                        $corContent, $fileTypeCOR, $idContent, $fileTypeID, $picContent, $fileTypePic);
+                                        
+                                        // Execute the statement and check for success
+                                        if ($stmt->execute()) {
+                                            echo "<script>alert('Register Successful!'); window.location.href='student-login.php';</script>";
+                                        } else {
+                                            echo "<script>alert('Uploading Failed!'); window.location.href='student_register.php';</script>";
+                                        }
+                                        
+                                        // Close the statement
+                                        $stmt->close();
+                                    }
+
+                                    // Close the email check statement
+                                    $emailCheckStmt->close();
+                                } else {
+                                    echo "<script>alert('Sorry, only PDF files for COR and ID, and image files for Profile Picture are allowed to upload!'); window.location.href='student_register.php';</script>";
+                                }
+                            }
+                        ?>
 
                     <!-- Register Form -->
-                    <form id="registerForm" class="mt-3 mb-3" action="student_register.php" method="post" enctype="multipart/form-data" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
-                        <h3 class="text-center">Create Your Account</h3><br>
-                        <div class="content">
-                            <div class="input-group mb-2">
-                                <input type="text" class="form-control" placeholder="First Name" name="firstName" id="firstName" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
-                                <input type="text" class="form-control ms-1" placeholder="Last Name" name="lastName" id="lastName" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px; border-top-left-radius: 16px; border-bottom-left-radius: 16px; ">
-                            </div>
+                        <form id="registerForm" class="mt-3 mb-3" action="student_register.php" method="post" enctype="multipart/form-data" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
+                            <h3 class="text-center">Create Your Account</h3><br>
+                            <div class="content">
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" placeholder="First Name" name="firstName" id="firstName" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
+                                    <input type="text" class="form-control ms-1" placeholder="Last Name" name="lastName" id="lastName" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px; border-top-left-radius: 16px; border-bottom-left-radius: 16px; ">
+                                </div>
 
-                            <div class="input-group mb-2">
-                                <input type="text" class="form-control" placeholder="Contact Number" name="contact" id="contact" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
-                            </div>
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" placeholder="Contact Number" name="contact" id="contact" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
+                                </div>
 
-                            <div class="input-group mb-2">
-                                <input type="email" class="form-control" placeholder="Email" name="email" id="email" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
-                            </div>
+                                <div class="input-group mb-2">
+                                    <input type="email" class="form-control" placeholder="Email" name="email" id="email" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
+                                </div>
 
-                            <div class="input-group mb-2">
-                                <input type="password" class="form-control" placeholder="Password" name="password" id="password" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
-                            </div>
-                            <div class="input-group mb-2">
-                                <input type="password" class="form-control" placeholder="Confirm Password" name="confirmPassword" id="confirmPassword" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
-                            </div>
+                                <div class="input-group mb-2">
+                                    <input type="password" class="form-control" placeholder="Password" name="password" id="password" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
+                                </div>
+                                <div class="input-group mb-2">
+                                    <input type="password" class="form-control" placeholder="Confirm Password" name="confirmPassword" id="confirmPassword" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
+                                </div>
+                                <div class="input-group mb-2">
+                                    <select name="department" id="department" class="form-select" required>
+                                        <option value="" disabled selected>Select Department</option>
+                                        <?php
+                                        // Fetch departments
+                                        $result = $conn->query("SELECT * FROM department_table");
+                                        while ($row = $result->fetch_assoc()) {
+                                            echo "<option value='" . $row['id'] . "'>" . $row['name'] . "</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                    <select name="program" id="program" class="form-select ms-1" required>
+                                        <option value="" disabled selected>Select Program</option>
+                                        <!-- Programs will be populated with JavaScript -->
+                                    </select>
+                                </div>
+                                <div class="input-group mb-2">
+                                    <label for="cor">Upload your COR</label>
+                                    <input type="file" class="form-control" name="cor" id="cor" accept=".pdf">
+                                </div>
 
-                            <div class="input-group mb-2">
-                                <input type="text" class="form-control" placeholder="Program" name="program" id="program" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
-                                <input type="text" class="form-control ms-1" placeholder="Department" name="department" id="department" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px; border-top-left-radius: 16px; border-bottom-left-radius: 16px; ">
-                            </div>
+                                <div class="input-group mb-3">
+                                    <label for="id">Upload your ID</label>
+                                    <input type="file" class="form-control" name="id" id="id" accept=".pdf">
+                                </div>
 
-                            <div class="input-group mb-2">
-                                <label for="cor">Upload your COR</label>
-                                <input type="file" class="form-control" name="cor" id="cor" accept=".pdf">
+                                <div class="input-group mb-3">
+                                    <label for="id">Upload your Profile Picture</label>
+                                    <input type="file" class="form-control" name="pic" id="pic" accept="image/*">
+                                </div>
+                                    
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <button type="submit" class="btn btn-danger w-100">Register</button>
+                                </div>
                             </div>
+                        </form>
+                        <script>
+                            // Populate programs based on department selection
+                            document.getElementById('department').addEventListener('change', function() {
+                                const departmentId = this.value;
+                                const programSelect = document.getElementById('program');
 
-                            <div class="input-group mb-3">
-                                <label for="id">Upload your ID</label>
-                                <input type="file" class="form-control" name="id" id="id" accept=".pdf">
-                            </div>
+                                // Clear previous options
+                                programSelect.innerHTML = '<option value="" disabled selected>Select Program</option>';
 
-                            <div class="input-group mb-3">
-                                <label for="id">Upload your Profile Picture</label>
-                                <input type="file" class="form-control" name="pic" id="pic" accept="image/*">
-                            </div>
-                                
-                            <div class="d-flex align-items-center justify-content-center">
-                                <button type="submit" class="btn btn-danger w-100">Register</button>
-                            </div>
-                        </div>
-                    </form>
-
+                                // Get programs related to the selected department
+                                const programs = <?= json_encode($programs_by_department) ?>;
+                                if (programs[departmentId]) {
+                                    if (programs[departmentId].length === 0) {
+                                        const option = document.createElement('option');
+                                        option.value = "";
+                                        option.textContent = "No programs yet";
+                                        option.disabled = true; // Disable the option
+                                        programSelect.appendChild(option);
+                                    } else {
+                                        programs[departmentId].forEach(program => {
+                                            const option = document.createElement('option');
+                                            option.value = program.id;
+                                            option.textContent = program.name;
+                                            programSelect.appendChild(option);
+                                        });
+                                    }
+                                } else {
+                                    // In case there's no data for the selected department
+                                    const option = document.createElement('option');
+                                    option.value = "";
+                                    option.textContent = "No programs yet";
+                                    option.disabled = true; // Disable the option
+                                    programSelect.appendChild(option);
+                                }
+                            });
+                        </script>
                     </div>
 
                 </div>

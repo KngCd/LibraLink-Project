@@ -187,6 +187,12 @@ $currentTime = date('H:i:s');
                 </a>
             </div>
             <div class="dashboard-item">
+                <a href="program_dept.php" class="dashboard-link">
+                    <i class="bi bi-buildings"></i>
+                    <span>Programs and Departments</span>
+                </a>
+            </div>
+            <div class="dashboard-item">
                 <a href="books.php" class="dashboard-link">
                     <i class="bi bi-book-fill"></i>
                     <span>Books</span>
@@ -371,7 +377,7 @@ $currentTime = date('H:i:s');
                             </div>
                         </div>
                     </div>
-                </div>
+            </div>
         </section>
     </main>
 

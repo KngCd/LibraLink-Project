@@ -142,6 +142,9 @@ $currentTime = date('H:i:s');
     .button{
         border-radius: 30px !important;
     }
+    form select, form select option{
+        cursor: pointer;
+    }
 </style>
 
 <body>
@@ -177,6 +180,12 @@ $currentTime = date('H:i:s');
                 <a href="accepted_student.php" class="dashboard-link">
                     <i class="bi bi-person-fill-check"></i>
                     <span>Accepted</span>
+                </a>
+            </div>
+            <div class="dashboard-item">
+                <a href="program_dept.php" class="dashboard-link">
+                    <i class="bi bi-buildings"></i>
+                    <span>Programs and Departments</span>
                 </a>
             </div>
             <div class="dashboard-item">
@@ -226,6 +235,14 @@ $currentTime = date('H:i:s');
 
             updateClock();
             setInterval(updateClock, 1000);
+            
+            // Scroll to active link when the offcanvas is shown
+            document.getElementById('offcanvasWithBothOptions').addEventListener('shown.bs.offcanvas', function () {
+                const activeLink = document.getElementById('active');
+                if (activeLink) {
+                    activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
         </script>
     </div>
     <!-- END SIDEBAR -->    
@@ -315,9 +332,9 @@ $currentTime = date('H:i:s');
                     ?>
 
                     <form class="d-flex" method="GET">
-                        <input class="form-control me-2" type="search" name="search" placeholder="Search" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
+                        <input class="form-control me-2 w-50 me-5" type="search" name="search" placeholder="Search" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
-                        <select name="status" class="form-control w-25 me-3">
+                        <select name="status" class="form-select w-25 ms-5 me-3">
                             <option value="">All Status</option>
                             <option value="available" <?php echo ($selected_status === 'available') ? 'selected' : ''; ?>>Available</option>
                             <option value="not_available" <?php echo ($selected_status === 'not_available') ? 'selected' : ''; ?>>Not Available</option>
