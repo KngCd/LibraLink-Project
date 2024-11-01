@@ -366,13 +366,9 @@ $currentTime = date('H:i:s');
                             $_SESSION['current_page'] = 1;
                         }
 
-                        // Handle next and previous button clicks
-                        if (isset($_POST['next'])) {
-                            $_SESSION['current_page']++;
-                        } elseif (isset($_POST['previous'])) {
-                            if ($_SESSION['current_page'] > 1) {
-                                $_SESSION['current_page']--;
-                            }
+                        // Handle next and previous button clicks via GET parameters
+                        if (isset($_GET['page'])) {
+                            $_SESSION['current_page'] = (int)$_GET['page'];
                         }
 
                         // Fetch the total number of registered students based on the filter
@@ -508,16 +504,32 @@ $currentTime = date('H:i:s');
                             // Display pagination buttons
                             echo "<div class='pagination-buttons'>";
                             echo "<form action='' method='post'>";
+                            // Build the filter parameters for pagination links
+                            $filter_params = '';
+
+                            // Add search parameter
+                            if (!empty($search)) {
+                                $filter_params .= '&search=' . urlencode($search);
+                            }
+                            // Add filter parameter
+                            if (!empty($selected_program)) {
+                                $filter_params .= '&program=' . urlencode($selected_program);
+                            }
+                            // Add filter parameter
+                            if (!empty($selected_department)) {
+                                $filter_params .= '&department=' . urlencode($selected_department);
+                            }
+
                             if ($_SESSION['current_page'] > 1) {
-                                echo "<button type='submit' name='previous' class='btn btn-danger' style='width: 50px;'>&lt;</button>";
+                                echo "<a href='?page=" . ($_SESSION['current_page'] - 1) . "$filter_params' class='btn btn-danger' style='width: 50px;'>&lt;</a>";
                             } else {
-                                echo "<button type='submit' name='previous' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
+                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
                             }
                             echo "<span> Page " . $_SESSION['current_page'] . " " . "</span>";
                             if ($total_students > $records_per_page && $_SESSION['current_page'] < $total_pages) {
-                                echo "<button type='submit' name='next' class='btn btn-danger' style='width: 50px;'>&gt;</button>";
+                                echo "<a href='?page=" . ($_SESSION['current_page'] + 1) . "$filter_params' class='btn btn-danger' style='width: 50px;'>&gt;</a>";
                             } else {
-                                echo "<button type='submit' name='next' class='btn btn-danger' style='width: 50px;' disabled>&gt;</button>";
+                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&gt;</button>";
                             }
                             echo "</form>";
                             echo "</div>";

@@ -331,22 +331,22 @@ $currentTime = date('H:i:s');
                     ?>
 
                     <form class="d-flex" method="GET">
-                        <input class="form-control me-2 w-50" type="search" name="search" placeholder="Search" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
-
-                        <select name="program" class="form-select w-25 me-3">
-                            <option value="">All Programs</option>
-                            <?php foreach ($programs as $program): ?>
-                                <option value="<?= htmlspecialchars($program) ?>" <?= $selected_program === $program ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($program) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <input class="form-control me-2 w-50" type="search" name="search" placeholder="Search" aria-label="Search for Name or Email" value="<?= htmlspecialchars($search) ?>">
 
                         <select name="department" class="form-select w-25 me-3">
                             <option value="">All Departments</option>
                             <?php foreach ($departments as $department): ?>
                                 <option value="<?= htmlspecialchars($department) ?>" <?= $selected_department === $department ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($department) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+
+                        <select name="program" class="form-select w-25 me-3">
+                            <option value="">All Programs</option>
+                            <?php foreach ($programs as $program): ?>
+                                <option value="<?= htmlspecialchars($program) ?>" <?= $selected_program === $program ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($program) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -366,13 +366,19 @@ $currentTime = date('H:i:s');
                         }
 
                         // Handle next and previous button clicks
-                        if (isset($_POST['anext'])) {
-                            $_SESSION['acurrent_page']++;
-                        } elseif (isset($_POST['aprevious'])) {
-                            if ($_SESSION['acurrent_page'] > 1) {
-                                $_SESSION['acurrent_page']--;
-                            }
+                        // if (isset($_POST['anext'])) {
+                        //     $_SESSION['acurrent_page']++;
+                        // } elseif (isset($_POST['aprevious'])) {
+                        //     if ($_SESSION['acurrent_page'] > 1) {
+                        //         $_SESSION['acurrent_page']--;
+                        //     }
+                        // }
+
+                        // Handle next and previous button clicks via GET parameters
+                        if (isset($_GET['page'])) {
+                            $_SESSION['acurrent_page'] = (int)$_GET['page'];
                         }
+
 
                         // Fetch the total number of accepted students based on the filter
                         $total_query = mysqli_query($conn, "SELECT COUNT(*) AS total FROM student_table $where_query");
@@ -463,20 +469,37 @@ $currentTime = date('H:i:s');
 
                             // Display pagination buttons
                             echo "<div class='pagination-buttons'>";
-                            echo "<form action='' method='post'>";
+                            echo "<form action='' method='get'>";
+                            // Build the filter parameters for pagination links
+                            $filter_params = '';
+
+                            // Add search parameter
+                            if (!empty($search)) {
+                                $filter_params .= '&search=' . urlencode($search);
+                            }
+                            // Add filter parameter
+                            if (!empty($selected_program)) {
+                                $filter_params .= '&program=' . urlencode($selected_program);
+                            }
+                            // Add filter parameter
+                            if (!empty($selected_department)) {
+                                $filter_params .= '&department=' . urlencode($selected_department);
+                            }
+
                             if ($_SESSION['acurrent_page'] > 1) {
-                                echo "<button type='submit' name='aprevious' class='btn btn-danger' style='width: 50px;'>&lt;</button>";
+                                echo "<a href='?page=" . ($_SESSION['acurrent_page'] - 1) . "$filter_params' class='btn btn-danger' style='width: 50px;'>&lt;</a>";
                             } else {
-                                echo "<button type='submit' name='aprevious' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
+                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
                             }
                             echo "<span> Page " . $_SESSION['acurrent_page'] . " " . "</span>";
                             if ($total_students > $records_per_page && $_SESSION['acurrent_page'] < $total_pages) {
-                                echo "<button type='submit' name='anext' class='btn btn-danger' style='width: 50px;'>&gt;</button>";
+                                echo "<a href='?page=" . ($_SESSION['acurrent_page'] + 1) . "$filter_params' class='btn btn-danger' style='width: 50px;'>&gt;</a>";
                             } else {
-                                echo "<button type='submit' name='anext' class='btn btn-danger' style='width: 50px;' disabled>&gt;</button>";
+                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&gt;</button>";
                             }
                             echo "</form>";
                             echo "</div>";
+
 
                         } else {
                             // echo "Error fetching data: " . mysqli_error($conn);

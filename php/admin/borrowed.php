@@ -313,7 +313,7 @@ $currentTime = date('H:i:s');
                         // Ensure to use the correct table alias for the search fields
                         if (!empty($search)) {
                             $search = mysqli_real_escape_string($conn, $search);
-                            $where_clauses[] = "(s.first_name LIKE '%$search%' OR s.last_name LIKE '%$search%' OR s.email LIKE '%$search%')";
+                            $where_clauses[] = "(s.first_name LIKE '%$search%' OR s.last_name LIKE '%$search%' OR s.email LIKE '%$search%' or b.title LIKE '%$search%')";
                         }
 
                         if (!empty($selected_program)) {
@@ -395,7 +395,7 @@ $currentTime = date('H:i:s');
                     ?>
 
                     <form class="d-flex" method="GET">
-                        <input class="form-control me-2 w-50" type="search" name="search" placeholder="Search" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
+                        <input class="form-control me-2 w-50" type="search" name="search" placeholder="Search for Name, Email, or Title" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
                         <select name="program" class="form-select me-3" style="width: fit-content;">
                             <option value="">All Programs</option>
@@ -449,18 +449,25 @@ $currentTime = date('H:i:s');
                         }
 
                         // Handle next and previous button clicks
-                        if (isset($_POST['bbnext'])) {
-                            $_SESSION['bbcurrent_page']++;
-                        } elseif (isset($_POST['bbprevious'])) {
-                            if ($_SESSION['bbcurrent_page'] > 1) {
-                                $_SESSION['bbcurrent_page']--;
-                            }
+                        // if (isset($_POST['bbnext'])) {
+                        //     $_SESSION['bbcurrent_page']++;
+                        // } elseif (isset($_POST['bbprevious'])) {
+                        //     if ($_SESSION['bbcurrent_page'] > 1) {
+                        //         $_SESSION['bbcurrent_page']--;
+                        //     }
+                        // }
+
+                        // Handle next and previous button clicks via GET parameters
+                        if (isset($_GET['page'])) {
+                            $_SESSION['bbcurrent_page'] = (int)$_GET['page'];
                         }
 
                         // Fetch the total number of borrowed books based on the filter
                         $total_query = mysqli_query($conn, "SELECT COUNT(*) AS total 
-                                                    FROM borrow_table AS br
-                                                    INNER JOIN student_table AS s ON br.student_id = s.student_id $where_query");
+                                                            FROM borrow_table AS br
+                                                            INNER JOIN student_table AS s ON br.student_id = s.student_id
+                                                            INNER JOIN book_table AS b ON br.book_id = b.book_id
+                                                            $where_query");
                         $total_row = mysqli_fetch_assoc($total_query);
                         $total_borrowed = $total_row['total'];
                         $total_pages = ceil($total_borrowed / $records_per_page);
@@ -475,13 +482,14 @@ $currentTime = date('H:i:s');
                                                         $where_query
                                                         LIMIT $start_from, $records_per_page");
 
-                        echo "Total: $total_borrowed";
+                        // echo "Total: $total_borrowed";
 
                         // Check if the query was successful
                         if ($query) {
                             // Display the rows
                             echo "<div class='table-responsive'>";
-                            echo "<table class='table table-hover'>";
+                            echo "<table class='table table-hover caption-top'>";
+                            echo "<caption>Total: $total_borrowed</caption>";
                             echo "<tr>";
                             echo "<th>Name</th>";
                             //  echo "<th>Email</th>";
@@ -547,24 +555,46 @@ $currentTime = date('H:i:s');
 
                             // Display pagination buttons
                             echo "<div class='pagination-buttons'>";
-                            echo "<form action='' method='post'>";
+                            echo "<form action='' method='get'>"; // Change to GET method
+
+                            // Include search and status in the pagination links
+                            $filter_params = '';
+                            if (!empty($search)) {
+                                $filter_params .= '&search=' . urlencode($search);
+                            }
+                            if (!empty($selected_program)) {
+                                $filter_params .= '&program=' . urlencode($selected_program);
+                            }
+                            if (!empty($selected_department)) {
+                                $filter_params .= '&department=' . urlencode($selected_department);
+                            }
+                            if (!empty($borrow_date_filter)) {
+                                $filter_params .= '&borrow_date_filter=' . urlencode($borrow_date_filter);
+                            }                            
+                            if (!empty($due_date_filter)) {
+                                $filter_params .= '&due_date_filter=' . urlencode($due_date_filter);
+                            }        
+
+                            // Pagination buttons
                             if ($_SESSION['bbcurrent_page'] > 1) {
-                                echo "<button type='submit' name='bbprevious' class='btn btn-danger' style='width: 50px;'>&lt;</button>";
+                                echo "<a href='?page=" . ($_SESSION['bbcurrent_page'] - 1) . $filter_params . "' class='btn btn-danger' style='width: 50px;'>&lt;</a>";
                             } else {
-                                echo "<button type='submit' name='bbprevious' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
+                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
                             }
-                            echo "<span> Page " . $_SESSION['bbcurrent_page'] . " " . "</span>";
+                            echo "<span> Page " . $_SESSION['bbcurrent_page'] . " </span>";
                             if ($total_borrowed > $records_per_page && $_SESSION['bbcurrent_page'] < $total_pages) {
-                                echo "<button type='submit' name='bbnext' class='btn btn-danger' style='width: 50px;'>&gt;</button>";
+                                echo "<a href='?page=" . ($_SESSION['bbcurrent_page'] + 1) . $filter_params . "' class='btn btn-danger' style='width: 50px;'>&gt;</a>";
                             } else {
-                                echo "<button type='submit' name='bbnext' class='btn btn-danger' style='width: 50px;' disabled>&gt;</button>";
+                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&gt;</button>";
                             }
+                            echo "</form>";
+                            echo "</div>";
                             echo "</form>";
                             echo "</div>";
 
                         } else {
                             //  echo "Error fetching data: " . mysqli_error($conn);
-                        $_SESSION['alert'] = ['message' => 'Error fetching data: ' . mysqli_error($conn), 'type' => 'danger'];
+                            $_SESSION['alert'] = ['message' => 'Error fetching data: ' . mysqli_error($conn), 'type' => 'danger'];
                         }
                     ?>
                 </div>

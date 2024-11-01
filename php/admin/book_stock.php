@@ -332,7 +332,7 @@ $currentTime = date('H:i:s');
                     ?>
 
                     <form class="d-flex" method="GET">
-                        <input class="form-control me-2 w-50 me-5" type="search" name="search" placeholder="Search" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
+                        <input class="form-control me-2 w-50 me-5" type="search" name="search" placeholder="Search for Title or Author" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
                         <select name="status" class="form-select w-25 ms-5 me-3">
                             <option value="">All Status</option>
@@ -355,6 +355,71 @@ $currentTime = date('H:i:s');
                 </div>
 
                 <div class="container p-3">
+                    <!-- Handle the Adding of Stocks -->
+                    <?php
+                        if (isset($_POST['add'])) {
+                            $book_id = $_POST['book_id'];
+                            $new_stocks = $_POST['stocks'];
+
+                            // Check if the book_id already exists in the inventory_table
+                            $check_query = "SELECT stocks FROM inventory_table WHERE book_id = '$book_id'";
+                            $check_result = mysqli_query($conn, $check_query);
+
+                            if (mysqli_num_rows($check_result) == 0) {
+                                // If the book doesn't exist, allow insertion of new stocks
+                                if ($new_stocks < 0) {
+                                    // Prevent negative stock input for new books
+                                    echo "<script>alert('Cannot add negative stocks for a new book.'); window.location.href = 'book_stock.php';</script>";
+                                    exit;
+                                }
+
+                                // Insert the new book record
+                                $query = "INSERT INTO inventory_table (book_id, stocks) VALUES ('$book_id', '$new_stocks')";
+                                $result = mysqli_query($conn, $query);
+
+                                if ($result) {
+                                    echo "<script>window.location.href = 'book_stock.php?alert=success';</script>";
+                                } else {
+                                    echo "<script>window.location.href = 'book_stock.php?alert=danger';</script>";
+                                }
+                                exit;
+
+                            } else {
+                                // Book exists; check current stock
+                                $current_stock = mysqli_fetch_assoc($check_result)['stocks'];
+
+                                // Assume you have a way to track borrowed stock; set it based on your application logic
+                                $borrowed = 1; // Example value; replace with actual logic for borrowed books
+                                $available_stock = $current_stock - $borrowed;
+
+                                // Check if decreasing stocks would affect available stock
+                                if ($new_stocks < 0) {
+                                    // Calculate potential new total stock
+                                    $potential_new_total_stock = $current_stock + $new_stocks;
+
+                                    // Check if the current borrowed count would cause available stock to go negative
+                                    if ($potential_new_total_stock < $borrowed) {
+                                        echo "<script>alert('Cannot decrease stocks. Available stocks would go below zero.'); window.location.href = 'book_stock.php';</script>";
+                                        exit;
+                                    }
+                                }
+
+                                // Update the existing record
+                                $new_total_stock = $current_stock + $new_stocks;
+                                $query = "UPDATE inventory_table SET stocks = '$new_total_stock' WHERE book_id = '$book_id'";
+                                $update = mysqli_query($conn, $query);
+
+                                if ($update) {
+                                    echo "<script>window.location.href = 'book_stock.php?alert=success';</script>";
+                                } else {
+                                    echo "<script>window.location.href = 'book_stock.php?alert=danger';</script>";
+                                }
+                                exit;
+                            }
+                        }
+                    ?>
+
+                
                     <?php
                         $records_per_page = 3;
 
@@ -364,12 +429,17 @@ $currentTime = date('H:i:s');
                         }
 
                         // Handle next and previous button clicks
-                        if (isset($_POST['snext'])) {
-                            $_SESSION['scurrent_page']++;
-                        } elseif (isset($_POST['sprevious'])) {
-                            if ($_SESSION['scurrent_page'] > 1) {
-                                $_SESSION['scurrent_page']--;
-                            }
+                        // if (isset($_POST['snext'])) {
+                        //     $_SESSION['scurrent_page']++;
+                        // } elseif (isset($_POST['sprevious'])) {
+                        //     if ($_SESSION['scurrent_page'] > 1) {
+                        //         $_SESSION['scurrent_page']--;
+                        //     }
+                        // }
+
+                        // Handle next and previous button clicks via GET parameters
+                        if (isset($_GET['page'])) {
+                            $_SESSION['scurrent_page'] = (int)$_GET['page'];
                         }
 
                         // Fetch the total number of borrowed books based on the filter
@@ -387,7 +457,8 @@ $currentTime = date('H:i:s');
                                 LEFT JOIN inventory_table AS i ON b.book_id = i.book_id
                                 $where_query
                                 LIMIT $start_from, $records_per_page");
-                        echo "Total: $total_bstocks";
+                        
+                        // echo "Total: $total_bstocks";
                         
                         // Check if the query was successful
                         if ($query) {
@@ -398,7 +469,8 @@ $currentTime = date('H:i:s');
 
                             // Display the rows
                             echo "<div class='table-responsive'>";
-                            echo "<table class='table table-hover'>";
+                            echo "<table class='table table-hover caption-top'>";
+                            echo "<caption>Total: $total_bstocks</caption>";
                             echo "<tr>";
                             echo "<th>Book ID</th>";
                             echo "<th>Title</th>";
@@ -406,6 +478,7 @@ $currentTime = date('H:i:s');
                             echo "<th>Stocks</th>";
                             echo "<th>Borrowed</th>";
                             echo "<th>Available Stocks</th>";
+                            echo "<th>Add Stocks</th>";
                             echo "</tr>";
                             echo "<tbody class='table-group-divider'>";
                             while ($row = mysqli_fetch_assoc($query)) {
@@ -429,6 +502,15 @@ $currentTime = date('H:i:s');
                                 echo "<td>" . $row['stocks'] . "</td>";
                                 echo "<td>" . $borrowed . "</td>";
                                 echo "<td>" . $available_stocks . "</td>";
+                                echo "<td>
+                                        <form action='' method='post' onsubmit='return validateStocks(this);'>
+                                            <input type='hidden' name='book_id' value='" . htmlspecialchars($row['book_id']) . "' />
+                                            <div class='input-group'>
+                                                <input class='form-control me-2' type='number' name='stocks' value='0' required style='border-radius: 0.375rem;'>
+                                                <span><button type='submit' name='add' value='add' class='btn btn-success'>Add</button></span>
+                                            </div>
+                                        </form>
+                                    </td>";
                                 }
                                 // Display totals
                                 echo "<tr>";
@@ -439,38 +521,64 @@ $currentTime = date('H:i:s');
                                 echo "</tr>";
 
                             if(mysqli_num_rows($query) === 0){
-                                echo "<td colspan='6'>No records found</td>";
+                                echo "<td colspan='7'>No records found</td>";
                             }
                             echo "</tr>";
                             echo "</tbody>";
                             echo "</table>";
                             echo "</div>";
                     ?>
+
                 </div>
+
+                <!-- Function to Validate Stocks -->
+                <script>
+                    function validateStocks(form) {
+                        const stocksInput = form.elements['stocks'];
+                        const stocksValue = parseInt(stocksInput.value, 10);
+
+                        if (stocksValue == 0) {
+                            alert("Please enter a positive number of stocks to add.");
+                            return false; // Prevent form submission
+                        }
+                        return true; // Allow form submission
+                    }
+                </script>
+
                 
-                <button class="btn btn-success mb-3" type="button" data-bs-toggle="modal" data-bs-target="#addStocks">Add Stocks</button>
+                <!-- <button class="btn btn-success mb-3" type="button" data-bs-toggle="modal" data-bs-target="#addStocks">Add Stocks</button> -->
 
                     <?php
-                        // Display pagination buttons
-                        echo "<div class='pagination-buttons'>";
-                        echo "<form action='' method='post'>";
-                        if ($_SESSION['scurrent_page'] > 1) {
-                            echo "<button type='submit' name='sprevious' class='btn btn-danger' style='width: 50px;'>&lt;</button>";
+                            // Display pagination buttons
+                            echo "<div class='pagination-buttons'>";
+                            echo "<form action='' method='get'>"; // Change to GET method   
+
+                            // Include search and status in the pagination links
+                            $filter_params = '';
+                            if (!empty($search)) {
+                                $filter_params .= '&search=' . urlencode($search);
+                            }
+                            if (!empty($selected_status)) {
+                                $filter_params .= '&status=' . urlencode($selected_status);
+                            }
+
+                            // Pagination buttons
+                            if ($_SESSION['scurrent_page'] > 1) {
+                                echo "<a href='?page=" . ($_SESSION['scurrent_page'] - 1) . $filter_params . "' class='btn btn-danger' style='width: 50px;'>&lt;</a>";
+                            } else {
+                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
+                            }
+                            echo "<span> Page " . $_SESSION['scurrent_page'] . " </span>";
+                            if ($total_bstocks > $records_per_page && $_SESSION['scurrent_page'] < $total_pages) {
+                                echo "<a href='?page=" . ($_SESSION['scurrent_page'] + 1) . $filter_params . "' class='btn btn-danger' style='width: 50px;'>&gt;</a>";
+                            } else {
+                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&gt;</button>";
+                            }
+                            echo "</form>";
+                            echo "</div>";
                         } else {
-                            echo "<button type='submit' name='sprevious' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
+                            $_SESSION['alert'] = ['message' => 'Error fetching data: ' . mysqli_error($conn), 'type' => 'danger'];
                         }
-                        echo "<span> Page " . $_SESSION['scurrent_page'] . " " . "</span>";
-                        if ($total_bstocks > $records_per_page && $_SESSION['scurrent_page'] < $total_pages) {
-                            echo "<button type='submit' name='snext' class='btn btn-danger' style='width: 50px;'>&gt;</button>";
-                        } else {
-                            echo "<button type='submit' name='snext' class='btn btn-danger' style='width: 50px;' disabled>&gt;</button>";
-                        }
-                        echo "</form>";
-                        echo "</div>";
-                    } else {
-                        // echo "Error fetching data: " . mysqli_error($conn);
-                        $_SESSION['alert'] = ['message' => 'Error fetching data: ' . mysqli_error($conn), 'type' => 'danger'];
-                    }
                     ?>
                 <!-- <button class="btn btn-primary" popovertarget="total-stocks" popovertargetaction="hide">Close</button> -->
 
@@ -495,7 +603,7 @@ $currentTime = date('H:i:s');
                         const urlParams = new URLSearchParams(window.location.search);
                         if (urlParams.has('alert')) {
                             const alertType = urlParams.get('alert');
-                            const message = alertType === 'success' ? 'Book Stocks added!' : 'ERROR: Adding Book Stocks!';
+                            const message = alertType === 'success' ? 'Book stocks added!' : 'ERROR: Adding book stocks!';
                             appendAlert(message, alertType);
                             
                             // Clear the alert parameter from the URL
@@ -507,114 +615,114 @@ $currentTime = date('H:i:s');
              </div>
 
              <!-- Modal for adding Book Stocks -->
-             <div class="modal fade" id="addStocks" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+             <!-- <div class="modal fade" id="addStocks" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-body">
                             <?php
                                 require_once '../db_config.php';
 
-                                // Check if the form has been submitted
-                                if (isset($_POST['add'])) {
-                                    $book_id = $_POST['book_id'];
-                                    $title = $_POST['title'];
-                                    $status = $_POST['status'];
-                                    $new_stocks = $_POST['stocks'];
+                                // // Check if the form has been submitted
+                                // if (isset($_POST['add'])) {
+                                //     $book_id = $_POST['book_id'];
+                                //     $title = $_POST['title'];
+                                //     $status = $_POST['status'];
+                                //     $new_stocks = $_POST['stocks'];
 
-                                    if ($_POST['add'] == 'add') {
-                                        // Check if the book_id already exists in the inventory_table
-                                        $check_query = "SELECT * FROM inventory_table WHERE book_id = '$book_id'";
-                                        $check_result = mysqli_query($conn, $check_query);
+                                //     if ($_POST['add'] == 'add') {
+                                //         // Check if the book_id already exists in the inventory_table
+                                //         $check_query = "SELECT * FROM inventory_table WHERE book_id = '$book_id'";
+                                //         $check_result = mysqli_query($conn, $check_query);
                                         
-                                        if (mysqli_num_rows($check_result) == 0) {
-                                            // Insert the details into the inventory_table
-                                            $query = "INSERT INTO inventory_table (book_id, stocks, status) VALUES ('$book_id', '$new_stocks', '" . ($new_stocks > 0 ? 'Available' : 'Not Available') . "')";
-                                            $result = mysqli_query($conn, $query);
+                                //         if (mysqli_num_rows($check_result) == 0) {
+                                //             // Insert the details into the inventory_table
+                                //             $query = "INSERT INTO inventory_table (book_id, stocks, status) VALUES ('$book_id', '$new_stocks', '" . ($new_stocks > 0 ? 'Available' : 'Not Available') . "')";
+                                //             $result = mysqli_query($conn, $query);
 
-                                            if($result){                                          
-                                                // Display an alert message
-                                                // echo "<script>alert('Stocks added SUCCESSFULLY!'); window.location.href = 'book_stock.php';</script>";
-                                                // exit;
-                                                echo "<script>window.location.href = 'book_stock.php?alert=success';</script>";
-                                            }
-                                            else{    
-                                                // Display an alert message
-                                                // echo "<script>alert('Error adding stocks: " . mysqli_error($conn) . "');  window.location.href = 'book_stock.php';</script>";
-                                                // exit;
-                                                echo "<script>window.location.href = 'book_stock.php?alert=danger';</script>";
-                                            }
-                                            exit;
-                                        } else {
-                                            // Update the existing record in the inventory_table
-                                            $query = "UPDATE inventory_table SET stocks = stocks + '$new_stocks', status = '" . ($new_stocks > 0 ? 'Available' : 'Not Available') . "' WHERE book_id = '$book_id'";
-                                            $update = mysqli_query($conn, $query);
+                                //             if($result){                                          
+                                //                 // Display an alert message
+                                //                 // echo "<script>alert('Stocks added SUCCESSFULLY!'); window.location.href = 'book_stock.php';</script>";
+                                //                 // exit;
+                                //                 echo "<script>window.location.href = 'book_stock.php?alert=success';</script>";
+                                //             }
+                                //             else{    
+                                //                 // Display an alert message
+                                //                 // echo "<script>alert('Error adding stocks: " . mysqli_error($conn) . "');  window.location.href = 'book_stock.php';</script>";
+                                //                 // exit;
+                                //                 echo "<script>window.location.href = 'book_stock.php?alert=danger';</script>";
+                                //             }
+                                //             exit;
+                                //         } else {
+                                //             // Update the existing record in the inventory_table
+                                //             $query = "UPDATE inventory_table SET stocks = stocks + '$new_stocks', status = '" . ($new_stocks > 0 ? 'Available' : 'Not Available') . "' WHERE book_id = '$book_id'";
+                                //             $update = mysqli_query($conn, $query);
 
-                                            if($update){                                          
-                                                // Display an alert message
-                                                // echo "<script>alert('Stocks updated SUCCESSFULLY!'); window.location.href = 'book_stock.php';</script>";
-                                                // exit;
-                                                echo "<script>window.location.href = 'book_stock.php?alert=success';</script>";
-                                            }
-                                            else{    
-                                                // Display an alert message
-                                                // echo "<script>alert('Error updating stocks: " . mysqli_error($conn) . "'); window.location.href = 'book_stock.php';</script>";
-                                                // exit;
-                                                echo "<script>window.location.href = 'book_stock.php?alert=danger';</script>";
-                                            }
-                                            exit;
-                                        }
-                                    }
-                                }
+                                //             if($update){                                          
+                                //                 // Display an alert message
+                                //                 // echo "<script>alert('Stocks updated SUCCESSFULLY!'); window.location.href = 'book_stock.php';</script>";
+                                //                 // exit;
+                                //                 echo "<script>window.location.href = 'book_stock.php?alert=success';</script>";
+                                //             }
+                                //             else{    
+                                //                 // Display an alert message
+                                //                 // echo "<script>alert('Error updating stocks: " . mysqli_error($conn) . "'); window.location.href = 'book_stock.php';</script>";
+                                //                 // exit;
+                                //                 echo "<script>window.location.href = 'book_stock.php?alert=danger';</script>";
+                                //             }
+                                //             exit;
+                                //         }
+                                //     }
+                                // }
 
-                                // Fetch the books with their current stocks
-                                $query = mysqli_query($conn, "SELECT b.book_id, b.title, i.status, COALESCE(i.stocks, 0) AS stocks 
-                                                        FROM book_table AS b
-                                                        LEFT JOIN inventory_table AS i ON b.book_id = i.book_id"); // we're using the COALESCE function to replace NULL values in the stocks column with 0
+                                // // Fetch the books with their current stocks
+                                // $query = mysqli_query($conn, "SELECT b.book_id, b.title, i.status, COALESCE(i.stocks, 0) AS stocks 
+                                //                         FROM book_table AS b
+                                //                         LEFT JOIN inventory_table AS i ON b.book_id = i.book_id"); // we're using the COALESCE function to replace NULL values in the stocks column with 0
 
-                                // Check if the query was successful
-                                if ($query) {
-                                    // Display the rows
-                                    echo "<div class='table-responsive'>";
-                                    echo "<table class='table table-hover'>";
-                                    echo "<tr>";
-                                    echo "<th scope='col'>Book ID</th>";
-                                    echo "<th scope='col'>Title</th>";
-                                    echo "<th scope='col'>Status</th>";
-                                    echo "<th scope='col'>Stocks</th>";
-                                    echo "<th scope='col'>Add Stocks</th>";
-                                    echo "</tr>";
-                                    echo "<tbody class='table-group-divider'>";
-                                    $num_rows = mysqli_num_rows($query);
-                                    if ($num_rows === 0) {
-                                        echo "<td colspan='5'>No records found</td>";
-                                    } else {
-                                        while ($row = mysqli_fetch_assoc($query)) {
-                                            echo "<tr>";
-                                            echo "<td scope='row'>" . $row['book_id'] . "</td>";
-                                            echo "<td scope='row'>" . $row['title'] . "</td>";
-                                            echo "<td scope='row'>" . ($row['stocks'] == 0 ? 'Not Available' : $row['status']) . "</td>";
-                                            echo "<td scope='row'>" . $row['stocks'] . "</td>";
+                                // // Check if the query was successful
+                                // if ($query) {
+                                //     // Display the rows
+                                //     echo "<div class='table-responsive'>";
+                                //     echo "<table class='table table-hover'>";
+                                //     echo "<tr>";
+                                //     echo "<th scope='col'>Book ID</th>";
+                                //     echo "<th scope='col'>Title</th>";
+                                //     echo "<th scope='col'>Status</th>";
+                                //     echo "<th scope='col'>Stocks</th>";
+                                //     echo "<th scope='col'>Add Stocks</th>";
+                                //     echo "</tr>";
+                                //     echo "<tbody class='table-group-divider'>";
+                                //     $num_rows = mysqli_num_rows($query);
+                                //     if ($num_rows === 0) {
+                                //         echo "<td colspan='5'>No records found</td>";
+                                //     } else {
+                                //         while ($row = mysqli_fetch_assoc($query)) {
+                                //             echo "<tr>";
+                                //             echo "<td scope='row'>" . $row['book_id'] . "</td>";
+                                //             echo "<td scope='row'>" . $row['title'] . "</td>";
+                                //             echo "<td scope='row'>" . ($row['stocks'] == 0 ? 'Not Available' : $row['status']) . "</td>";
+                                //             echo "<td scope='row'>" . $row['stocks'] . "</td>";
                                             
-                                            echo "<td scope='row'>
-                                                <form action='' method='post'>
-                                                    <input type='hidden' name='book_id' value='" . $row['book_id'] . "'>
-                                                    <input type='hidden' name='title' value='" . $row['title'] . "'>
-                                                    <input type='hidden' name='status' value='" . $row['status'] . "'>
-                                                    <div class='input-group'>
-                                                        <input class='form-control me-1' type='number' name='stocks' value='0' required style='border-radius: 0.375rem;'>
-                                                        <span><button type='submit' name='add' value='add' class='btn btn-success'>Add</button></span>
-                                                    </div>
-                                                </form>
-                                            </td>";
-                                        }
-                                    }
-                                    echo "</tr>";
-                                    echo "</tbody>";
-                                    echo "</table>";
-                                    echo "</div>";
-                                } else {
-                                    echo "Error fetching data: " . mysqli_error($conn);
-                                }
+                                //             echo "<td scope='row'>
+                                //                 <form action='' method='post'>
+                                //                     <input type='hidden' name='book_id' value='" . $row['book_id'] . "'>
+                                //                     <input type='hidden' name='title' value='" . $row['title'] . "'>
+                                //                     <input type='hidden' name='status' value='" . $row['status'] . "'>
+                                //                     <div class='input-group'>
+                                //                         <input class='form-control me-1' type='number' name='stocks' value='0' required style='border-radius: 0.375rem;'>
+                                //                         <span><button type='submit' name='add' value='add' class='btn btn-success'>Add</button></span>
+                                //                     </div>
+                                //                 </form>
+                                //             </td>";
+                                //         }
+                                //     }
+                                //     echo "</tr>";
+                                //     echo "</tbody>";
+                                //     echo "</table>";
+                                //     echo "</div>";
+                                // } else {
+                                //     echo "Error fetching data: " . mysqli_error($conn);
+                                // }
 
                                 // Close the connection
                                 mysqli_close($conn);
@@ -622,7 +730,7 @@ $currentTime = date('H:i:s');
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </section>
     </main>
 

@@ -315,7 +315,7 @@ $currentTime = date('H:i:s');
                     ?>
 
                 <form class="d-flex" method="GET">
-                    <input class="form-control me-2 w-50" type="search" name="search" placeholder="Search" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
+                    <input class="form-control me-2 w-50" type="search" name="search" placeholder="Search for Department or Program" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
                     <select class="form-select me-2" style="width: 350px;" name="filter" aria-label="Filter">
                         <option value="" <?= empty($_GET['filter']) ? 'selected' : '' ?>>Show all departments and programs</option>
@@ -339,14 +339,19 @@ $currentTime = date('H:i:s');
                         }
 
                         // Handle next and previous button clicks
-                        if (isset($_POST['pnext'])) {
-                            $_SESSION['pcurrent_page']++;
-                        } elseif (isset($_POST['pprevious'])) {
-                            if ($_SESSION['pcurrent_page'] > 1) {
-                                $_SESSION['pcurrent_page']--;
-                            }
-                        }
+                        // if (isset($_POST['pnext'])) {
+                        //     $_SESSION['pcurrent_page']++;
+                        // } elseif (isset($_POST['pprevious'])) {
+                        //     if ($_SESSION['pcurrent_page'] > 1) {
+                        //         $_SESSION['pcurrent_page']--;
+                        //     }
+                        // }
 
+                        // Handle next and previous button clicks via GET parameters
+                        if (isset($_GET['page'])) {
+                            $_SESSION['pcurrent_page'] = (int)$_GET['page'];
+                        }
+                        
                         // Handle program deletion
                         if (isset($_POST['delete_program'])) {
                             $program_id = (int)$_POST['program_id'];
@@ -377,7 +382,7 @@ $currentTime = date('H:i:s');
                                                         ORDER BY d.name
                                                         LIMIT $start_from, $records_per_page");
 
-                        echo "Total: $total_programs";
+                        // echo "Total: $total_programs";
 
                         if ($query) {
                             $programs_by_department = [];
@@ -393,7 +398,8 @@ $currentTime = date('H:i:s');
 
                             // Display the rows
                             echo "<div class='table-responsive'>";
-                            echo "<table class='table'>";
+                            echo "<table class='table caption-top'>";
+                            echo "<caption>Total: $total_programs</caption>";
                             echo "<tr>";
                             echo "<th scope='col'>Department</th>";
                             echo "<th scope='col'>Program</th>";
@@ -445,20 +451,34 @@ $currentTime = date('H:i:s');
 
                             // Display pagination buttons
                             echo "<div class='pagination-buttons'>";
-                            echo "<form action='' method='post'>";
-                            if ($_SESSION['pcurrent_page'] > 1) {
-                                echo "<button type='submit' name='pprevious' class='btn btn-danger' style='width: 50px;'>&lt;</button>";
-                            } else {
-                                echo "<button type='submit' name='pprevious' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
+                            echo "<form action='' method='get'>";
+
+                            // Build the filter parameters for pagination links
+                            $filter_params = '';
+
+                            // Add search parameter
+                            if (!empty($search)) {
+                                $filter_params .= '&search=' . urlencode($search);
                             }
-                            echo "<span> Page " . $_SESSION['pcurrent_page'] . " </span>";
-                            if ($total_programs > $records_per_page && $_SESSION['pcurrent_page'] < $total_pages) {
-                                echo "<button type='submit' name='pnext' class='btn btn-danger' style='width: 50px;'>&gt;</button>";
+                            // Add filter parameter
+                            if (!empty($filter)) {
+                                $filter_params .= '&filter=' . urlencode($filter);
+                            }
+
+                            if ($_SESSION['pcurrent_page'] > 1) {
+                                echo "<a href='?page=" . ($_SESSION['pcurrent_page'] - 1) . "$filter_params' class='btn btn-danger' style='width: 50px;'>&lt;</a>";
                             } else {
-                                echo "<button type='submit' name='pnext' class='btn btn-danger' style='width: 50px;' disabled>&gt;</button>";
+                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
+                            }
+                            echo "<span> Page " . $_SESSION['pcurrent_page'] . " " . "</span>";
+                            if ($total_programs > $records_per_page && $_SESSION['pcurrent_page'] < $total_pages) {
+                                echo "<a href='?page=" . ($_SESSION['pcurrent_page'] + 1) . "$filter_params' class='btn btn-danger' style='width: 50px;'>&gt;</a>";
+                            } else {
+                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&gt;</button>";
                             }
                             echo "</form>";
                             echo "</div>";
+
                             echo "<hr>";
                         } else {
                             echo "Error fetching data: " . mysqli_error($conn);

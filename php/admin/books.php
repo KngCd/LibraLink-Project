@@ -58,6 +58,10 @@ $currentTime = date('H:i:s');
     ::backdrop {
         backdrop-filter: blur(3px);
     }
+    table {
+    width: 100%; /* Or a specific width */
+    table-layout: fixed; /* Enforces fixed column widths */
+}
     table th, table td{
        text-align: center;
     }
@@ -278,14 +282,28 @@ $currentTime = date('H:i:s');
             <?php
                 require_once '../db_config.php';
 
+                // Initialize genres array if it doesn't exist
+                if (!isset($_SESSION['categories'])) {
+                    $_SESSION['categories'] = [];
+                }
+
                 // Handle form submission
                 if (isset($_POST['submit'])) {
                     $title = mysqli_real_escape_string($conn, $_POST['title']);
                     $author = mysqli_real_escape_string($conn, $_POST['author']);
-                    $genre = mysqli_real_escape_string($conn, $_POST['genre']);
-                    $description = mysqli_real_escape_string($conn, $_POST['description']);
+                    
+                    // Check if a new genre is added
+                    if (isset($_POST['newCategory']) && !empty($_POST['newCategory'])) {
+                        $newCategory = trim($_POST['newCategory']);
+                        $_SESSION['categories'][] = $newCategory; // Add new genre to the session array
+                        $category = $newCategory; // Use the new genre for the book insert
+                    } else {
+                        $category = mysqli_real_escape_string($conn, $_POST['category']);
+                    }
 
-                    $query = "INSERT INTO book_table (title, author, genre, description) VALUES ('$title', '$author', '$genre', '$description')";
+                    // Insert the book into the book table
+                    $description = mysqli_real_escape_string($conn, $_POST['description']);
+                    $query = "INSERT INTO book_table (title, author, category, description) VALUES ('$title', '$author', '$category', '$description')";
                     $result = mysqli_query($conn, $query);
 
                     // Redirect with a query parameter to show the alert
@@ -297,6 +315,9 @@ $currentTime = date('H:i:s');
                     exit;
                 }
 
+                // Retrieve genres for dropdown
+                $categories = array_unique($_SESSION['categories']);
+
                 // Fetch the books available
                 // $query = mysqli_query($conn, "SELECT * FROM book_table");
 
@@ -305,10 +326,10 @@ $currentTime = date('H:i:s');
                 $selected_category = isset($_GET['category']) ? $_GET['category'] : '';
 
                 // Fetch distinct programs
-                $category_query = mysqli_query($conn, "SELECT DISTINCT genre FROM book_table");
+                $category_query = mysqli_query($conn, "SELECT DISTINCT category FROM book_table");
                 $categories = [];
                 while ($row = mysqli_fetch_assoc($category_query)) {
-                    $categories[] = $row['genre'];
+                    $categories[] = $row['category'];
                 }
 
                 // Build the SQL query based on search and category
@@ -320,7 +341,7 @@ $currentTime = date('H:i:s');
                 }
 
                 if (!empty($selected_category)) {
-                    $where_clauses[] = "genre = '" . mysqli_real_escape_string($conn, $selected_category) . "'";
+                    $where_clauses[] = "category = '" . mysqli_real_escape_string($conn, $selected_category) . "'";
                 }
 
                 $where_query = '';
@@ -332,7 +353,7 @@ $currentTime = date('H:i:s');
             <div id="books" class="container p-3">
                 <div class="container">
                     <form class="d-flex" method="GET">
-                        <input class="form-control me-2 w-50 me-5" type="search" name="search" placeholder="Search" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
+                        <input class="form-control me-2 w-50 me-5" type="search" name="search" placeholder="Search for Title or Author" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
                         <select name="category" class="form-select w-25 ms-5 me-3">
                             <option value="">All Category</option>
@@ -349,7 +370,7 @@ $currentTime = date('H:i:s');
 
                 <div class="container p-3">
                     <div class='table-responsive'>
-                        <table class='table table-hover'>
+                        <table class='table table-hover caption-top'>
                             <tr>
                                 <th>Book ID</th>
                                 <th>Title</th>
@@ -367,13 +388,9 @@ $currentTime = date('H:i:s');
                                     $_SESSION['bcurrent_page'] = 1;
                                 }
 
-                                // Handle next and previous button clicks
-                                if (isset($_POST['bnext'])) {
-                                    $_SESSION['bcurrent_page']++;
-                                } elseif (isset($_POST['bprevious'])) {
-                                    if ($_SESSION['bcurrent_page'] > 1) {
-                                        $_SESSION['bcurrent_page']--;
-                                    }
+                                // Handle next and previous button clicks via GET parameters
+                                if (isset($_GET['page'])) {
+                                    $_SESSION['bcurrent_page'] = (int)$_GET['page'];
                                 }
 
                                 // Fetch the total number of books based on the filter
@@ -386,18 +403,23 @@ $currentTime = date('H:i:s');
                                 $start_from = ($_SESSION['bcurrent_page'] - 1) * $records_per_page;
                                 $query = mysqli_query($conn, "SELECT * FROM book_table $where_query LIMIT $start_from, $records_per_page");
                                 
-                                echo "Total: $total_books";
+                                // echo "Total: $total_books";
+                                echo "<caption>Total: $total_books</caption>";
 
                                 if ($query) {
                                     while ($row = mysqli_fetch_assoc($query)) {
                                         echo "<tr>";
-                                        echo "<td>" . $row['book_id'] . "</td>";
-                                        echo "<td>" . $row['title'] . "</td>";
-                                        echo "<td>" . $row['author'] . "</td>";
-                                        echo "<td>" . $row['genre'] . "</td>";
-                                        echo "<td>" . $row['description'] . "</td>";
+                                        echo "<td>" . htmlspecialchars($row['book_id']) . "</td>";
+                                        echo "<td>" . htmlspecialchars($row['title']) . "</td>";
+                                        echo "<td>" . htmlspecialchars($row['author']) . "</td>";
+                                        echo "<td>" . htmlspecialchars($row['category']) . "</td>";
+                                        echo "<td style='width: 300px; height: 45px; overflow: hidden;'>" . 
+                                            "<div style='height: 45px; overflow-y: auto; overflow-x: hidden;'>" . 
+                                            nl2br(htmlspecialchars($row['description'])) . 
+                                            "</div></td>";
                                         echo "</tr>";
                                     }
+
                                     if (mysqli_num_rows($query) === 0) {
                                         echo "<tr><td colspan='5'>No records found</td></tr>";
                                     }
@@ -408,26 +430,36 @@ $currentTime = date('H:i:s');
 
                     <button type="button" class='btn btn-success mb-3' data-bs-toggle="modal" data-bs-target="#addBooks">Add Books</button>
                     <?php
-                        // Display pagination buttons
-                        echo "<div class='pagination-buttons'>";
-                        echo "<form action='' method='post'>";
-                        if ($_SESSION['bcurrent_page'] > 1) {
-                            echo "<button type='submit' name='bprevious' class='btn btn-danger' style='width: 50px;'>&lt;</button>";
+                            // Display pagination buttons
+                            echo "<div class='pagination-buttons'>";
+                            echo "<form action='' method='get'>"; // Change to GET method
+
+                            // Include search and status in the pagination links
+                            $filter_params = '';
+                            if (!empty($search)) {
+                                $filter_params .= '&search=' . urlencode($search);
+                            }
+                            if (!empty($selected_category)) {
+                                $filter_params .= '&category=' . urlencode($selected_category);
+                            }
+
+                            // Pagination buttons
+                            if ($_SESSION['bcurrent_page'] > 1) {
+                                echo "<a href='?page=" . ($_SESSION['bcurrent_page'] - 1) . $filter_params . "' class='btn btn-danger' style='width: 50px;'>&lt;</a>";
+                            } else {
+                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
+                            }
+                            echo "<span> Page " . $_SESSION['bcurrent_page'] . " </span>";
+                            if ($total_books > $records_per_page && $_SESSION['bcurrent_page'] < $total_pages) {
+                                echo "<a href='?page=" . ($_SESSION['bcurrent_page'] + 1) . $filter_params . "' class='btn btn-danger' style='width: 50px;'>&gt;</a>";
+                            } else {
+                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&gt;</button>";
+                            }
+                            echo "</form>";
+                            echo "</div>";
                         } else {
-                            echo "<button type='submit' name='bprevious' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
+                            $_SESSION['alert'] = ['message' => 'Error fetching data: ' . mysqli_error($conn), 'type' => 'danger'];
                         }
-                        echo "<span> Page " . $_SESSION['bcurrent_page'] . " " . "</span>";
-                        if ($total_books > $records_per_page && $_SESSION['bcurrent_page'] < $total_pages) {
-                            echo "<button type='submit' name='bnext' class='btn btn-danger' style='width: 50px;'>&gt;</button>";
-                        } else {
-                            echo "<button type='submit' name='bnext' class='btn btn-danger' style='width: 50px;' disabled>&gt;</button>";
-                        }
-                        echo "</form>";
-                        echo "</div>";
-                    } else {
-                        // echo "Error fetching data: " . mysqli_error($conn);
-                        $_SESSION['alert'] = ['message' => 'Error fetching data: ' . mysqli_error($conn), 'type' => 'danger'];
-                    }
                     ?>
                 </div>
 
@@ -472,15 +504,44 @@ $currentTime = date('H:i:s');
                                 <div class="input-group mb-2">
                                     <input type="text" class="form-control" placeholder="Title" name="title" id="title" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
                                 </div>
+
                                 <div class="input-group mb-2">
                                     <input type="text" class="form-control" placeholder="Author" name="author" id="author" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
                                 </div>
+
                                 <div class="input-group mb-2">
-                                    <input type="text" class="form-control" placeholder="Genre" name="genre" id="genre" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
+                                    <select name="category" id="category" class="form-select" required>
+                                        <option value="" disabled selected>Select Category</option>
+                                        <?php foreach ($categories as $category): ?>
+                                            <option value="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($category) ?></option>
+                                        <?php endforeach; ?>
+                                        <option value="new">Add new category...</option>
+                                    </select>
                                 </div>
+
+                                <div class="input-group mb-3" id="new-category-input" style="display: none;">
+                                    <input type="text" class="form-control" placeholder="New Category" name="newCategory" id="newCategory" required>
+                                </div>
+                            <script>
+                                document.getElementById('category').addEventListener('change', function() {
+                                    const newGenreInput = document.getElementById('new-category-input');
+                                    const newCategoryField = document.getElementById('newCategory');
+                                    
+                                    if (this.value === 'new') {
+                                        newGenreInput.style.display = 'block';
+                                        newCategoryField.required = true; // Set required when showing
+                                        newCategoryField.style.width = '100%';
+                                    } else {
+                                        newGenreInput.style.display = 'none';
+                                        newCategoryField.required = false; // Remove required when hiding
+                                    }
+                                });
+                            </script>
+
                                 <div class="input-group mb-3">
-                                    <input type="text" class="form-control" placeholder="Description" name="description" id="description" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
+                                    <textarea type="text" class="form-control" placeholder="Description" name="description" id="description" autocomplete="off" required style="border-radius: 0.375rem; width: auto;"></textarea>
                                 </div>
+
                                 <div class="d-flex align-items-center justify-content-center">
                                     <button type="submit" name="submit" class="btn btn-danger w-40">Add Book</button>
                                 </div>
