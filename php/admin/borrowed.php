@@ -144,6 +144,16 @@ $currentTime = date('H:i:s');
     form select, form select option{
         cursor: pointer;
     }
+    .profile-pic {
+        background-color: white;
+        height: 180px;
+        width: 180px;
+        border-radius: 50%;
+        object-fit: contain;
+        object-position: center;
+        cursor: pointer;
+    } 
+    .bi-pencil-square{cursor: pointer;}
 </style>
 
 <body>
@@ -151,14 +161,73 @@ $currentTime = date('H:i:s');
     <!-- SIDEBAR -->
     <div class="offcanvas offcanvas-start text-light" data-bs-scroll="true" tabindex="-1" data-bs-backdrop="false" data-bs-backdrop="static" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
         <div class="offcanvas-header d-flex justify-content-center align-items-center flex-column" style="margin-bottom: -20px;">
-            <!-- <a href="admin-login.php" class="navbar-brand px-3">
-                <img class="img-fluid logo text-center" src="../../img/libra2.png" alt="Logo" style="height: 40px; width: auto;">
-            </a> -->
-            <!-- <button type="button" class="btn-close" aria-label="Close"></button> -->
-            <img src="../../img/formal-pic-von.jpg" alt="Admin Picture" style="background-color: white; height: 180px; width: 180px; border-radius: 50%; object-fit: contain; object-position: contain;">            
-            <h4 class="text-center mt-2 mb-0">Carlo M. Pastrana</h4>
+            <img id="adminPicture" src="../../img/formal-pic-von.jpg" alt="Admin Picture" class="profile-pic" onclick="document.getElementById('fileInput').click();">        
+            <input type="file" id="fileInput" style="display: none;" onchange="uploadImage()"> <!-- Hidden file input -->
+            <div class="d-flex justify-content-center align-items-center mt-2 mb-0">
+                <h4 class="mb-0" id="adminName">Carlo M. Pastrana</h4>
+                <span class="ms-2" onclick="editName()">
+                    <i class="bi bi-pencil-square"></i>
+                </span>
+            </div>
             <h6 class="text-center">Admin</h6>
         </div>
+
+        <script>
+            // Check local storage for the saved image path
+            const savedImagePath = localStorage.getItem('adminImagePath');
+            if (savedImagePath) {
+                document.getElementById('adminPicture').src = savedImagePath; // Set the image src from local storage
+            }
+
+            // Check local storage for the saved admin name
+            const savedAdminName = localStorage.getItem('adminName');
+            if (savedAdminName) {
+                document.getElementById('adminName').textContent = savedAdminName; // Set the name from local storage
+            }
+
+            function editName() {
+                const nameElement = document.getElementById('adminName');
+                const currentName = nameElement.textContent;
+                const newName = prompt("Edit name:", currentName);
+                if (newName) {
+                    nameElement.textContent = newName;
+                    localStorage.setItem('adminName', newName); // Save the new name to local storage
+                }
+            }
+
+            function updateAdminPicture(newImagePath) {
+                document.getElementById('adminPicture').src = newImagePath;
+                localStorage.setItem('adminImagePath', newImagePath); // Save the new image path to local storage
+            }
+
+            function uploadImage() {
+                const fileInput = document.getElementById('fileInput');
+                const file = fileInput.files[0];
+                
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    fetch('upload.php', { // Send to the separate upload file
+                        method: 'POST',
+                        body: formData,
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            updateAdminPicture(data.imagePath); // Update the image source with the new path
+                        } else {
+                            alert('Upload failed: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        alert('Error uploading image: ' + error);
+                    });
+                } else {
+                    alert("Please select a file to upload.");
+                }
+            }
+        </script>
         
         <div class="offcanvas-body" id="sidebar">
             <div class="dashboard-item">
@@ -239,7 +308,19 @@ $currentTime = date('H:i:s');
             document.getElementById('offcanvasWithBothOptions').addEventListener('shown.bs.offcanvas', function () {
                 const activeLink = document.getElementById('active');
                 if (activeLink) {
-                    activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    // Get the height of the offcanvas body
+                    const offcanvasBody = document.getElementById('sidebar');
+                    const offcanvasBodyHeight = offcanvasBody.clientHeight;
+                    
+                    // Get the position of the active link relative to the top of the offcanvas
+                    const activeLinkRect = activeLink.getBoundingClientRect();
+                    const activeLinkTop = activeLinkRect.top + window.scrollY;
+
+                    // Calculate the desired scroll position to center the active link
+                    const desiredScrollPosition = activeLinkTop - (offcanvasBodyHeight / 2) + (activeLinkRect.height / 2);
+
+                    // Smoothly scroll to the calculated position
+                    offcanvasBody.scrollTo({ top: desiredScrollPosition, behavior: 'smooth' });
                 }
             });
         </script>

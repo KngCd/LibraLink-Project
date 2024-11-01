@@ -170,6 +170,49 @@ $(document).ready(function(){
 
 });
 
+/* FOR UPDATE FORM */
+$(document).ready(function(){
+
+    // Custom validation method for contact number
+    $.validator.addMethod("validContact", function(value, element) {
+        // Check if the value starts with '09' and has a total of 11 characters
+        return this.optional(element) || (value.length === 11 && value.startsWith("09"));
+    }, "Contact number must be valid");
+
+    $("#updateForm").validate({
+        rules:{
+            contact_num:{
+                required: true,
+                validContact: true // Only use the custom validation method
+            },
+            email:{
+                required: true,
+                email: true
+            }
+        },
+        messages:{
+            contact_num:{
+                required: "Please enter your contact number",
+                validContact: "Contact number must be valid and please remove any special characters (e.g . '-')"
+            },
+            email:{
+                required: "Please enter your email address",
+                email: "Please provide a valid email"
+            }
+        },
+        highlight: function(element) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function(element) { 
+            $(element).removeClass('is-invalid');
+        },
+        submitHandler: function(form) {
+            form.submit();
+        }
+    });
+
+});
+
 /* FOR FORGET PASSWORD */
 $(document).ready(function(){
 

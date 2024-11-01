@@ -148,6 +148,16 @@ $currentTime = date('H:i:s');
     form select, form select option{
         cursor: pointer;
     }
+    .profile-pic {
+        background-color: white;
+        height: 180px;
+        width: 180px;
+        border-radius: 50%;
+        object-fit: contain;
+        object-position: center;
+        cursor: pointer;
+    } 
+    .bi-pencil-square{cursor: pointer;}
 </style>
 
 <body>
@@ -155,14 +165,73 @@ $currentTime = date('H:i:s');
     <!-- SIDEBAR -->
     <div class="offcanvas offcanvas-start text-light" data-bs-scroll="true" tabindex="-1" data-bs-backdrop="false" data-bs-backdrop="static" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
         <div class="offcanvas-header d-flex justify-content-center align-items-center flex-column" style="margin-bottom: -20px;">
-            <!-- <a href="admin-login.php" class="navbar-brand px-3">
-                <img class="img-fluid logo text-center" src="../../img/libra2.png" alt="Logo" style="height: 40px; width: auto;">
-            </a> -->
-            <!-- <button type="button" class="btn-close" aria-label="Close"></button> -->
-            <img src="../../img/formal-pic-von.jpg" alt="Admin Picture" style="background-color: white; height: 180px; width: 180px; border-radius: 50%; object-fit: contain; object-position: contain;">            
-            <h4 class="text-center mt-2 mb-0">Carlo M. Pastrana</h4>
+            <img id="adminPicture" src="../../img/formal-pic-von.jpg" alt="Admin Picture" class="profile-pic" onclick="document.getElementById('fileInput').click();">        
+            <input type="file" id="fileInput" style="display: none;" onchange="uploadImage()"> <!-- Hidden file input -->
+            <div class="d-flex justify-content-center align-items-center mt-2 mb-0">
+                <h4 class="mb-0" id="adminName">Carlo M. Pastrana</h4>
+                <span class="ms-2" onclick="editName()">
+                    <i class="bi bi-pencil-square"></i>
+                </span>
+            </div>
             <h6 class="text-center">Admin</h6>
         </div>
+
+        <script>
+            // Check local storage for the saved image path
+            const savedImagePath = localStorage.getItem('adminImagePath');
+            if (savedImagePath) {
+                document.getElementById('adminPicture').src = savedImagePath; // Set the image src from local storage
+            }
+
+            // Check local storage for the saved admin name
+            const savedAdminName = localStorage.getItem('adminName');
+            if (savedAdminName) {
+                document.getElementById('adminName').textContent = savedAdminName; // Set the name from local storage
+            }
+
+            function editName() {
+                const nameElement = document.getElementById('adminName');
+                const currentName = nameElement.textContent;
+                const newName = prompt("Edit name:", currentName);
+                if (newName) {
+                    nameElement.textContent = newName;
+                    localStorage.setItem('adminName', newName); // Save the new name to local storage
+                }
+            }
+
+            function updateAdminPicture(newImagePath) {
+                document.getElementById('adminPicture').src = newImagePath;
+                localStorage.setItem('adminImagePath', newImagePath); // Save the new image path to local storage
+            }
+
+            function uploadImage() {
+                const fileInput = document.getElementById('fileInput');
+                const file = fileInput.files[0];
+                
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    fetch('upload.php', { // Send to the separate upload file
+                        method: 'POST',
+                        body: formData,
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            updateAdminPicture(data.imagePath); // Update the image source with the new path
+                        } else {
+                            alert('Upload failed: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        alert('Error uploading image: ' + error);
+                    });
+                } else {
+                    alert("Please select a file to upload.");
+                }
+            }
+        </script>
         
         <div class="offcanvas-body" id="sidebar">
             <div class="dashboard-item">
@@ -243,7 +312,19 @@ $currentTime = date('H:i:s');
             document.getElementById('offcanvasWithBothOptions').addEventListener('shown.bs.offcanvas', function () {
                 const activeLink = document.getElementById('active');
                 if (activeLink) {
-                    activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    // Get the height of the offcanvas body
+                    const offcanvasBody = document.getElementById('sidebar');
+                    const offcanvasBodyHeight = offcanvasBody.clientHeight;
+                    
+                    // Get the position of the active link relative to the top of the offcanvas
+                    const activeLinkRect = activeLink.getBoundingClientRect();
+                    const activeLinkTop = activeLinkRect.top + window.scrollY;
+
+                    // Calculate the desired scroll position to center the active link
+                    const desiredScrollPosition = activeLinkTop - (offcanvasBodyHeight / 2) + (activeLinkRect.height / 2);
+
+                    // Smoothly scroll to the calculated position
+                    offcanvasBody.scrollTo({ top: desiredScrollPosition, behavior: 'smooth' });
                 }
             });
         </script>
@@ -291,7 +372,12 @@ $currentTime = date('H:i:s');
                 if (isset($_POST['submit'])) {
                     $title = mysqli_real_escape_string($conn, $_POST['title']);
                     $author = mysqli_real_escape_string($conn, $_POST['author']);
-                    
+                    $date_added = date('Y-m-d');  // Current date
+                    $time_added = date('H:i:s');   // Current time
+
+                    // Allow certain file formats
+                    $allowTypesImage = ['jpg', 'jpeg', 'png'];
+
                     // Check if a new genre is added
                     if (isset($_POST['newCategory']) && !empty($_POST['newCategory'])) {
                         $newCategory = trim($_POST['newCategory']);
@@ -303,16 +389,35 @@ $currentTime = date('H:i:s');
 
                     // Insert the book into the book table
                     $description = mysqli_real_escape_string($conn, $_POST['description']);
-                    $query = "INSERT INTO book_table (title, author, category, description) VALUES ('$title', '$author', '$category', '$description')";
-                    $result = mysqli_query($conn, $query);
 
-                    // Redirect with a query parameter to show the alert
-                    if ($result) {
-                        echo "<script>window.location.href = 'books.php?alert=success';</script>";
+                    if (isset($_FILES['cover']) && $_FILES['cover']['error'] === UPLOAD_ERR_OK) {
+                        $filePic = basename($_FILES["cover"]["name"]);
+                        $fileTypePic = strtolower(pathinfo($filePic, PATHINFO_EXTENSION));
+
+                        if (in_array($fileTypePic, $allowTypesImage)) {
+                            // Get the file contents
+                            $picContent = file_get_contents($_FILES['cover']['tmp_name']);
+
+                            // Prepare the SQL statement
+                            $stmt = $conn->prepare("INSERT INTO book_table (title, author, category, description, book_cover, cover_filetype, date_added, time_added) 
+                                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                            $stmt->bind_param("ssssssss", $title, $author, $category, $description, $picContent, $fileTypePic, $date_added, $time_added);
+
+                            // Redirect with a query parameter to show the alert
+                            if ($stmt->execute()) {
+                                echo "<script>window.location.href = 'books.php?alert=success';</script>";
+                            } else {
+                                echo "<script>window.location.href = 'books.php?alert=danger';</script>";
+                            }
+                            exit;
+                        } else {
+                            echo "<script>alert('Sorry only JPG, JPEG, and PNG are allowed'); window.location.href = 'books.php';</script>";
+                            exit;
+                        }
                     } else {
-                        echo "<script>window.location.href = 'books.php?alert=danger';</script>";
+                        echo "<script>alert('Error uploading book!); window.location.href = 'books.php';</script>";
+                        exit;
                     }
-                    exit;
                 }
 
                 // Retrieve genres for dropdown
@@ -377,6 +482,8 @@ $currentTime = date('H:i:s');
                                 <th>Author</th>
                                 <th>Category</th>
                                 <th>Description</th>
+                                <th>Date Added</th>
+                                <th>Time Added</th>
                             </tr>
                             <tbody class='table-group-divider'>
                                 <?php
@@ -408,11 +515,22 @@ $currentTime = date('H:i:s');
 
                                 if ($query) {
                                     while ($row = mysqli_fetch_assoc($query)) {
+                                        // Assuming $row['time_added'] contains the time string
+                                        $timeString = $row['time_added'];
+
+                                        // Create a DateTime object from the time string
+                                        $dateTime = DateTime::createFromFormat('H:i:s', $timeString);
+
+                                        // Format the time into a more readable format
+                                        $formattedTime = $dateTime ? $dateTime->format('g:i A') : 'Invalid time';
+
                                         echo "<tr>";
                                         echo "<td>" . htmlspecialchars($row['book_id']) . "</td>";
                                         echo "<td>" . htmlspecialchars($row['title']) . "</td>";
                                         echo "<td>" . htmlspecialchars($row['author']) . "</td>";
                                         echo "<td>" . htmlspecialchars($row['category']) . "</td>";
+                                        echo "<td>" . htmlspecialchars($row['date_added']) . "</td>";
+                                        echo "<td>" . htmlspecialchars($formattedTime) . "</td>";
                                         echo "<td style='width: 300px; height: 45px; overflow: hidden;'>" . 
                                             "<div style='height: 45px; overflow-y: auto; overflow-x: hidden;'>" . 
                                             nl2br(htmlspecialchars($row['description'])) . 
@@ -430,33 +548,33 @@ $currentTime = date('H:i:s');
 
                     <button type="button" class='btn btn-success mb-3' data-bs-toggle="modal" data-bs-target="#addBooks">Add Books</button>
                     <?php
-                            // Display pagination buttons
-                            echo "<div class='pagination-buttons'>";
-                            echo "<form action='' method='get'>"; // Change to GET method
+                        // Display pagination buttons
+                        echo "<div class='pagination-buttons'>";
+                        echo "<form action='' method='get'>"; // Change to GET method
 
-                            // Include search and status in the pagination links
-                            $filter_params = '';
-                            if (!empty($search)) {
-                                $filter_params .= '&search=' . urlencode($search);
-                            }
-                            if (!empty($selected_category)) {
-                                $filter_params .= '&category=' . urlencode($selected_category);
-                            }
+                        // Include search and status in the pagination links
+                        $filter_params = '';
+                        if (!empty($search)) {
+                            $filter_params .= '&search=' . urlencode($search);
+                        }
+                        if (!empty($selected_category)) {
+                            $filter_params .= '&category=' . urlencode($selected_category);
+                        }
 
-                            // Pagination buttons
-                            if ($_SESSION['bcurrent_page'] > 1) {
-                                echo "<a href='?page=" . ($_SESSION['bcurrent_page'] - 1) . $filter_params . "' class='btn btn-danger' style='width: 50px;'>&lt;</a>";
-                            } else {
-                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
-                            }
-                            echo "<span> Page " . $_SESSION['bcurrent_page'] . " </span>";
-                            if ($total_books > $records_per_page && $_SESSION['bcurrent_page'] < $total_pages) {
-                                echo "<a href='?page=" . ($_SESSION['bcurrent_page'] + 1) . $filter_params . "' class='btn btn-danger' style='width: 50px;'>&gt;</a>";
-                            } else {
-                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&gt;</button>";
-                            }
-                            echo "</form>";
-                            echo "</div>";
+                        // Pagination buttons
+                        if ($_SESSION['bcurrent_page'] > 1) {
+                            echo "<a href='?page=" . ($_SESSION['bcurrent_page'] - 1) . $filter_params . "' class='btn btn-danger' style='width: 50px;'>&lt;</a>";
+                        } else {
+                            echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
+                        }
+                        echo "<span> Page " . $_SESSION['bcurrent_page'] . " </span>";
+                        if ($total_books > $records_per_page && $_SESSION['bcurrent_page'] < $total_pages) {
+                            echo "<a href='?page=" . ($_SESSION['bcurrent_page'] + 1) . $filter_params . "' class='btn btn-danger' style='width: 50px;'>&gt;</a>";
+                        } else {
+                            echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&gt;</button>";
+                        }
+                        echo "</form>";
+                        echo "</div>";
                         } else {
                             $_SESSION['alert'] = ['message' => 'Error fetching data: ' . mysqli_error($conn), 'type' => 'danger'];
                         }
@@ -522,24 +640,30 @@ $currentTime = date('H:i:s');
                                 <div class="input-group mb-3" id="new-category-input" style="display: none;">
                                     <input type="text" class="form-control" placeholder="New Category" name="newCategory" id="newCategory" required>
                                 </div>
-                            <script>
-                                document.getElementById('category').addEventListener('change', function() {
-                                    const newGenreInput = document.getElementById('new-category-input');
-                                    const newCategoryField = document.getElementById('newCategory');
-                                    
-                                    if (this.value === 'new') {
-                                        newGenreInput.style.display = 'block';
-                                        newCategoryField.required = true; // Set required when showing
-                                        newCategoryField.style.width = '100%';
-                                    } else {
-                                        newGenreInput.style.display = 'none';
-                                        newCategoryField.required = false; // Remove required when hiding
-                                    }
-                                });
-                            </script>
+                                
+                                <script>
+                                    document.getElementById('category').addEventListener('change', function() {
+                                        const newGenreInput = document.getElementById('new-category-input');
+                                        const newCategoryField = document.getElementById('newCategory');
+                                        
+                                        if (this.value === 'new') {
+                                            newGenreInput.style.display = 'block';
+                                            newCategoryField.required = true; // Set required when showing
+                                            newCategoryField.style.width = '100%';
+                                        } else {
+                                            newGenreInput.style.display = 'none';
+                                            newCategoryField.required = false; // Remove required when hiding
+                                        }
+                                    });
+                                </script>
+
+                                <div class="input-group mb-2">
+                                    <textarea type="text" class="form-control" placeholder="Description" name="description" id="description" autocomplete="off" required style="border-radius: 0.375rem; width: auto;"></textarea>
+                                </div>
 
                                 <div class="input-group mb-3">
-                                    <textarea type="text" class="form-control" placeholder="Description" name="description" id="description" autocomplete="off" required style="border-radius: 0.375rem; width: auto;"></textarea>
+                                    <label for="cover">Upload Book Cover</label>
+                                    <input type="file" class="form-control" name="cover" id="cover" accept="image/*" required>
                                 </div>
 
                                 <div class="d-flex align-items-center justify-content-center">

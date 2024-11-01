@@ -164,7 +164,7 @@
                                 $fileTypeID = strtolower(pathinfo($fileID, PATHINFO_EXTENSION));
                                 $fileTypePic = strtolower(pathinfo($filePic, PATHINFO_EXTENSION));
 
-                                // Check if COR and ID are PDFs and Profile Picture is an image
+                                // Check if COR and ID are PDFs and Profile Picture
                                 if (in_array($fileTypeCOR, $allowTypesPDF) && in_array($fileTypeID, $allowTypesPDF) &&
                                     in_array($fileTypePic, $allowTypesImage) &&
                                     $_FILES['cor']['error'] === UPLOAD_ERR_OK && 
@@ -261,7 +261,7 @@
                                     <input type="file" class="form-control" name="cor" id="cor" accept=".pdf">
                                 </div>
 
-                                <div class="input-group mb-3">
+                                <div class="input-group mb-2">
                                     <label for="id">Upload your ID</label>
                                     <input type="file" class="form-control" name="id" id="id" accept=".pdf">
                                 </div>

@@ -113,7 +113,7 @@
                 <div class="row gx-5 gy-5">
                     <?php
                         // Query all the books available
-                        $query = mysqli_query($conn, "SELECT b.book_id, b.title, b.author, b.description, i.stocks, i.status 
+                        $query = mysqli_query($conn, "SELECT b.book_id, b.title, b.author, b.description, b.book_cover, i.stocks, i.status 
                                                     FROM book_table b 
                                                     LEFT JOIN inventory_table i ON b.book_id = i.book_id");
 
@@ -137,7 +137,7 @@
                                 echo '<div class="col-md-4 col-lg-3 col-sm-6">
                                     <div class="book-wrapper text-center"> <!-- Add a wrapper element -->
                                         <a href="#" class="book-link" data-bs-toggle="modal" data-bs-target="#bookModal' . $row['book_id'] . '">
-                                            <img src="../../img/book' . $row['book_id'] . '.jpg" alt="" width="200" height="300">
+                                           <img src="data:image/jpeg;base64,' . base64_encode($row['book_cover']) . '" alt="Book Cover" title="' . htmlspecialchars($row['title']) . '" width="200" height="300">
                                         </a>
                                         <div class="book-label-container"> <!-- Add a container for the book label -->
                                             ';
