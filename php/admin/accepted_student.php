@@ -313,7 +313,7 @@ $currentTime = date('H:i:s');
 
                         if (!empty($search)) {
                             $search = mysqli_real_escape_string($conn, $search);
-                            $where_clauses[] = "(first_name LIKE '%$search%' OR last_name LIKE '%$search%' OR email LIKE '%$search%')";
+                            $where_clauses[] = "(first_name LIKE '%$search%' OR last_name LIKE '%$search%' OR email LIKE '%$search%' OR contact_num LIKE '%$search%')";
                         }
 
                         if (!empty($selected_program)) {
@@ -331,7 +331,7 @@ $currentTime = date('H:i:s');
                     ?>
 
                     <form class="d-flex" method="GET">
-                        <input class="form-control me-2 w-50" type="search" name="search" placeholder="Search" aria-label="Search for Name or Email" value="<?= htmlspecialchars($search) ?>">
+                        <input class="form-control me-2 w-50" type="search" name="search" placeholder="Search for Name or Email" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
                         <select name="department" class="form-select w-25 me-3">
                             <option value="">All Departments</option>
@@ -412,51 +412,117 @@ $currentTime = date('H:i:s');
                                 echo "<td>" . $row['first_name'] . ' ' . $row['last_name'] . "</td>";
                                 echo "<td>" . $row['email'] . "</td>";
                                 echo "<td>
-                                    <!-- <button type='button' class='btn btn-success' disabled>Yes</button> -->
                                     <button class='btn btn-danger' data-bs-toggle='modal' data-bs-target='#view-profile-{$row['student_id']}'>View Profile</button>
                                     <div class='modal fade' id='view-profile-{$row['student_id']}' tabindex='-1' aria-labelledby='exampleModalLabel' aria-hidden='true'>
                                         <div class='modal-dialog modal-dialog-centered'>
                                             <div class='modal-content'>
-                                                <div class='modal-body'>
-                                                    <div style='float: left; width: 150px; margin-right: 20px;'>
-                                                        <img src='data:image/jpeg;base64," . base64_encode($row['profile_pic']) . "' alt='Profile Picture' style='width: 100%; height: 150px; border-radius: 10px; object-fit: cover;'>
-                                                        <p style='text-align: center;'><b>" . $row['first_name'] . ' ' . $row['last_name'] . "</b></p>
-                                                    </div>
-                                                    <div style='flex: 1; float: left; text-align: left;'>
-                                                        <h3>Personal Information</h3>
-                                                        <p>Student ID: " . $row['student_id'] . "</p>
-                                                        <p>Contact Number: " . $row['contact_num'] . "</p>
-                                                        <p>Email: " . $row['email'] . "</p>
-                                                        <p>Program: " . $row['program'] . "</p>
-                                                        <p>Department: " . $row['department'] . "</p>
-                                                    </div>
-                                                    <form action='' method='post' onsubmit='return confirmDelete();' style='margin-top: 20px;'>
-                                                        <input type='hidden' name='delete_student_id' value='" . $row['student_id'] . "'>
-                                                        <button type='submit' class='btn btn-danger'>Delete</button>
-                                                    </form>
+
+                                                <div class='modal-header'>
+                                                    <h1 class='modal-title fs-5'>Personal Information</h1>
+                                                    <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
                                                 </div>
+                                                
+                                                <div class='modal-body'>
+                                                    <div style='display: flex;'>
+                                                        <div style='width: 150px; margin-right: 20px;'>
+                                                            <img src='data:image/jpeg;base64," . base64_encode($row['profile_pic']) . "' alt='Profile Picture' style='width: 100%; height: 150px; border-radius: 10px; object-fit: cover;'>
+                                                            <p style='text-align: center;'><b>" . $row['first_name'] . ' ' . $row['last_name'] . "</b></p>
+                                                            <p style='text-align: left;'>Department: <b>" . $row['department']. "</b></p>
+                                                            <p style='text-align: left;'>Program: <b>" . $row['program'] . "</b></p>
+                                                        </div>
+                                                        <div style='flex: 1; text-align: left;'>
+                                                            <form action='' method='post'>
+                                                                <input type='hidden' name='student_id' value='" . $row['student_id'] . "'>
+                                                                <div class='mb-3'>
+                                                                    <label for='contact_num' class='form-label'>Contact Number</label>
+                                                                    <input type='text' class='form-control' name='contact_num' value='" . htmlspecialchars($row['contact_num']) . "' required>
+                                                                </div>
+                                                                <div class='mb-3'>
+                                                                    <label for='email' class='form-label'>Email</label>
+                                                                    <input type='email' class='form-control' name='email' value='" . htmlspecialchars($row['email']) . "' required>
+                                                                </div>
+                                                                <button type='submit' class='btn btn-success'>Update</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                             </div>
                                         </div>
                                     </div>
                                 </td>";
+
                                 echo "</tr>";
-                                    // Handle deletion
-                                    if (isset($_POST['delete_student_id'])) {
-                                        $delete_student_id = $_POST['delete_student_id'];
-                                        $delete_query = "DELETE FROM student_table WHERE student_id = '$delete_student_id'";
-                                        if (mysqli_query($conn, $delete_query)) {
-                                            // echo "<script>alert(Student deleted!'); window.location.href = 'accepted_student.php';</script>";
-                                            // header("Location: accepted_student.php");
-                                            // exit;
-                                            // $_SESSION['alert'] = ['message' => 'Student deleted!', 'type' => 'success'];
-                                            echo "<script>window.location.href = 'accepted_student.php?alert=success';</script>";
-                                        } else {
-                                            // echo "<script>alert('Error deleting student!'); window.location.href = 'accepted_student.php';</script>";
-                                            // $_SESSION['alert'] = ['message' => 'ERROR: Student not approved!', 'type' => 'danger'];
-                                            echo "<script>window.location.href = 'accepted_student.php?alert=danger';</script>";
+                                    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+                                        $student_id = $_POST['student_id'];
+                                        $contact_num = $_POST['contact_num'];
+                                        $email = $_POST['email'];
+                                        // $program = $_POST['program'];
+                                        // $department = $_POST['department'];
+
+                                        // Retrieve the current values from the database
+                                        $currentValuesStmt = $conn->prepare("SELECT contact_num, email FROM student_table WHERE student_id = ?");
+                                        $currentValuesStmt->bind_param("i", $student_id);
+                                        $currentValuesStmt->execute();
+                                        $currentValuesStmt->bind_result($current_contact_num, $current_email);
+                                        $currentValuesStmt->fetch();
+                                        $currentValuesStmt->close();
+
+                                        // Check if any of the submitted values are different from the current values
+                                        $isChanged = false;
+
+                                        if ($contact_num !== $current_contact_num) {
+                                            $isChanged = true;
                                         }
-                                        exit;
+                                        if ($email !== $current_email) {
+                                            $isChanged = true;
+                                        }
+                                        // if ($program !== $current_program) {
+                                        //     $isChanged = true;
+                                        // }
+                                        // if ($department !== $current_department) {
+                                        //     $isChanged = true;
+                                        // }
+
+                                        if ($isChanged) {
+                                            // Only check for email uniqueness if the email has changed
+                                            if ($email !== $current_email) {
+                                                // Check if the email is unique in both tables
+                                                $emailCheckStmt = $conn->prepare("SELECT email FROM verification_table WHERE email = ?");
+                                                $emailCheckStmt->bind_param("s", $email);
+                                                $emailCheckStmt->execute();
+                                                $emailCheckStmt->store_result();
+
+                                                $emailCheckStmt2 = $conn->prepare("SELECT email FROM student_table WHERE email = ?");
+                                                $emailCheckStmt2->bind_param("s", $email);
+                                                $emailCheckStmt2->execute();
+                                                $emailCheckStmt2->store_result();
+
+                                                // If the email exists in either table, show an alert
+                                                if ($emailCheckStmt->num_rows > 0 || $emailCheckStmt2->num_rows > 0) {
+                                                    // echo "<script>alert('Email already exists! Please use a different email.'); window.location.href='accepted_student.php';</script>";
+                                                    echo "<script>window.location.href='accepted_student.php?alert=danger&message=" . urlencode('ERROR: Email already exist!') . "';</script>";
+                                                    exit;
+                                                }
+                                            }
+
+                                            // Prepare and execute the update query
+                                            $updateStmt = $conn->prepare("UPDATE student_table SET contact_num = ?, email = ?, program = ?, department = ? WHERE student_id = ?");
+                                            $updateStmt->bind_param("ssssi", $contact_num, $email, $program, $department, $student_id);
+
+                                            if ($updateStmt->execute()) {
+                                                echo "<script>window.location.href = 'accepted_student.php?alert=success';</script>";
+                                            } else {
+                                                echo "<script>window.location.href = 'accepted_student.php?alert=danger&message=" . urlencode('ERROR: Student not updated!') . "';</script>";
+                                            }
+                                            
+                                            $updateStmt->close();
+                                        } else {
+                                            // If no changes, redirect without alert
+                                            echo "<script>window.location.href = 'accepted_student.php';</script>";
+                                        }
                                     }
+
                             }
 
                             if (mysqli_num_rows($query) === 0) {
@@ -530,11 +596,11 @@ $currentTime = date('H:i:s');
                         alertPlaceholder.append(wrapper);
                     }
 
-                    // Check for alert in query parameters
+                        // Check for alert in query parameters
                         const urlParams = new URLSearchParams(window.location.search);
                         if (urlParams.has('alert')) {
                             const alertType = urlParams.get('alert');
-                            const message = alertType === 'success' ? 'Student deleted!' : 'ERROR: Student not deleted!';
+                            const message = alertType === 'success' ? 'Student updated!' : decodeURIComponent(urlParams.get('message'));
                             appendAlert(message, alertType);
                             
                             // Clear the alert parameter from the URL

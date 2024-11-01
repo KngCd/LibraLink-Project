@@ -177,7 +177,12 @@
                                     $emailCheckStmt->execute();
                                     $emailCheckStmt->store_result();
 
-                                    if ($emailCheckStmt->num_rows > 0) {
+                                    $emailCheckStmt2 = $conn->prepare("SELECT email FROM student_table WHERE email = ?");
+                                    $emailCheckStmt2->bind_param("s", $email);
+                                    $emailCheckStmt2->execute();
+                                    $emailCheckStmt2->store_result();
+
+                                    if ($emailCheckStmt->num_rows > 0 || $emailCheckStmt2->num_rows > 0) {
                                         // Email already exists
                                         echo "<script>alert('Email already exists! Please use a different email.'); window.location.href='student_register.php';</script>";
                                     } else {
@@ -205,6 +210,7 @@
 
                                     // Close the email check statement
                                     $emailCheckStmt->close();
+                                    $emailCheckStmt2->close();
                                 } else {
                                     echo "<script>alert('Sorry, only PDF files for COR and ID, and image files for Profile Picture are allowed to upload!'); window.location.href='student_register.php';</script>";
                                 }

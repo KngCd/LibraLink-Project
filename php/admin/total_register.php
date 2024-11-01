@@ -332,7 +332,7 @@ $currentTime = date('H:i:s');
                     ?>
 
                     <form class="d-flex" method="GET">
-                        <input class="form-control me-2 w-50 search" type="search" name="search" placeholder="Search" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
+                        <input class="form-control me-2 w-50 search" type="search" name="search" placeholder="Search for Name or Email" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
                         <select name="program" class="form-select w-25 me-3">
                             <option value="">All Programs</option>
@@ -431,7 +431,7 @@ $currentTime = date('H:i:s');
                                         <input type='hidden' name='profile_pic' value='" . (isset($row['profile_pic']) ? base64_encode($row['profile_pic']) : '') . "'>
                                         <input type='hidden' name='pic_filetype' value='" . (isset($row['pic_filetype']) ? $row['pic_filetype'] : '') . "'>
                                         <button type='submit' name='approve' value='yes' class='btn btn-success'>Yes</button>
-                                        <button type='submit' name='approve' value='no' class='btn btn-danger'>No</button>
+                                        <button type='submit' name='approve' value='no' class='btn btn-danger mt-sm-1'>No</button>
                                     </form>
                                 </td>";
                                 echo "</tr>";
