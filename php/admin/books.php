@@ -405,9 +405,9 @@ $currentTime = date('H:i:s');
 
                             // Redirect with a query parameter to show the alert
                             if ($stmt->execute()) {
-                                echo "<script>window.location.href = 'books.php?alert=success';</script>";
+                                echo "<script>window.location.href = 'books.php?alert=success&message=" . urlencode('Book added!') . "';</script>";
                             } else {
-                                echo "<script>window.location.href = 'books.php?alert=danger';</script>";
+                                echo "<script>window.location.href = 'books.php?alert=danger&message=" . urlencode('ERROR: Book not added!') . "';</script>";
                             }
                             exit;
                         } else {
@@ -477,13 +477,14 @@ $currentTime = date('H:i:s');
                     <div class='table-responsive'>
                         <table class='table table-hover caption-top'>
                             <tr>
-                                <th>Book ID</th>
+                                <!-- <th>Book ID</th> -->
                                 <th>Title</th>
                                 <th>Author</th>
                                 <th>Category</th>
-                                <th>Description</th>
                                 <th>Date Added</th>
                                 <th>Time Added</th>
+                                <th>Description</th>
+                                <th>Update</th>
                             </tr>
                             <tbody class='table-group-divider'>
                                 <?php
@@ -525,7 +526,7 @@ $currentTime = date('H:i:s');
                                         $formattedTime = $dateTime ? $dateTime->format('g:i A') : 'Invalid time';
 
                                         echo "<tr>";
-                                        echo "<td>" . htmlspecialchars($row['book_id']) . "</td>";
+                                        // echo "<td>" . htmlspecialchars($row['book_id']) . "</td>";
                                         echo "<td>" . htmlspecialchars($row['title']) . "</td>";
                                         echo "<td>" . htmlspecialchars($row['author']) . "</td>";
                                         echo "<td>" . htmlspecialchars($row['category']) . "</td>";
@@ -535,7 +536,102 @@ $currentTime = date('H:i:s');
                                             "<div style='height: 45px; overflow-y: auto; overflow-x: hidden;'>" . 
                                             nl2br(htmlspecialchars($row['description'])) . 
                                             "</div></td>";
+                                        echo "<td>
+                                                <button class='btn btn-danger' data-bs-toggle='modal' data-bs-target='#view-profile-{$row['book_id']}'>View Book</button>
+                                                <div class='modal fade' id='view-profile-{$row['book_id']}' tabindex='-1' aria-labelledby='exampleModalLabel' aria-hidden='true'>
+                                                    <div class='modal-dialog modal-dialog-centered'>
+                                                        <div class='modal-content'>
+
+                                                            <div class='modal-header'>
+                                                                <h1 class='modal-title fs-5'>Book Information</h1>
+                                                                <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                                            </div>
+                                                            
+                                                            <div class='modal-body'>
+                                                                <div style='display: flex;'>
+                                                                    <div style='width: 150px; margin-right: 20px;'>
+                                                                        <img src='data:image/jpeg;base64," . base64_encode($row['book_cover']) . "' alt='No Available Book Cover' style='width: 100%; height: 350px; border-radius: 10px; object-fit: cover;'>
+                                                                        <p style='text-align: center;'><b>" . $row['title'] . "</b></p>
+                                                                    </div>
+                                                                    <div style='flex: 1; text-align: left;'>
+                                                                        <form id='updateForm' action='' method='post'>
+                                                                            <input type='hidden' name='bookId' value='" . $row['book_id'] . "'>
+                                                                            <div class='mb-1'>
+                                                                                <label for='contact_num' class='form-label'>Title</label>
+                                                                                <input type='text' class='form-control' name='title' value='" . htmlspecialchars($row['title']) . "' required>
+                                                                            </div>
+                                                                            <div class='mb-1'>
+                                                                                <label for='email' class='form-label'>Author</label>
+                                                                                <input type='text' class='form-control' name='author' value='" . htmlspecialchars($row['author']) . "' required>
+                                                                            </div>
+                                                                            <div class='mb-1'>
+                                                                                <label for='category' class='form-label'>Category</label>
+                                                                                <input type='text' class='form-control' name='category' value='" . htmlspecialchars($row['category']) . "' required>
+                                                                            </div>
+                                                                            <div class='mb-2'>
+                                                                                <label for='email' class='form-label'>Description</label>
+                                                                                <textarea class='form-control' name='desc' required>" . htmlspecialchars($row['description']) . "</textarea>                                                                            </div>
+                                                                            <button type='submit' name='bookUpdate' class='btn btn-success'>Update</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>";
                                         echo "</tr>";
+
+                                        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+                                            $bookId = $_POST['bookId'];
+                                            $title = $_POST['title'];
+                                            $author = $_POST['author'];
+                                            $category = $_POST['category'];
+                                            $desc = $_POST['desc'];
+
+                                            // Retrieve the current values from the database
+                                            $currentValuesStmt = $conn->prepare("SELECT title, author, category, description FROM book_table WHERE book_id = ?");
+                                            $currentValuesStmt->bind_param("i", $bookId);
+                                            $currentValuesStmt->execute();
+                                            $currentValuesStmt->bind_result($current_title, $current_author, $current_category, $current_desc);
+                                            $currentValuesStmt->fetch();
+                                            $currentValuesStmt->close();
+
+                                            // Check if any of the submitted values are different from the current values
+                                            $isChanged = false;
+
+                                            if ($title !== $current_title) {
+                                                $isChanged = true;
+                                            }
+                                            if ($author !== $current_author) {
+                                                $isChanged = true;
+                                            }
+                                            if ($category !== $current_category) {
+                                                $isChanged = true;
+                                            }
+                                            if ($desc !== $current_desc) {
+                                                $isChanged = true;
+                                            }
+
+                                            if ($isChanged) {
+                                                // Prepare and execute the update query
+                                                $updateStmt = $conn->prepare("UPDATE book_table SET title = ?, author = ?, category = ?, description = ? WHERE book_id = ?");
+                                                $updateStmt->bind_param("ssssi", $title, $author, $category, $desc, $bookId);
+
+                                                if ($updateStmt->execute()) {
+                                                    echo "<script>window.location.href = 'books.php?alert=success&message=" . urlencode('Book updated!') . "';</script>";
+                                                } else {
+                                                    echo "<script>window.location.href = 'books.php?alert=danger&message=" . urlencode('ERROR: Book not updated!') . "';</script>";
+                                                }
+                                                exit;
+                                                
+                                                $updateStmt->close();
+                                            } else {
+                                                // If no changes, redirect without alert
+                                                echo "<script>window.location.href = 'books.php';</script>";
+                                            }
+                                        }
                                     }
 
                                     if (mysqli_num_rows($query) === 0) {
@@ -602,7 +698,7 @@ $currentTime = date('H:i:s');
                         const urlParams = new URLSearchParams(window.location.search);
                         if (urlParams.has('alert')) {
                             const alertType = urlParams.get('alert');
-                            const message = alertType === 'success' ? 'Book added!' : 'ERROR: Adding Book!';
+                            const message = decodeURIComponent(urlParams.get('message'));
                             appendAlert(message, alertType);
                             
                             // Clear the alert parameter from the URL
@@ -661,8 +757,8 @@ $currentTime = date('H:i:s');
                                     <textarea type="text" class="form-control" placeholder="Description" name="description" id="description" autocomplete="off" required style="border-radius: 0.375rem; width: auto;"></textarea>
                                 </div>
 
-                                <div class="input-group mb-3">
-                                    <label for="cover">Upload Book Cover</label>
+                                <div class="mb-3">
+                                    <label for="cover" class="form-label">Upload Book Cover</label>
                                     <input type="file" class="form-control" name="cover" id="cover" accept="image/*" required>
                                 </div>
 
