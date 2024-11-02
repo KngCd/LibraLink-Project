@@ -99,6 +99,7 @@
                 <div class="collapse navbar-collapse" id="navmenu">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item mx-2">
+                            <a href="student_profile.php" class="btn btn-primary text-light">Profile</a>
                             <a href="student-login.php" class="btn btn-danger text-light">LOGOUT</a>
                         </li>
                     </ul>

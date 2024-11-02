@@ -178,8 +178,8 @@
                                         $_SESSION['profile_pic'] = $row['profile_pic'];
 
                                         // Login successful, reset attempts and lockout time
-                                        $_SESSION['attempts'] = 0; // Reset attempts on successful login
-                                        $_SESSION['lockout_time'] = null; // Reset lockout time
+                                        $_SESSION['sattempts'] = 0; // Reset attempts on successful login
+                                        $_SESSION['slockout_time'] = null; // Reset lockout time
                                         header("Location: student_home.php");
                                         exit;
                                     } else {

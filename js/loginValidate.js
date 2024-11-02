@@ -170,7 +170,7 @@ $(document).ready(function(){
 
 });
 
-/* FOR UPDATE FORM */
+/* FOR UPDATE STUDENT PROFILE (ADMIN) */
 $(document).ready(function(){
 
     // Custom validation method for contact number
@@ -255,6 +255,43 @@ $(document).ready(function(){
     });
 
 });
+
+/* FOR UPDATE STUDENT PROFILE (STUDENT) */
+$(document).ready(function() {
+    $.validator.addMethod("validContact", function(value, element) {
+        return this.optional(element) || (value.length === 11 && value.startsWith("09"));
+    }, "Contact number must be valid");
+
+    $("#editProfileForm").validate({
+        rules: {
+            firstName: { required: true },
+            lastName: { required: true },
+            contact_num: { required: true, validContact: true },
+            email: { required: true, email: true },
+            program: { required: true },
+            department: { required: true }
+        },
+        messages: {
+            firstName: { required: "Please enter your first name" },
+            lastName: { required: "Please enter your last name" },
+            contact_num: { required: "Please enter your contact number", validContact: "Contact number must be valid." },
+            email: { required: "Please enter your email address", email: "Please provide a valid email" },
+            program: { required: "Please enter your program" },
+            department: { required: "Please enter your department" }
+        },
+        highlight: function(element) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function(element) { 
+            $(element).removeClass('is-invalid');
+        },
+        submitHandler: function(form) {
+            console.log("Form is valid and ready to be submitted.");
+            form.submit();
+        }
+    });
+});
+
 
 function togglePassword() {
     const password = document.getElementById("password");
