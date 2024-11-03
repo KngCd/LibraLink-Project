@@ -13,7 +13,9 @@ $stmt->execute();
 $stmt->close();
 
 // Redirect back to the previous page
-header('Location: student_home.php');
-exit();
+// header('Location: student_home.php');
+// exit();
 
+// Return a JSON response
+echo json_encode(['success' => true]);
 ?>

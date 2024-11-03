@@ -2,6 +2,7 @@
     // Include the PHP QR Code library
     require_once 'phpqrcode/qrlib.php'; // Update this path as necessary
     require_once '../fpdf_lib/fpdf.php';
+    require_once '../db_config.php'; // Include your database configuration
 
     session_start();
 
@@ -21,12 +22,12 @@
     $department = $_SESSION['department'];
 
     // Fetch profile picture from the database
-    require_once '../db_config.php'; // Include your database configuration
     $stmt = $conn->prepare("SELECT profile_pic FROM student_table WHERE student_id = ?");
     $stmt->bind_param("s", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
+    $profile_pic = $row['profile_pic'];
 
     // Initialize QR code path
     $qrCodeFilePath = 'qrcodes/' . $user_id . '-' . $first_name . '.png'; // Ensure the qrcodes directory exists and is writable
@@ -166,6 +167,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+    *{
+        font-family: "Work Sans", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 500;
+        font-style: normal;
+    }
+    .navbar-brand{
+        /* font-family: 'Times New Roman', Times, serif; */
+        font-size: 30px;
+        color: black;
+    }
+    .navbar-brand:hover{
+        color: black;
+        text-decoration: underline;
+    }
+    body{
+        background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(../../img/bsu.jpg);
+        background-size: cover;
+        background-attachment: fixed;
+    }
     #firstName-error, #lastName-error, #email-error, #password-error, #confirmPassword-error, 
     #contact_num-error, #program-error, #department-error, #cor-error, #id-error, #pic-error{
         color: red;
@@ -175,25 +197,228 @@
     .input-group label{
         display: block;
         width: 100%;
-    } 
+    }
+        .menu {
+        font-size: 30px;
+        cursor: pointer;
+        background-color: #dd2222;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+    }
+    .offcanvas {
+        width: 300px !important;
+        background-color: #dd2222;
+    }
+    .content {
+        display: none; /* Hide all content sections by default */
+    }
+
+    .content.active {
+        display: block; /* Show the active content section */
+    }
+    /* .main-content {
+        display: flex;
+        /* flex-direction: column; */
+        /* align-items: center;
+        justify-content: center;
+        min-height: 100vh; /* Full height of the viewport */
+    /* } */
+    .sidebar-item {
+        padding: 10px;
+    }
+    .sidebar-link {
+        display: block;
+        padding: 10px;
+        background-color: #dd2222;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+    .sidebar-link:hover, .dashboard-link:focus, #active {
+        background-color: #ca1d1d;
+    }
+
+    .sidebar-link i {
+        margin-right: 10px;
+        font-size: 18px;
+    }
+    .sidebar-link span {
+        font-size: 20px;
+    }
+    
+    .offcanvas-body::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    .offcanvas-body::-webkit-scrollbar-thumb {
+        background-color: #ca1d1d;
+        border-radius: 5px;
+        box-shadow: none;
+        cursor: pointer;
+    }
+    .offcanvas-body::-webkit-scrollbar-track {
+        background-color: transparent;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    .button{
+        border-radius: 30px !important;
+    }
 </style>
 
 </head>
-<body style="background-color: #e3e3e3;">
+<body>
+
+    <header class="sticky-top z-1" style="background-color: #dd2222;">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg" style="background: none;">
+            <div class="container-fluid">
+                <a href="" class="navbar-brand text-light">
+                    <img class="img-fluid logo" src="../../img/cropped-libra2.png" alt="Logo" style="height: 40px; width: auto;">
+                    <?php echo 'Welcome, ' . $first_name . '!' ?>
+                </a>
+                <div class="d-flex">
+                    <button class="btn btn-danger me-2 menu" type="button" data-bs-toggle="modal" data-bs-target="#cart">
+                        <i class="bi bi-cart2"></i>
+                    </button>
+                    <button class="btn btn-danger menu" type="button" data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop">
+                        &#9776;
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="offcanvas offcanvas-end text-light" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel">
+            <div class="offcanvas-header">
+               <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div class="sidebar-item d-flex align-items-center justify-content-center">
+                    <img class="img-fluid" src="../../img/librawhite.png" alt="Logo" style="height: 30px;">
+                </div>
+                <div class="sidebar-item">
+                    <a href="student_home.php" class="sidebar-link" data-target="home">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Home</span>
+                    </a>
+                </div>
+                <div class="sidebar-item">
+                    <a href="#" class="sidebar-link" id="active">
+                        <i class="bi bi-person-fill"></i>
+                        <span>Profile</span>
+                    </a>
+                </div>
+                <div class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <i class="bi bi-journal-bookmark"></i>
+                        <span>Borrowed Books</span>
+                    </a>
+                </div>
+                <div class="sidebar-item">
+                    <a href="accepted_student.php" class="sidebar-link">
+                        <i class="bi bi-clipboard-data-fill"></i>
+                        <span>Activity Logs</span>
+                    </a>
+                </div>
+            </div>
+            <hr>
+            <div class="offcanvas-footer text-center mb-2">
+                <div class="sidebar-item">
+                    <a href="logout.php" class="sidebar-link">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Modal -->
+    <div class="modal fade" id="cart" tabindex="-2" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Your Cart</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="list-group">
+                <?php 
+                    // $user_id = $_SESSION['user_id'];
+
+                    // Fetch book IDs for the user from the cart
+                    $stmt = $conn->prepare("SELECT book_id FROM cart WHERE user_id = ?");
+                    $stmt->bind_param("i", $user_id);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    
+                    // Create an array to hold book IDs from the cart
+                    $book_ids = [];
+                    while ($row = $result->fetch_assoc()) {
+                        $book_ids[] = $row['book_id'];
+                    }
+
+                    if (empty($book_ids)) {
+                        echo '<div class="list-group-item">Your cart is empty.</div>';
+                    } else {
+                        // Prepare a statement to fetch book details based on the retrieved book IDs
+                        $ids_placeholder = implode(',', array_fill(0, count($book_ids), '?'));
+                        $stmt = $conn->prepare("SELECT title, author, category, book_id, book_cover FROM book_table WHERE book_id IN ($ids_placeholder)");
+                        $stmt->bind_param(str_repeat('i', count($book_ids)), ...$book_ids);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+
+                        // Display the books
+                        // Inside your modal body where you're displaying the books
+                        while ($book = $result->fetch_assoc()) {
+                            echo '<div class="list-group-item d-flex align-items-start">';
+                            echo '<img src="data:image/jpeg;base64,' . base64_encode($book['book_cover']) . '" alt="Book Cover" width="200" height="300" class="me-3">';
+                            echo '<div class="d-flex flex-column">';
+                            echo '<h4 class="text-muted">' . htmlspecialchars($book['title']) . '</h4>';
+                            echo '<h6 class="text-muted">' . htmlspecialchars($book['author']) . '</h6>';
+                            echo '<h6 class="text-muted">' . htmlspecialchars($book['category']) . '</h6>';
+                            echo '</div>';
+                            echo '<button class="btn btn-danger btn-sm ms-auto align-items-end remove-book" data-book-id="' . $book['book_id'] . '">Remove</button>';
+                            // echo '<a href="remove_from_cart.php?book_id=' . $book['book_id'] . '" class="btn btn-danger btn-sm ms-auto align-items-end">Remove</a>';
+                            echo '</div>';
+                        }
+
+                    }
+                    $stmt->close();
+                ?>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <form action="borrow_form.php" method="post" class="mt-3">
+                    <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($user_id); ?>">
+                    <button type="submit" name="submit" class="btn btn-danger">Confirm Borrowing</button>
+                </form>
+            </div>
+            
+            </div>
+        </div>
+    </div>
+
     <div class="container mt-5">
         <div class="card p-3">
-            <div class="d-flex justify-content-between">
-                <h4>Student Profile</h4>
-                <a href="student_home.php" class="btn btn-outline-secondary">Back</a>
+            <div class="d-flex justify-content-end">
+                <!-- <h4>Student Profile</h4> -->
+                <a href="student_home.php" class="btn btn-danger button" style="width: 150px;">Back</a>
             </div>
             <div class="card-body">
-                <div class="row mt-4">     
+                <div class="row">     
+                    <!-- Image Column -->
                     <div class="col-md-4 text-center">
                     
                         <div class="border p-3" style="height: 200px; width: 200px; display: flex; justify-content: center; align-items: center; overflow: hidden; margin: 0 auto; position: relative;">
                             <form action="student_profile.php" method="POST" enctype="multipart/form-data" style="height: 100%; width: 100%; display: flex; align-items: center; justify-content: center;">
-                                <img class="img-fluid" src="data:image/jpeg;base64,<?php echo base64_encode($row['profile_pic']); ?>" alt="Profile Picture" style="height: 100%; width: 100%; object-fit: cover; cursor: pointer;" onclick="document.getElementById('profilePicInput').click();">
+                                <img class="img-fluid" src="data:image/jpeg;base64,<?php echo base64_encode($profile_pic); ?>" alt="Profile Picture" style="height: 100%; width: 100%; object-fit: cover; cursor: pointer;" onclick="document.getElementById('profilePicInput').click();">
                                 <input type="file" id="profilePicInput" name="profile_pic" accept="image/*" style="display: none;" onchange="this.form.submit();">
+                                
                                 <div style="position: absolute; bottom: 10px; right: 10px;">
                                     <i class="bi bi-pencil" style="font-size: 24px; color: white; background: rgba(0, 0, 0, 0.5); border-radius: 50%; padding: 5px; cursor: pointer;" onclick="document.getElementById('profilePicInput').click();"></i>
                                 </div>
@@ -203,7 +428,7 @@
 
                         <h5 class="mt-3"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></h5>
                         <form method="POST" action="">
-                            <button type="submit" name="generate_qr" class="btn btn-primary mt-2">Generate QR Code</button>
+                            <button type="submit" name="generate_qr" class="btn btn-danger button mt-2">Generate QR Code</button>
                         </form>
 
                         <div id="qr-code" class="text-center mt-3">
@@ -219,9 +444,9 @@
                         </div>
 
                     </div>
-
+                    <!-- Information Column -->
                     <div class="col-md-8">
-                        <h5>Personal Information</h5>
+                        <h3 style="color: #dd2222; font-weight: 600;">Personal Information</h3>
                         
                         <form id="editProfileForm" method="POST" action="">
                             <input type="hidden" name="student_id" value="<?php echo $user_id; ?>">
@@ -260,35 +485,35 @@
 
                             <div class="form-group">
                                 <div class="row">
-                                    <div class="col-6">
-                                        <label for="firstName">First Name</label>
-                                        <input type="text" class="form-control" id="firstName" name="firstName" value="<?php echo htmlspecialchars($first_name); ?>">
+                                    <div class="col-6 mb-3">
+                                        <label for="firstName" style="font-weight: bold;">First Name</label>
+                                        <input type="text" class="form-control" id="firstName" name="firstName" value="<?php echo htmlspecialchars($first_name); ?>" style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
                                     </div>
-                                    <div class="col-6">
-                                        <label for="lastName">Last Name</label>
-                                        <input type="text" class="form-control" id="lastName" name="lastName" value="<?php echo htmlspecialchars($last_name); ?>">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <div class="row">
-                                    <div class="col-6">
-                                        <label for="email">Email</label>
-                                        <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>">
-                                    </div>
-                                    <div class="col-6">
-                                        <label for="contact_num">Contact Number</label>
-                                        <input type="tel" class="form-control" id="contact_num" name="contact_num" value="<?php echo htmlspecialchars($contact_num); ?>">
+                                    <div class="col-6 mb-3">
+                                        <label for="lastName" style="font-weight: bold;">Last Name</label>
+                                        <input type="text" class="form-control" id="lastName" name="lastName" value="<?php echo htmlspecialchars($last_name); ?>" style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
                                     </div>
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <div class="row">
-                                    <div class="col-6">
-                                        <label for="department">Department</label>
-                                        <select class="form-control" id="department" name="department" onchange="updatePrograms(this.value)">
+                                    <div class="col-6 mb-3">
+                                        <label for="email" style="font-weight: bold;">Email</label>
+                                        <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <label for="contact_num" style="font-weight: bold;">Contact Number</label>
+                                        <input type="tel" class="form-control" id="contact_num" name="contact_num" value="<?php echo htmlspecialchars($contact_num); ?>" style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-6 mb-3">
+                                        <label for="department" style="font-weight: bold;">Department</label>
+                                        <select class="form-select" id="department" name="department" onchange="updatePrograms(this.value)" style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
                                             <?php foreach ($departments as $dept): ?>
                                                 <option value="<?php echo htmlspecialchars($dept); ?>" <?php echo ($dept === $department) ? 'selected' : ''; ?>>
                                                     <?php echo htmlspecialchars($dept); ?>
@@ -296,9 +521,9 @@
                                             <?php endforeach; ?>
                                         </select>
                                     </div>
-                                    <div class="col-6">
-                                        <label for="program">Program</label>
-                                        <select class="form-control" id="program" name="program">
+                                    <div class="col-6 mb-3">
+                                        <label for="program" style="font-weight: bold;">Program</label>
+                                        <select class="form-select" id="program" name="program" style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
                                             <?php if (!empty($programs[$department])): ?>
                                                 <?php foreach ($programs[$department] as $prog): ?>
                                                     <option value="<?php echo htmlspecialchars($prog); ?>" <?php echo ($prog === $program) ? 'selected' : ''; ?>>

@@ -6,11 +6,12 @@ if (isset($_POST['submit'])) {
     $user_id = $_POST['user_id'];
 
     // Fetch books from the cart table for the logged-in user along with their status in inventory
-    $stmt = $conn->prepare("SELECT cart.book_id, inventory.status 
+    $stmt = $conn->prepare("SELECT cart.book_id, book.title, inventory.status 
                             FROM cart 
                             JOIN book_table AS book ON cart.book_id = book.book_id 
                             LEFT JOIN inventory_table AS inventory ON book.book_id = inventory.book_id 
                             WHERE cart.user_id = ?");
+
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -82,6 +83,7 @@ if (isset($_POST['submit'])) {
     $unavailable_books = []; // Track unavailable books
     while ($row = $result->fetch_assoc()) {
         $book_id = $row['book_id'];
+        $book_title = $row['title']; // Get the book title
         $inventory_status = $row['status'];
 
         // Check if the book is available in the inventory
@@ -96,7 +98,8 @@ if (isset($_POST['submit'])) {
                 echo "<script>alert('Borrow Unsuccessful for book ID $book_id: " . $stmt->error . "');</script>";
             }
         } else {
-            $unavailable_books[] = $book_id; // Add unavailable book ID to the list
+            // Add unavailable book ID and title to the list
+            $unavailable_books[] = $book_title; // Store book title instead
         }
     }
 
@@ -114,8 +117,8 @@ if (isset($_POST['submit'])) {
         echo "<script>alert('Successfully borrowed $borrowed_books book(s)!');</script>";
     }
     if (!empty($unavailable_books)) {
-        $unavailable_ids = implode(", ", $unavailable_books);
-        echo "<script>alert('The following book(s) were not available for borrowing: $unavailable_ids');</script>";
+        $unavailable_names = implode(", ", $unavailable_books); // Join book titles
+        echo "<script>alert('The following book(s) were not available for borrowing: $unavailable_names');</script>";
     }
     if ($borrowed_books == 0 && empty($unavailable_books)) {
         echo "<script>alert('No books were borrowed. Please check availability.');</script>";
