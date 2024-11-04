@@ -114,6 +114,16 @@ if (isset($_POST['submit'])) {
 
     // Notify the user about borrowing results
     if ($borrowed_books > 0) {
+        // Prepare to log the borrowing action
+        $studentId = $user_id; // Assuming user_id is the student ID
+        $action = 'Borrow';
+        $details = "You borrowed $borrowed_books book(s)";
+
+        // Insert log activity for borrowing
+        $logStmt = $conn->prepare("INSERT INTO activity_logs (student_id, action, details, timestamp) VALUES (?, ?, ?, NOW())");
+        $logStmt->bind_param("iss", $studentId, $action, $details);
+        $logStmt->execute();
+        $logStmt->close();
         echo "<script>alert('Successfully borrowed $borrowed_books book(s)!');</script>";
     }
     if (!empty($unavailable_books)) {

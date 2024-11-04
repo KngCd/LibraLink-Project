@@ -62,28 +62,50 @@
         $program = $_POST['program'];
         $department = $_POST['department'];
 
-        // Update user details in the database
-        $stmt = $conn->prepare("UPDATE student_table SET first_name = ?, last_name = ?, email = ?, contact_num = ?, program = ?, department = ? WHERE student_id = ?");
-        $stmt->bind_param("ssssssi", $first_name, $last_name, $email, $contact_num, $program, $department, $user_id);
+        // Check if email already exists in student_table or verification_table
+        $emailCheckStmt = $conn->prepare("SELECT COUNT(*) FROM student_table WHERE email = ? AND student_id != ? UNION ALL SELECT COUNT(*) FROM verification_table WHERE email = ?");
+        $emailCheckStmt->bind_param("sis", $email, $user_id, $email);
+        $emailCheckStmt->execute();
+        $emailCheckStmt->bind_result($emailCount);
+        $emailCheckStmt->fetch();
+        $emailCheckStmt->close();
 
-        if ($stmt->execute()) {
-            if ($stmt->affected_rows > 0) {
-                // Update session data
-                $_SESSION['first_name'] = $first_name;
-                $_SESSION['last_name'] = $last_name;
-                $_SESSION['email'] = $email;
-                $_SESSION['contact_num'] = $contact_num;
-                $_SESSION['program'] = $program;
-                $_SESSION['department'] = $department;
-
-                echo "<script>window.location.href = 'student_profile.php?alert=success';</script>";
-            } else {
-                // No changes in the profile
-                echo "<script>window.location.href = 'student_profile.php';</script>";
-            }
-            exit;
+        if ($emailCount > 0) {
+            echo "<script>alert('Email is already in use. Please use a different email.'); window.location.href = 'student_profile.php';</script>";
         } else {
-            echo "<script> alert('Error updating record: ')" . $conn->error . "</script>";
+            // Update user details in the database
+            $stmt = $conn->prepare("UPDATE student_table SET first_name = ?, last_name = ?, email = ?, contact_num = ?, program = ?, department = ? WHERE student_id = ?");
+            $stmt->bind_param("ssssssi", $first_name, $last_name, $email, $contact_num, $program, $department, $user_id);
+
+            if ($stmt->execute()) {
+                if ($stmt->affected_rows > 0) {
+                    // Update session data
+                    $_SESSION['first_name'] = $first_name;
+                    $_SESSION['last_name'] = $last_name;
+                    $_SESSION['email'] = $email;
+                    $_SESSION['contact_num'] = $contact_num;
+                    $_SESSION['program'] = $program;
+                    $_SESSION['department'] = $department;
+
+                    // Prepare variables for logging the activity
+                    $studentId = $_SESSION['user_id'];
+                    $action = 'Update';
+                    $details = 'You updated your profile details';
+
+                    // Insert log activity directly with NOW() for the timestamp
+                    $stmt2 = $conn->prepare("INSERT INTO activity_logs (student_id, action, details, timestamp) VALUES (?, ?, ?, NOW())");
+                    $stmt2->bind_param("iss", $studentId, $action, $details); // Use variables here
+                    $stmt2->execute();
+
+                    echo "<script>window.location.href = 'student_profile.php?alert=success';</script>";
+                } else {
+                    // No changes in the profile
+                    echo "<script>window.location.href = 'student_profile.php';</script>";
+                }
+                exit;
+            } else {
+                echo "<script>alert('Error updating record: " . $conn->error . "');</script>";
+            }
         }
     }
 
@@ -110,6 +132,15 @@
 
             if ($stmt->execute()) {
                 // Successfully updated the profile picture
+                // Prepare variables for logging activity
+                $studentId = $_SESSION['user_id'];
+                $action = 'Update';
+                $details = 'You updated your profile picture';
+
+                // Insert log activity directly with NOW() for the timestamp
+                $stmt2 = $conn->prepare("INSERT INTO activity_logs (student_id, action, details, timestamp) VALUES (?, ?, ?, NOW())");
+                $stmt2->bind_param("iss", $studentId, $action, $details); // Use variables here
+                $stmt2->execute();
                 echo "<script>window.location.href = 'student_profile.php?alert=success';</script>";
             } else {
                 // No changes in the profile

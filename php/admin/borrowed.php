@@ -367,6 +367,7 @@ $currentTime = date('H:i:s');
                         $selected_department = isset($_GET['department']) ? $_GET['department'] : '';
                         $borrow_date_filter = isset($_GET['borrow_date_filter']) ? $_GET['borrow_date_filter'] : '';
                         $due_date_filter = isset($_GET['due_date_filter']) ? $_GET['due_date_filter'] : '';
+                        $selected_status = isset($_GET['status']) ? $_GET['status'] : '';
 
                         // Fetch distinct programs
                         $programs_query = mysqli_query($conn, "SELECT DISTINCT s.program
@@ -405,6 +406,10 @@ $currentTime = date('H:i:s');
                         if (!empty($selected_department)) {
                             $selected_department = mysqli_real_escape_string($conn, $selected_department);
                             $where_clauses[] = "s.department = '$selected_department'"; // Use alias 's' for student_table
+                        }
+
+                        if (!empty($selected_status)) {
+                            $where_clauses[] = "status = '" . mysqli_real_escape_string($conn, $selected_status) . "'";
                         }
                         
                         // Borrow date filter
@@ -496,7 +501,7 @@ $currentTime = date('H:i:s');
                             <?php endforeach; ?>
                         </select>
 
-                        <select name="borrow_date_filter" class="form-select w-25 me-2" style="width: fit-content;">
+                        <!-- <select name="borrow_date_filter" class="form-select w-25 me-2" style="width: fit-content;">
                             <option value="">All Borrow Dates</option>
                             <option value="today" <?= isset($_GET['borrow_date_filter']) && $_GET['borrow_date_filter'] === 'today' ? 'selected' : '' ?>>Today</option>
                             <option value="this_week" <?= isset($_GET['borrow_date_filter']) && $_GET['borrow_date_filter'] === 'this_week' ? 'selected' : '' ?>>This Week</option>
@@ -504,6 +509,12 @@ $currentTime = date('H:i:s');
                             <option value="past_day" <?= isset($_GET['borrow_date_filter']) && $_GET['borrow_date_filter'] === 'past_day' ? 'selected' : '' ?>>Past Day</option>
                             <option value="past_week" <?= isset($_GET['borrow_date_filter']) && $_GET['borrow_date_filter'] === 'past_week' ? 'selected' : '' ?>>Past Week</option>
                             <option value="past_month" <?= isset($_GET['borrow_date_filter']) && $_GET['borrow_date_filter'] === 'past_month' ? 'selected' : '' ?>>Past Month</option>
+                        </select> -->
+
+                        <select name="status" class="form-select w-25 me-2">
+                            <option value="">All Status</option>
+                            <option value="active" <?= $selected_status === 'active' ? 'selected' : '' ?>>Active</option>
+                            <option value="returned" <?= $selected_status === 'returned' ? 'selected' : '' ?>>Returned</option>
                         </select>
 
                         <select name="due_date_filter" class="form-select w-25 me-2" style="width: fit-content;">
@@ -688,6 +699,9 @@ $currentTime = date('H:i:s');
                             if (!empty($selected_department)) {
                                 $filter_params .= '&department=' . urlencode($selected_department);
                             }
+                            if (!empty($selected_status)) {
+                                $filter_params .= '&status=' . urlencode($selected_status);
+                            }     
                             if (!empty($borrow_date_filter)) {
                                 $filter_params .= '&borrow_date_filter=' . urlencode($borrow_date_filter);
                             }                            

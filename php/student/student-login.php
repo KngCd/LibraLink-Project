@@ -180,6 +180,17 @@
                                         // Login successful, reset attempts and lockout time
                                         $_SESSION['sattempts'] = 0; // Reset attempts on successful login
                                         $_SESSION['slockout_time'] = null; // Reset lockout time
+
+                                            // Prepare variables for logging
+                                            $studentId = $row['student_id'];
+                                            $action = 'Login';
+                                            $details = 'You logged in';
+
+                                            // Insert log activity directly with NOW() for the timestamp
+                                            $stmt = $conn->prepare("INSERT INTO activity_logs (student_id, action, details, timestamp) VALUES (?, ?, ?, NOW())");
+                                            $stmt->bind_param("iss", $studentId, $action, $details); // Use variables here
+                                            $stmt->execute();
+
                                         header("Location: student_home.php");
                                         exit;
                                     } else {

@@ -125,7 +125,7 @@ session_start();
     #desc::-webkit-scrollbar {
         display: none;
     }
-    #total-borrowed{
+    #act-logs{
         border-radius: 10px;
         border: 1px solid lightgray;
         background-color: #ffffff;
@@ -193,13 +193,13 @@ session_start();
                     </a>
                 </div>
                 <div class="sidebar-item">
-                    <a href="#" class="sidebar-link"  id="active">
+                    <a href="borrowed_books.php" class="sidebar-link"  id="active">
                         <i class="bi bi-journal-bookmark"></i>
                         <span>Borrowed Books</span>
                     </a>
                 </div>
                 <div class="sidebar-item">
-                    <a href="activity_logs.php" class="sidebar-link">
+                    <a href="#" class="sidebar-link">
                         <i class="bi bi-clipboard-data-fill"></i>
                         <span>Activity Logs</span>
                     </a>
@@ -318,161 +318,79 @@ session_start();
     </script>
 
     <main class="main-content">
-        <section>
-            <div class="container mt-3">
-                <?php
-                    // Capture search and filter inputs
-                    $search = isset($_GET['search']) ? $_GET['search'] : '';
-                    $selected_status = isset($_GET['status']) ? $_GET['status'] : '';
-
-                    // Build the SQL query based on search and category
-                    $where_clauses = [];
-
-                    if (!empty($search)) {
-                        $search = mysqli_real_escape_string($conn, $search);
-                        $where_clauses[] = "(title LIKE '%$search%' OR author LIKE '%$search%')";
-                    }
-
-                    if (!empty($selected_status)) {
-                        $where_clauses[] = "status = '" . mysqli_real_escape_string($conn, $selected_status) . "'";
-                    }
-
-                    $where_query = '';
-                    if (count($where_clauses) > 0) {
-                        $where_query = 'WHERE ' . implode(' AND ', $where_clauses);
-                    }
-                ?>
-                <form class="d-flex align-items-center" method="GET">
-                    <input class="form-control me-2" type="search" name="search" placeholder="Search for Title or Author" aria-label="Search" value="<?= htmlspecialchars($search) ?>" style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
-
-                    <select name="status" class="form-select w-50 me-2" style="border-radius: 16px; border: solid 1px black; width: 100%; display: block; font-size: 16px;">
-                        <option value="">All Status</option>
-                        <option value="active" <?= $selected_status === 'active' ? 'selected' : '' ?>>Active</option>
-                        <option value="returned" <?= $selected_status === 'returned' ? 'selected' : '' ?>>Returned</option>
-                    </select>
-
-                    <button class="btn btn-outline-danger" type="submit">Search</button>
-                </form>
-            </div>
-        </section>
-
         <section class="container-fluid mt-3">
-            <div id="total-borrowed" class="container p-3">
+            <div id="act-logs" class="container p-3">
                 <div class="container p-3">
                     <?php
-                        // Set the number of records per page
-                        $records_per_page = 5;
-
-                        // Get the current page from the session or set it to 1
-                        if (!isset($_SESSION['bbscurrent_page'])) {
-                            $_SESSION['bbscurrent_page'] = 1;
-                        }
-
-                        // Handle next and previous button clicks via GET parameters
-                        if (isset($_GET['page'])) {
-                            $_SESSION['bbscurrent_page'] = (int)$_GET['page'];
-                        }
-
-                        // Fetch the total number of borrowed books based on the filter
-                        $total_query = mysqli_query($conn, "SELECT COUNT(*) AS total 
-                                                            FROM borrow_table AS br
-                                                            INNER JOIN student_table AS s ON br.student_id = s.student_id
-                                                            INNER JOIN book_table AS b ON br.book_id = b.book_id
-                                                            $where_query AND s.student_id = $user_id");
-                        $total_row = mysqli_fetch_assoc($total_query);
-                        $total_borrowed = $total_row['total'];
-                        $total_pages = ceil($total_borrowed / $records_per_page);
-
-                        // Fetch the borrowed books with their details
-                        $start_from = ($_SESSION['bbscurrent_page'] - 1) * $records_per_page;
-                        $query = mysqli_query($conn, "SELECT s.student_id, s.first_name, s.last_name, s.email, s.contact_num, s.program, s.department, s.profile_pic,
-                                                        b.title, br.status, br.date_borrowed, br.due_date, br.penalty
-                                                        FROM borrow_table AS br
-                                                        INNER JOIN student_table AS s ON br.student_id = s.student_id
-                                                        INNER JOIN book_table AS b ON br.book_id = b.book_id
-                                                        $where_query AND s.student_id = $user_id
-                                                        LIMIT $start_from, $records_per_page");
-
-                        // echo "Total: $total_borrowed";
-
-                        // Check if the query was successful
-                        if ($query) {
-                            // Display the rows
-                            echo "<div class='table-responsive'>";
-                            echo "<table class='table table-hover caption-top p-3'>";
-                            echo "<caption>Total: $total_borrowed</caption>";
-                            echo "<tr>";
-                            // echo "<th>Name</th>";
-                            //  echo "<th>Email</th>";
-                            //  echo "<th>Contact Number</th>";
-                            //  echo "<th>Program</th>";
-                            //  echo "<th>Department</th>";
-                            // echo "<th>Profile</th>";
-                            echo "<th>Book Title</th>";
-                            echo "<th>Status</th>";
-                            echo "<th>Date Borrowed</th>";
-                            echo "<th>Due Date</th>";
-                            echo "<th>Penalty</th>";
-                            echo "</tr>";
-                            echo "<tbody class='table-group-divider'>";
-                            while ($row = mysqli_fetch_assoc($query)) {
-                                echo "<tr>";
-                                echo "<td>" . $row['title'] . "</td>";
-                                echo "<td><button class='btn " . ($row['status'] == 'Returned' ? 'btn-success' : 'btn-danger') . " disabled'>" . $row['status'] . "</button></td>";
-                                echo "<td>" . $row['date_borrowed'] . "</td>";
-                                echo "<td>" . $row['due_date'] . "</td>";
-                                echo "<td>" . $row['penalty'] . "</td>";
-                                echo "</tr>";
-                            }
-                            if (mysqli_num_rows($query) === 0) {
-                                echo "<td colspan='5'>No records found</td>"; 
-                            }
-                            echo "</tr>";
-                            echo "</tbody>";
-                            echo "</table>";
-                            echo "</div>";
-
-                            // Display pagination buttons
-                            echo "<div class='pagination-buttons'>";
-                            echo "<form action='' method='get'>"; // Change to GET method
-
-                            // Include search and status in the pagination links
-                            $filter_params = '';
-                            if (!empty($search)) {
-                                $filter_params .= '&search=' . urlencode($search);
-                            }
-                            if (!empty($selected_status)) {
-                                $filter_params .= '&status=' . urlencode($selected_status);
-                            }   
-
-                            // Pagination buttons
-                            if ($_SESSION['bbscurrent_page'] > 1) {
-                                echo "<a href='?page=" . ($_SESSION['bbscurrent_page'] - 1) . $filter_params . "' class='btn btn-danger' style='width: 50px;'>&lt;</a>";
-                            } else {
-                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
-                            }
-                            echo "<span> Page " . $_SESSION['bbscurrent_page'] . " </span>";
-                            if ($total_borrowed > $records_per_page && $_SESSION['bbscurrent_page'] < $total_pages) {
-                                echo "<a href='?page=" . ($_SESSION['bbscurrent_page'] + 1) . $filter_params . "' class='btn btn-danger' style='width: 50px;'>&gt;</a>";
-                            } else {
-                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&gt;</button>";
-                            }
-                            echo "</form>";
-                            echo "</div>";
-                            echo "</form>";
-                            echo "</div>";
-
-                        } else {
-                            //  echo "Error fetching data: " . mysqli_error($conn);
-                            $_SESSION['alert'] = ['message' => 'Error fetching data: ' . mysqli_error($conn), 'type' => 'danger'];
-                        }
+                    // Fetch distinct dates for the specific student
+                    $actLogs_query = "SELECT DISTINCT DATE(timestamp) AS log_date FROM activity_logs WHERE student_id = '$user_id' ORDER BY log_date DESC";
+                    $result_query = $conn->query($actLogs_query);
                     ?>
+
+                    <div class="accordion" id="accordionExample">
+                        <?php if ($result_query->num_rows > 0): ?>
+                            <?php $index = 0; ?>
+                            <?php while ($date = $result_query->fetch_assoc()): ?>
+                                <?php
+                                // Fetch logs for the current date for the specific student
+                                $dateValue = $date['log_date'];
+                                $logQuery = "SELECT action, details, timestamp FROM activity_logs WHERE DATE(timestamp) = '$dateValue' AND student_id = '$user_id' ORDER BY timestamp"; // Ensure student_id is filtered here
+                                $logResult = $conn->query($logQuery);
+
+                                // Format the date
+                                $formattedDate = date('F j, Y', strtotime($dateValue)); // e.g., "November 4, 2024"
+                                ?>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="heading<?= $index ?>">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?= $index ?>" aria-expanded="<?= $index === 0 ? 'true' : 'false' ?>" aria-controls="collapse<?= $index ?>">
+                                            <?= htmlspecialchars($formattedDate) ?>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse<?= $index ?>" class="accordion-collapse collapse <?= $index === 0 ? 'show' : '' ?>" data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <?php if ($logResult->num_rows > 0): ?>
+                                                <div class="table-responsive">
+                                                    <table class="table table-hover text-center">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Action</th>
+                                                                <th>Details</th>
+                                                                <th>Time</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="table-group-divider">
+                                                            <?php while ($log = $logResult->fetch_assoc()): ?>
+                                                                <tr>
+                                                                    <td class="text-muted"><?= htmlspecialchars($log['action']) ?></td>
+                                                                    <td class="text-muted"><?= htmlspecialchars($log['details']) ?></td>
+                                                                    <td class="text-muted"><?= date('g:i A', strtotime($log['timestamp'])) ?></td> <!-- Converted to 12-hour format -->
+                                                                </tr>
+                                                            <?php endwhile; ?>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            <?php else: ?>
+                                                <p class="text-muted">No logs for this date.</p>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php $index++; ?>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <p>No activity logs found.</p>
+                        <?php endif; ?>
+                    </div>
+
+                    <?php
+                    $conn->close(); // Close the connection
+                    ?>                  
                 </div>
             </div>
         </section>
     </main>
 
-    <script src="../../js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../../js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $status = $_POST['status'];
 
     // Get the student ID and current status from the borrow ID
-    $stmt = $conn->prepare("SELECT student_id, status FROM borrow_table WHERE borrow_id = ?");
+    $stmt = $conn->prepare("SELECT student_id, status, book_id FROM borrow_table WHERE borrow_id = ?");
     $stmt->bind_param("i", $borrow_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -21,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $student_id = $row['student_id'];
     $current_status = $row['status'];
+    $book_id = $row['book_id'];
 
     // Check if the status is being changed to 'Active'
     if ($status == 'Active') {
@@ -55,6 +56,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     if ($stmt->execute()) {
         $_SESSION['alert2'] = "Status Updated Successfully!";
+        // If the status is changed to 'Returned', log the action
+        if ($status == 'Returned') {
+            // Get the book title
+            $bookStmt = $conn->prepare("SELECT title FROM book_table WHERE book_id = ?");
+            $bookStmt->bind_param("i", $book_id);
+            $bookStmt->execute();
+            $bookStmt->bind_result($book_title);
+            $bookStmt->fetch();
+            $bookStmt->close();
+
+            // Log the return action with the book title
+            $action = 'Return';
+            $details = "You returned $book_title";
+            
+            $logStmt = $conn->prepare("INSERT INTO activity_logs (student_id, action, details, timestamp) VALUES (?, ?, ?, NOW())");
+            $logStmt->bind_param("iss", $student_id, $action, $details);
+            $logStmt->execute();
+            $logStmt->close();
+        }
     } else {
         $_SESSION['alert2'] = 'Error updating status: ' . $stmt->error;
     }
