@@ -68,7 +68,7 @@
         display: block;
         width: 100%;
     }
-    .input-group input{
+    .input-group input, .input-group select{
         border-radius: 16px; 
         border: solid, 1px, black; 
         width: auto; 
@@ -164,12 +164,52 @@
                                 $fileTypeID = strtolower(pathinfo($fileID, PATHINFO_EXTENSION));
                                 $fileTypePic = strtolower(pathinfo($filePic, PATHINFO_EXTENSION));
 
+                                // Get the maximum file upload size from the server's php.ini settings
+                                $maxUploadSize = ini_get('upload_max_filesize');
+                                $maxPostSize = ini_get('post_max_size');
+
+                                // Convert the sizes to bytes
+                                function convertToBytes($sizeStr) {
+                                    $unit = substr($sizeStr, -1);
+                                    $size = (int)$sizeStr;
+
+                                    switch (strtoupper($unit)) {
+                                        case 'G':
+                                            return $size * 1024 * 1024 * 1024;
+                                        case 'M':
+                                            return $size * 1024 * 1024;
+                                        case 'K':
+                                            return $size * 1024;
+                                        default:
+                                            return $size; // Assume bytes
+                                    }
+                                }
+
+                                $maxUploadSizeBytes = convertToBytes($maxUploadSize);
+                                $maxPostSizeBytes = convertToBytes($maxPostSize);
+
                                 // Check if COR and ID are PDFs and Profile Picture
                                 if (in_array($fileTypeCOR, $allowTypesPDF) && in_array($fileTypeID, $allowTypesPDF) &&
                                     in_array($fileTypePic, $allowTypesImage) &&
                                     $_FILES['cor']['error'] === UPLOAD_ERR_OK && 
                                     $_FILES['id']['error'] === UPLOAD_ERR_OK && 
                                     $_FILES['pic']['error'] === UPLOAD_ERR_OK) {
+
+                                    // Check file sizes against the maximum upload size
+                                    if ($_FILES['cor']['size'] > $maxUploadSizeBytes) {
+                                        echo "<script>alert('The uploaded COR file exceeds the maximum allowed size of $maxUploadSize.'); window.location.href='student_register.php';</script>";
+                                        exit;
+                                    }
+
+                                    if ($_FILES['id']['size'] > $maxUploadSizeBytes) {
+                                        echo "<script>alert('The uploaded ID file exceeds the maximum allowed size of $maxUploadSize.'); window.location.href='student_register.php';</script>";
+                                        exit;
+                                    }
+
+                                    if ($_FILES['pic']['size'] > $maxUploadSizeBytes) {
+                                        echo "<script>alert('The uploaded profile picture exceeds the maximum allowed size of $maxUploadSize.'); window.location.href='student_register.php';</script>";
+                                        exit;
+                                    }
                                     
                                     // Check if the email is unique
                                     $emailCheckStmt = $conn->prepare("SELECT email FROM verification_table WHERE email = ?");
@@ -241,7 +281,7 @@
                                     <input type="password" class="form-control" placeholder="Confirm Password" name="confirmPassword" id="confirmPassword" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
                                 </div>
                                 <div class="input-group mb-2">
-                                    <select name="department" id="department" class="form-select" required>
+                                    <select name="department" id="department" class="form-select" required style="border-radius: 16px;">
                                         <option value="" disabled selected>Select Department</option>
                                         <?php
                                         // Fetch departments
@@ -251,7 +291,7 @@
                                         }
                                         ?>
                                     </select>
-                                    <select name="program" id="program" class="form-select ms-1" required>
+                                    <select name="program" id="program" class="form-select ms-1" required style="border-radius: 16px;">
                                         <option value="" disabled selected>Select Program</option>
                                         <!-- Programs will be populated with JavaScript -->
                                     </select>
