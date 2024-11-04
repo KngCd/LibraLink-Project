@@ -1,3 +1,15 @@
+<?php
+session_start();
+
+// Check if the user is already logged in
+if (isset($_SESSION['user_id'])) {
+    // User is logged in, redirect to the home page
+    header('Location: student_home.php');
+    exit;
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -115,7 +127,7 @@
                             // Include the database configuration file
                             require_once '../db_config.php';
 
-                            session_start();
+                            // session_start();
 
                             if(isset($_SESSION['error'])){
                                 echo '<script>alert("'.$_SESSION['error'].'");</script>';

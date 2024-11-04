@@ -1,3 +1,14 @@
+<?php
+session_start();
+
+// Check if the admin is already logged in
+if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
+    // Redirect to the admin dashboard if already logged in
+    header('Location: admin_dashboard.php');
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -119,7 +130,7 @@
                             $admin_username = 'admin'; // default admin username
                             $admin_password = 'password'; // default admin password
 
-                            session_start(); // Start the session at the beginning of the script
+                            // session_start(); // Start the session at the beginning of the script
 
                             // Initialize attempts if it doesn't exist
                             if (!isset($_SESSION['attempts'])) {
@@ -139,6 +150,7 @@
                                 if ($time_since_lockout >= 180) {
                                     $_SESSION['attempts'] = 0; // Reset attempts
                                     $_SESSION['lockout_time'] = null; // Reset lockout time
+                                    // $_SESSION['is_admin'] = true;
                                 }
                                 // } else {
                                 //     // User is still locked out
@@ -158,6 +170,8 @@
                                     // Login successful, reset attempts and lockout time
                                     $_SESSION['attempts'] = 0; // Reset attempts on successful login
                                     $_SESSION['lockout_time'] = null; // Reset lockout time
+                                    $_SESSION['is_admin'] = true; // Set this session variable to indicate admin is logged in
+
                                     header('Location: admin_dashboard.php');
                                     exit;
                                 } else {

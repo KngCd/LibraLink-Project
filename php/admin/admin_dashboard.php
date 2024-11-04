@@ -4,6 +4,12 @@ session_start();
 date_default_timezone_set('Asia/Manila');
 $currentTime = date('H:i:s'); 
 
+// Check if the admin is logged in
+if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
+    // If the session variable is not set or is false, redirect to the login page
+    header('Location: admin-login.php');
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -369,7 +375,7 @@ $currentTime = date('H:i:s');
                     <div class="collapse navbar-collapse" id="navmenu">
                         <ul class="navbar-nav ms-auto">
                             <li class="nav-item mx-2">
-                                <a href="admin-login.php" class="btn btn-danger text-light">Logout</a>
+                                <a href="admin_logout.php" class="btn btn-danger text-light">Logout</a>
                             </li>
                         </ul>
                     </div>

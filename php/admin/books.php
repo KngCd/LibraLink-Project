@@ -349,7 +349,7 @@ $currentTime = date('H:i:s');
                     <div class="collapse navbar-collapse" id="navmenu">
                         <ul class="navbar-nav ms-auto">
                             <li class="nav-item mx-2">
-                                <a href="admin-login.php" class="btn btn-danger text-light button">Logout</a>
+                                <a href="admin_logout.php" class="btn btn-danger text-light button">Logout</a>
                             </li>
                         </ul>
                     </div>
