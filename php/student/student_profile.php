@@ -311,13 +311,13 @@
                     </a>
                 </div>
                 <div class="sidebar-item">
-                    <a href="#" class="sidebar-link">
+                    <a href="borrowed_books.php" class="sidebar-link">
                         <i class="bi bi-journal-bookmark"></i>
                         <span>Borrowed Books</span>
                     </a>
                 </div>
                 <div class="sidebar-item">
-                    <a href="accepted_student.php" class="sidebar-link">
+                    <a href="activity_logs.php" class="sidebar-link">
                         <i class="bi bi-clipboard-data-fill"></i>
                         <span>Activity Logs</span>
                     </a>

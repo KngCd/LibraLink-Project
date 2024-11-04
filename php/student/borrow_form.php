@@ -42,7 +42,7 @@ if (isset($_POST['submit'])) {
     }
 
     // Calculate the due date (7 days from today)
-    $dueDate = calculateDueDate($today, 7);
+    $dueDate = calculateDueDate($today, 1);
 
     // Verify that the student ID exists
     $stmt = $conn->prepare("SELECT COUNT(*) FROM student_table WHERE student_id = ?");
@@ -76,7 +76,7 @@ if (isset($_POST['submit'])) {
     }
 
     // Prepare the insert statement for the borrow_table
-    $stmt = $conn->prepare("INSERT INTO borrow_table (student_id, book_id, status, penalty, date_borrowed, due_date) VALUES (?, ?, 'Active', 'None', ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO borrow_table (student_id, book_id, status, penalty, date_borrowed, due_date) VALUES (?, ?, 'Active', '0.00', ?, ?)");
 
     // Loop through the results to process borrowing
     $borrowed_books = 0; // Track how many books are successfully borrowed

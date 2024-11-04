@@ -478,24 +478,18 @@ $currentTime = date('H:i:s');
                             // Calculate available stock
                             $available_stock = $current_stock - $borrowed;
 
-                            // Check if decreasing stocks would affect available stock
+                            // Check if the new stocks value is negative
                             if ($new_stocks < 0) {
-                                // If there are borrowed books and available stock is 0, prevent decrease
-                                if ($borrowed > 0 && $available_stock <= 0) {
-                                    echo "<script>alert('Cannot decrease stocks. Available stocks are zero with borrowed books.'); window.location.href = 'book_stock.php';</script>";
-                                    exit;
-                                }
-
-                                // Allow decreasing stocks to zero if no borrowed books
-                                if ($borrowed === 0 && ($current_stock + $new_stocks < 0)) {
-                                    echo "<script>alert('Cannot decrease stocks below zero.'); window.location.href = 'book_stock.php';</script>";
+                                // Ensure available stock doesn't go negative
+                                if ($available_stock + $new_stocks < 0) {
+                                    echo "<script>alert('Cannot decrease stocks below zero. Available stocks would be negative.'); window.location.href = 'book_stock.php';</script>";
                                     exit;
                                 }
                             }
 
                             // Update the existing record
                             $new_total_stock = $current_stock + $new_stocks;
-                            
+
                             // Prevent stocks from going negative
                             if ($new_total_stock < 0) {
                                 echo "<script>alert('Cannot decrease stocks below zero.'); window.location.href = 'book_stock.php';</script>";
@@ -522,8 +516,6 @@ $currentTime = date('H:i:s');
                         }
                     }
                     ?>
-
-
                 
                     <?php
                         $records_per_page = 3;
@@ -585,12 +577,15 @@ $currentTime = date('H:i:s');
                             echo "<tbody class='table-group-divider'>";
 
                             while ($row = mysqli_fetch_assoc($query)) {
-                                // Get the number of borrowed copies
-                                $borrowed_query = "SELECT COUNT(*) as borrowed FROM borrow_table WHERE book_id = '" . $row['book_id'] . "'";
+                                // Get the number of borrowed copies with status 'active'
+                                $borrowed_query = "SELECT COUNT(*) as borrowed 
+                                                FROM borrow_table 
+                                                WHERE book_id = '" . $row['book_id'] . "' AND status = 'active'";
                                 $borrowed_result = mysqli_query($conn, $borrowed_query);
                                 $borrowed_row = mysqli_fetch_assoc($borrowed_result);
                                 $borrowed = $borrowed_row['borrowed'];
 
+                                // Calculate available stocks
                                 $available_stocks = $row['stocks'] - $borrowed;
 
                                 // Add values to totals
@@ -617,6 +612,7 @@ $currentTime = date('H:i:s');
                                     $status = $row['status']; // Use existing status if it’s neither
                                 }
 
+                                // Output the row
                                 echo "<tr>";
                                 echo "<td>" . $row['book_id'] . "</td>";
                                 echo "<td>" . $row['title'] . "</td>";
@@ -633,7 +629,8 @@ $currentTime = date('H:i:s');
                                             </div>
                                         </form>
                                     </td>";
-                                }
+                                echo "</tr>";
+                            }
                                 // Display totals
                                 echo "<tr>";
                                 echo "<td colspan='3'><b>Total</b></td>";

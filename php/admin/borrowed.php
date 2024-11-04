@@ -538,6 +538,11 @@ $currentTime = date('H:i:s');
                         //     }
                         // }
 
+                        if (isset($_SESSION['alert2'])) {
+                            echo '<script>alert("' . $_SESSION['alert2'] . '")</script>';
+                            unset($_SESSION['alert2']); // Clear the alert after displaying
+                        }
+
                         // Handle next and previous button clicks via GET parameters
                         if (isset($_GET['page'])) {
                             $_SESSION['bbcurrent_page'] = (int)$_GET['page'];
@@ -556,7 +561,7 @@ $currentTime = date('H:i:s');
                         // Fetch the borrowed books with their details
                         $start_from = ($_SESSION['bbcurrent_page'] - 1) * $records_per_page;
                         $query = mysqli_query($conn, "SELECT s.student_id, s.first_name, s.last_name, s.email, s.contact_num, s.program, s.department, s.profile_pic,
-                                                        b.title, br.status, br.date_borrowed, br.due_date, br.penalty
+                                                        b.title, br.borrow_id, br.status, br.date_borrowed, br.due_date, br.penalty, br.is_renewed
                                                         FROM borrow_table AS br
                                                         INNER JOIN student_table AS s ON br.student_id = s.student_id
                                                         INNER JOIN book_table AS b ON br.book_id = b.book_id
@@ -573,25 +578,20 @@ $currentTime = date('H:i:s');
                             echo "<caption>Total: $total_borrowed</caption>";
                             echo "<tr>";
                             echo "<th>Name</th>";
-                            //  echo "<th>Email</th>";
-                            //  echo "<th>Contact Number</th>";
-                            //  echo "<th>Program</th>";
-                            //  echo "<th>Department</th>";
                             echo "<th>Profile</th>";
                             echo "<th>Book Title</th>";
                             echo "<th>Status</th>";
                             echo "<th>Date Borrowed</th>";
                             echo "<th>Due Date</th>";
                             echo "<th>Penalty</th>";
+                            echo "<th>Renewal</th>";
                             echo "</tr>";
                             echo "<tbody class='table-group-divider'>";
+
                             while ($row = mysqli_fetch_assoc($query)) {
                                 echo "<tr>";
-                                echo "<td>" . $row['first_name'] . ' ' .$row['last_name'] . "</td>";
-                                //  echo "<td>" . $row['email'] . "</td>";
-                                //  echo "<td>" . $row['contact_num'] . "</td>";
-                                //  echo "<td>" . $row['program'] . "</td>";
-                                //  echo "<td>" . $row['department'] . "</td>";
+                                echo "<td>" . $row['first_name'] . ' ' . $row['last_name'] . "</td>";
+                                
                                 echo "<td>
                                     <button class='btn btn-danger' data-bs-toggle='modal' data-bs-target='#view-profile-{$row['student_id']}'>View Profile</button>
                                     <div class='modal fade' id='view-profile-{$row['student_id']}' tabindex='-1' aria-labelledby='exampleModalLabel' aria-hidden='true'>
@@ -610,20 +610,59 @@ $currentTime = date('H:i:s');
                                                         <p>Program: " . $row['program'] . "</p>
                                                         <p>Department: " . $row['department'] . "</p>
                                                     </div>
-                                                    <!-- <form action='' method='post' style='margin-top: 20px;'>
-                                                        <input type='hidden' name='delete_student_id' value='" . $row['student_id'] . "'>
-                                                        <button type='submit' class='btn btn-danger'>Delete</button>
-                                                    </form> -->
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     </td>";
+
                                 echo "<td>" . $row['title'] . "</td>";
-                                echo "<td>" . $row['status'] . "</td>";
+                                
+                                // Dropdown for status
+                                echo "<td>
+                                    <form action='update_status.php' method='post'>
+                                        <input type='hidden' name='borrow_id' value='" . $row['borrow_id'] . "'>
+                                        <select class='form-select' name='status' onchange='this.form.submit()'>
+                                            <option value='Active'" . ($row['status'] == 'Active' ? ' selected' : '') . ">Active</option>
+                                            <option value='Returned'" . ($row['status'] == 'Returned' ? ' selected' : '') . ">Returned</option>
+                                        </select>
+                                    </form>
+                                </td>";
+
                                 echo "<td>" . $row['date_borrowed'] . "</td>";
                                 echo "<td>" . $row['due_date'] . "</td>";
                                 echo "<td>" . $row['penalty'] . "</td>";
+                                echo "<td>";
+                                if ($row['status'] == 'Active') {
+                                    echo "<form action='renew_due_date.php' method='post' onsubmit='return disableButton(this)'>";
+                                    echo "<input type='hidden' name='borrow_id' value='" . $row['borrow_id'] . "'>";
+                                    echo "<input type='hidden' name='current_due_date' value='" . $row['due_date'] . "'>";
+                                    
+                                    // Check if the item has already been renewed
+                                    if ($row['is_renewed']) {
+                                        echo "<button class='btn btn-success' disabled>Renewed</button>";
+                                    } else {
+                                        echo "<button type='submit' class='btn btn-success'>Renew</button>";
+                                    }
+                                    echo "</form>";
+                                } else {
+                                    echo "<button class='btn btn-success' disabled>Renew</button>";
+                                }
+
+                                echo "
+                                <script>
+                                    function disableButton(form) {
+                                        const button = form.querySelector('button');
+                                        button.textContent = 'Renewed'; // Change button text
+                                        button.disabled = true; // Disable the button
+                                        alert('Due date will be renewed!'); // Show alert
+                                        return true; // Allow form submission
+                                    }
+                                </script>";
+
+                                echo "</td>";
+
+                                // echo "</td>";
                                 echo "</tr>";
                             }
                             if (mysqli_num_rows($query) === 0) {
@@ -678,10 +717,8 @@ $currentTime = date('H:i:s');
                             $_SESSION['alert'] = ['message' => 'Error fetching data: ' . mysqli_error($conn), 'type' => 'danger'];
                         }
                     ?>
-                </div>
-                 <!-- <button class="btn btn-primary" popovertarget="total-stocks" popovertargetaction="hide">Close</button> -->
 
-                 <div id="liveAlertPlaceholder"></div>
+                <div id="liveAlertPlaceholder"></div>
 
                 <script>
                     const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
@@ -699,10 +736,10 @@ $currentTime = date('H:i:s');
                         
                         // Add an event listener for the close button
                         const closeButton = wrapper.querySelector('.btn-close');
-                        closeButton.addEventListener('click', () => {
-                            // Optionally set a timeout before reloading
-                            window.location.reload(); // Reload the page when the alert is closed
-                        });
+                        // closeButton.addEventListener('click', () => {
+                        //     // Optionally set a timeout before reloading
+                        //     window.location.reload(); // Reload the page when the alert is closed
+                        // });
                     }
 
                     // Check for session alert
@@ -711,6 +748,9 @@ $currentTime = date('H:i:s');
                         <?php unset($_SESSION['alert']); // Clear the alert after displaying ?>
                     <?php endif; ?>
                 </script>
+                
+                </div>
+                 <!-- <button class="btn btn-primary" popovertarget="total-stocks" popovertargetaction="hide">Close</button> -->
              </div>
         </section>
     </main>

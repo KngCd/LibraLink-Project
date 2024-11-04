@@ -61,7 +61,7 @@ $currentTime = date('H:i:s');
     table th, table td{
        text-align: center;
     }
-    #total-register, #accepted-student, #books, #total-stocks, #total-borrowed-books, #total-available{
+    #program_dept{
         border-radius: 10px;
         border: 1px solid lightgray;
         background-color: #ffffff;

@@ -125,6 +125,11 @@ session_start();
     #desc::-webkit-scrollbar {
         display: none;
     }
+    #total-borrowed{
+        border-radius: 10px;
+        border: 1px solid lightgray;
+        background-color: #ffffff;
+    }
 </style>
 <body>
     <?php
@@ -176,7 +181,7 @@ session_start();
                     <img class="img-fluid" src="../../img/librawhite.png" alt="Logo" style="height: 30px;">
                 </div>
                 <div class="sidebar-item">
-                    <a href="#" class="sidebar-link" data-target="home" id="active">
+                    <a href="student_home.php" class="sidebar-link" data-target="home">
                         <i class="bi bi-house-door-fill"></i>
                         <span>Home</span>
                     </a>
@@ -188,13 +193,13 @@ session_start();
                     </a>
                 </div>
                 <div class="sidebar-item">
-                    <a href="borrowed_books.php" class="sidebar-link">
+                    <a href="borrowed_books.php" class="sidebar-link"  id="active">
                         <i class="bi bi-journal-bookmark"></i>
                         <span>Borrowed Books</span>
                     </a>
                 </div>
                 <div class="sidebar-item">
-                    <a href="activity_logs.php" class="sidebar-link">
+                    <a href="#" class="sidebar-link">
                         <i class="bi bi-clipboard-data-fill"></i>
                         <span>Activity Logs</span>
                     </a>
@@ -312,20 +317,13 @@ session_start();
         });
     </script>
 
-    <main>
+    <main class="main-content">
         <section>
             <div class="container mt-3">
                 <?php
                     // Capture search and filter inputs
                     $search = isset($_GET['search']) ? $_GET['search'] : '';
-                    $selected_category = isset($_GET['category']) ? $_GET['category'] : '';
-
-                    // Fetch distinct programs
-                    $category_query = mysqli_query($conn, "SELECT DISTINCT category FROM book_table");
-                    $categories = [];
-                    while ($row = mysqli_fetch_assoc($category_query)) {
-                        $categories[] = $row['category'];
-                    }
+                    $selected_status = isset($_GET['status']) ? $_GET['status'] : '';
 
                     // Build the SQL query based on search and category
                     $where_clauses = [];
@@ -335,8 +333,8 @@ session_start();
                         $where_clauses[] = "(title LIKE '%$search%' OR author LIKE '%$search%')";
                     }
 
-                    if (!empty($selected_category)) {
-                        $where_clauses[] = "category = '" . mysqli_real_escape_string($conn, $selected_category) . "'";
+                    if (!empty($selected_status)) {
+                        $where_clauses[] = "status = '" . mysqli_real_escape_string($conn, $selected_status) . "'";
                     }
 
                     $where_query = '';
@@ -347,13 +345,10 @@ session_start();
                 <form class="d-flex align-items-center" method="GET">
                     <input class="form-control me-2" type="search" name="search" placeholder="Search for Title or Author" aria-label="Search" value="<?= htmlspecialchars($search) ?>" style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
 
-                    <select name="category" class="form-select w-50 me-2" style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
-                        <option value="">All Category</option>
-                        <?php foreach ($categories as $category): ?>
-                            <option value="<?= htmlspecialchars($category) ?>" <?= $selected_category === $category ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($category) ?>
-                            </option>
-                        <?php endforeach; ?>
+                    <select name="status" class="form-select w-50 me-2" style="border-radius: 16px; border: solid 1px black; width: 100%; display: block; font-size: 16px;">
+                        <option value="">All Status</option>
+                        <option value="active" <?= $selected_status === 'active' ? 'selected' : '' ?>>Active</option>
+                        <option value="returned" <?= $selected_status === 'returned' ? 'selected' : '' ?>>Returned</option>
                     </select>
 
                     <button class="btn btn-outline-danger" type="submit">Search</button>
@@ -361,153 +356,128 @@ session_start();
             </div>
         </section>
 
-        <section class="text-dark mt-3 mx-4 d-flex align-items-center justify-content-center">
-            <div class="container-fluid">
-                <div class="row">
+        <section class="container-fluid mt-3">
+            <div id="total-borrowed" class="container p-3">
+                <div class="container p-3">
                     <?php
-                        // Fetch the user's cart from the database
-                        $stmt2 = $conn->prepare("SELECT book_id FROM cart WHERE user_id = ?");
-                        $stmt2->bind_param("i", $_SESSION['user_id']);
-                        $stmt2->execute();
-                        $result = $stmt2->get_result();
+                        // Set the number of records per page
+                        $records_per_page = 5;
 
-                        $cart_books = [];
-                        while ($row = $result->fetch_assoc()) {
-                            $cart_books[] = $row['book_id'];
+                        // Get the current page from the session or set it to 1
+                        if (!isset($_SESSION['bbscurrent_page'])) {
+                            $_SESSION['bbscurrent_page'] = 1;
                         }
 
-                        // Fetch the total number of books based on the filter
-                        $total_query = mysqli_query($conn, "SELECT COUNT(*) AS total FROM book_table $where_query");
+                        // Handle next and previous button clicks via GET parameters
+                        if (isset($_GET['page'])) {
+                            $_SESSION['bbscurrent_page'] = (int)$_GET['page'];
+                        }
+
+                        // Fetch the total number of borrowed books based on the filter
+                        $total_query = mysqli_query($conn, "SELECT COUNT(*) AS total 
+                                                            FROM borrow_table AS br
+                                                            INNER JOIN student_table AS s ON br.student_id = s.student_id
+                                                            INNER JOIN book_table AS b ON br.book_id = b.book_id
+                                                            $where_query AND s.student_id = $user_id");
                         $total_row = mysqli_fetch_assoc($total_query);
-                        $total_books = $total_row['total'];
+                        $total_borrowed = $total_row['total'];
+                        $total_pages = ceil($total_borrowed / $records_per_page);
 
-                        // Query all the books available
-                        $query = mysqli_query($conn, "SELECT b.book_id, b.title, b.author, b.description, b.book_cover, b.category, i.stocks, i.status 
-                                                    FROM book_table b 
-                                                    LEFT JOIN inventory_table i ON b.book_id = i.book_id $where_query");
+                        // Fetch the borrowed books with their details
+                        $start_from = ($_SESSION['bbscurrent_page'] - 1) * $records_per_page;
+                        $query = mysqli_query($conn, "SELECT s.student_id, s.first_name, s.last_name, s.email, s.contact_num, s.program, s.department, s.profile_pic,
+                                                        b.title, br.status, br.date_borrowed, br.due_date, br.penalty
+                                                        FROM borrow_table AS br
+                                                        INNER JOIN student_table AS s ON br.student_id = s.student_id
+                                                        INNER JOIN book_table AS b ON br.book_id = b.book_id
+                                                        $where_query AND s.student_id = $user_id
+                                                        LIMIT $start_from, $records_per_page");
 
-                        echo "<div class='container d-flex align-items-start fs-4'>Total result: $total_books</div>";
+                        // echo "Total: $total_borrowed";
 
+                        // Check if the query was successful
                         if ($query) {
+                            // Display the rows
+                            echo "<div class='table-responsive'>";
+                            echo "<table class='table table-hover caption-top p-3'>";
+                            echo "<caption>Total: $total_borrowed</caption>";
+                            echo "<tr>";
+                            // echo "<th>Name</th>";
+                            //  echo "<th>Email</th>";
+                            //  echo "<th>Contact Number</th>";
+                            //  echo "<th>Program</th>";
+                            //  echo "<th>Department</th>";
+                            // echo "<th>Profile</th>";
+                            echo "<th>Book Title</th>";
+                            echo "<th>Status</th>";
+                            echo "<th>Date Borrowed</th>";
+                            echo "<th>Due Date</th>";
+                            echo "<th>Penalty</th>";
+                            echo "</tr>";
+                            echo "<tbody class='table-group-divider'>";
                             while ($row = mysqli_fetch_assoc($query)) {
-                                // Get the number of borrowed copies
-                                $borrowed_query = "SELECT COUNT(*) as borrowed 
-                                    FROM borrow_table 
-                                    WHERE book_id = '" . $row['book_id'] . "' AND status != 'returned'";
-                                $borrowed_result = mysqli_query($conn, $borrowed_query);
-                                $borrowed_row = mysqli_fetch_assoc($borrowed_result);
-                                $borrowed = $borrowed_row['borrowed'];
-
-                                // Calculate the number of available copies
-                                $available = $row['stocks'] - $borrowed;
-
-                                // Check if the user has already borrowed this book (not returned)
-                                $user_id = $_SESSION['user_id']; // assuming you have a session variable for the user ID
-                                $already_borrowed_query = "SELECT * FROM borrow_table 
-                                                        WHERE book_id = '" . $row['book_id'] . "' AND student_id = '$user_id' AND status != 'returned'";
-                                $already_borrowed_result = mysqli_query($conn, $already_borrowed_query);
-                                $already_borrowed = mysqli_num_rows($already_borrowed_result) > 0;
-
-                                // Displaying the book information as before
-                                echo '<div class="col-xxl-2 col-xl-3 col-lg-3 col-md-4 col-sm-6 mt-2 mt-sm-2">
-                                    <div class="book-wrapper text-center"> <!-- Add a wrapper element -->
-                                        <a href="#" class="book-link" data-bs-toggle="modal" data-bs-target="#bookModal' . $row['book_id'] . '">
-                                            <img src="data:image/jpeg;base64,' . base64_encode($row['book_cover']) . '" alt="Book Cover" title="' . htmlspecialchars($row['title']) . '" width="200" height="300">
-                                        </a>
-                                        <div class="book-label-container"> <!-- Add a container for the book label -->
-                                            <div class="mb-2"><h3 class="mb-0"><b>' . $row['title'] . '</b></h3>' . $row['author'] . '</div>';
-
-                                            // Create a flex container for the label
-                                            echo '<div class="d-flex justify-content-center">'; // Flex container
-                                                if ($available > 0 && !$already_borrowed) {
-                                                    echo '<div class="book-label w-50 text-center">Available</div>';
-                                                } else {
-                                                    if ($already_borrowed) {
-                                                        echo '<div class="book-label not-available w-75 text-center">You Already Borrowed it</div>';
-                                                    } else {
-                                                        echo '<div class="book-label not-available w-50 text-center">Not Available</div>';
-                                                    }
-                                                }
-                                            echo '</div>'; // End flex container
-                                            echo '
-                                        </div>
-                                    </div>
-                                </div>';
-
-                                // Book Modal (remains unchanged)
-                                echo '
-                                <div class="modal fade" id="bookModal' . $row['book_id'] . '" tabindex="-1" aria-labelledby="bookModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h3 class="modal-title" id="bookModalLabel" style="color: #dd2222; font-weight: 700;">Book Information</h3>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="card">
-                                                    <div class="card-body">
-                                                        <div class="row">
-                                                            <div class="col-4 text-center">
-                                                                <img src="data:image/jpeg;base64,' . base64_encode($row['book_cover']) . '" alt="Book Cover" width="200" height="300" class="me-3">
-                                                                <h6>' . $available . ' of ' . $row['stocks'] . ' available</h6>';
-                                                                
-                                                                // Buttons based on availability
-                                                                if ($available > 0 && !$already_borrowed) {
-                                                                    // Check if the book is already in the cart
-                                                                    if (in_array($row['book_id'], $cart_books)) {
-                                                                        echo '<button class="btn btn-danger disabled">Already Added to Cart</button>';
-                                                                    } else {
-                                                                        echo '<a href="add_to_cart.php?book_id=' . $row['book_id'] . '" onclick="alert(\'Book has been added to your cart!\')"><button class="btn btn-danger">Add to Cart</button></a>';
-                                                                    }
-                                                                } else {
-                                                                    if ($already_borrowed) {
-                                                                        echo '<button class="btn btn-danger disabled">You have already borrowed it</button>';
-                                                                    } else {
-                                                                        echo '<button class="btn btn-danger disabled">' . ($available == 0 ? 'Out of stock' : $row['status']) . '</button>';
-                                                                    }
-                                                                }
-                                                                
-                                                            echo '</div>
-                                                            <div class="col-8">
-                                                                <div class="mb-2">
-                                                                    <label for="title"><h4 style="font-weight: bold;">Title</h4></label>
-                                                                    <input type="text" name="title" class="form-control px-3 mb-3" value="' . htmlspecialchars($row['title']) . '" readonly style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
-                                                                </div>
-                                                                <div class="mt-2">
-                                                                    <label for="author"><h4 style="font-weight: bold;">Author</h4></label>
-                                                                    <input type="text" name="author" class="form-control px-3 mb-3" value="' . htmlspecialchars($row['author']) . '" readonly style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
-                                                                </div>
-                                                                <div class="mb-2">
-                                                                    <label for="category"><h4 style="font-weight: bold;">Category</h4></label>
-                                                                    <input type="text" name="category" class="form-control px-3 mb-3" value="' . htmlspecialchars($row['category']) . '" readonly style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
-                                                                </div>
-                                                                <div class="mb-2">
-                                                                    <label for="desc"><h4 style="font-weight: bold;">Description</h4></label>
-                                                                    <div style="border: solid 1px black; border-radius: 16px; padding: 10px; height: 100px; overflow: hidden; position: relative;">
-                                                                        <div class="form-control textdesc" id="desc" readonly style="height: 100%; overflow: auto; resize: none; border: none; padding: 0; width: calc(100% - 20px);">
-                                                                            ' . nl2br(htmlspecialchars($row['description'])) . ' 
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>';
+                                echo "<tr>";
+                                echo "<td>" . $row['title'] . "</td>";
+                                echo "<td><button class='btn " . ($row['status'] == 'Returned' ? 'btn-success' : 'btn-danger') . " disabled'>" . $row['status'] . "</button></td>";
+                                echo "<td>" . $row['date_borrowed'] . "</td>";
+                                echo "<td>" . $row['due_date'] . "</td>";
+                                echo "<td>" . $row['penalty'] . "</td>";
+                                echo "</tr>";
                             }
-
-                        if (mysqli_num_rows($query) === 0) {
-                                echo "<div class='container d-flex align-items-center justify-content-center fs-2'>No records found</div>";
+                            if (mysqli_num_rows($query) === 0) {
+                                echo "<td colspan='5'>No records found</td>"; 
                             }
+                            echo "</tr>";
+                            echo "</tbody>";
+                            echo "</table>";
+                            echo "</div>";
+
+                            // Display pagination buttons
+                            echo "<div class='pagination-buttons'>";
+                            echo "<form action='' method='get'>"; // Change to GET method
+
+                            // Include search and status in the pagination links
+                            $filter_params = '';
+                            if (!empty($search)) {
+                                $filter_params .= '&search=' . urlencode($search);
+                            }
+                            if (!empty($selected_program)) {
+                                $filter_params .= '&program=' . urlencode($selected_program);
+                            }
+                            if (!empty($selected_department)) {
+                                $filter_params .= '&department=' . urlencode($selected_department);
+                            }
+                            if (!empty($borrow_date_filter)) {
+                                $filter_params .= '&borrow_date_filter=' . urlencode($borrow_date_filter);
+                            }                            
+                            if (!empty($due_date_filter)) {
+                                $filter_params .= '&due_date_filter=' . urlencode($due_date_filter);
+                            }        
+
+                            // Pagination buttons
+                            if ($_SESSION['bbscurrent_page'] > 1) {
+                                echo "<a href='?page=" . ($_SESSION['bbscurrent_page'] - 1) . $filter_params . "' class='btn btn-danger' style='width: 50px;'>&lt;</a>";
+                            } else {
+                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
+                            }
+                            echo "<span> Page " . $_SESSION['bbscurrent_page'] . " </span>";
+                            if ($total_borrowed > $records_per_page && $_SESSION['bbscurrent_page'] < $total_pages) {
+                                echo "<a href='?page=" . ($_SESSION['bbscurrent_page'] + 1) . $filter_params . "' class='btn btn-danger' style='width: 50px;'>&gt;</a>";
+                            } else {
+                                echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&gt;</button>";
+                            }
+                            echo "</form>";
+                            echo "</div>";
+                            echo "</form>";
+                            echo "</div>";
+
+                        } else {
+                            //  echo "Error fetching data: " . mysqli_error($conn);
+                            $_SESSION['alert'] = ['message' => 'Error fetching data: ' . mysqli_error($conn), 'type' => 'danger'];
                         }
-                        $stmt2->close();
                     ?>
                 </div>
             </div>
-            <!-- </div> -->
         </section>
     </main>
 
