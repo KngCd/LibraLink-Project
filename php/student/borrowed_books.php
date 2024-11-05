@@ -428,7 +428,7 @@ session_start();
                                                         FROM borrow_table AS br
                                                         INNER JOIN student_table AS s ON br.student_id = s.student_id
                                                         INNER JOIN book_table AS b ON br.book_id = b.book_id
-                                                        $where_query AND s.student_id = $user_id
+                                                        $where_query AND s.student_id = $user_id ORDER BY br.penalty DESC
                                                         LIMIT $start_from, $records_per_page");
 
                         // echo "Total: $total_borrowed";
@@ -469,7 +469,7 @@ session_start();
                                 // Display totals
                                 echo "<tr>";
                                 echo "<td colspan='4' class='text-center'><b>Total</b></td>";
-                                echo "<td><b>" . $total_penalty . "</b></td>";
+                                echo "<td class='text-danger'><b>" . $total_penalty . "</b></td>";
                                 echo "</tr>";
 
                             if (mysqli_num_rows($query) === 0) {

@@ -545,7 +545,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                 <div class="container p-3">
                     <?php
                         // Set the number of records per page
-                        $records_per_page = 3;
+                        $records_per_page = 5;
 
                         // Get the current page from the session or set it to 1
                         if (!isset($_SESSION['bbcurrent_page'])) {
@@ -588,13 +588,15 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                                         FROM borrow_table AS br
                                                         INNER JOIN student_table AS s ON br.student_id = s.student_id
                                                         INNER JOIN book_table AS b ON br.book_id = b.book_id
-                                                        $where_query
+                                                        $where_query ORDER BY br.penalty DESC
                                                         LIMIT $start_from, $records_per_page");
 
                         // echo "Total: $total_borrowed";
 
                         // Check if the query was successful
                         if ($query) {
+                            $total_penalty = 0;
+
                             // Display the rows
                             echo "<div class='table-responsive'>";
                             echo "<table class='table table-hover caption-top'>";
@@ -612,6 +614,8 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                             echo "<tbody class='table-group-divider'>";
 
                             while ($row = mysqli_fetch_assoc($query)) {
+                                $total_penalty += $row['penalty'];
+
                                 echo "<tr>";
                                 echo "<td>" . $row['first_name'] . ' ' . $row['last_name'] . "</td>";
                                 
@@ -688,6 +692,12 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                 // echo "</td>";
                                 echo "</tr>";
                             }
+                                // Display totals
+                                echo "<tr>";
+                                echo "<td colspan='6' class='text-center'><b>Total</b></td>";
+                                echo "<td class='text-danger'><b>" . $total_penalty . "</b></td>";
+                                echo "</tr>";
+
                             if (mysqli_num_rows($query) === 0) {
                                 echo "<td colspan='10'>No records found</td>"; 
                             }

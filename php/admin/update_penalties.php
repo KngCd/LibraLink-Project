@@ -1,5 +1,17 @@
 <?php
-require_once '../db_config.php'; // Include the database connection file
+// Database configuration
+$db_host = 'localhost';
+$db_username = 'root';
+$db_password = '';
+$db_name = 'libralink2';
+
+// Create a connection to the database
+$conn = new mysqli($db_host, $db_username, $db_password, $db_name);
+
+// Check if the connection was successful
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 
 // Get today's date
 $today = date("Y-m-d");
@@ -26,11 +38,16 @@ while ($row = $result->fetch_assoc()) {
         $interval = $date1->diff($date2);
 
         $days_overdue = $interval->days; // Get the number of overdue days
-        $total_penalty = $current_penalty + ($days_overdue * $penalty_per_day); // Update the total penalty
 
-        // Update the penalty in the borrow_table
-        $update_stmt->bind_param("di", $total_penalty, $borrow_id);
-        $update_stmt->execute();
+        // If the penalty is not set or if it needs to be updated (i.e., overdue days have increased)
+        if ($current_penalty == 0.00 || $current_penalty / $penalty_per_day < $days_overdue) {
+            // Calculate the new penalty based on the overdue days
+            $new_penalty = $days_overdue * $penalty_per_day;
+
+            // Update the penalty in the borrow_table
+            $update_stmt->bind_param("di", $new_penalty, $borrow_id);
+            $update_stmt->execute();
+        }
     }
 }
 
@@ -39,5 +56,6 @@ $update_stmt->close();
 $stmt->close();
 
 // Close the database connection
-mysqli_close($conn);
+$conn->close();
 ?>
+    

@@ -74,6 +74,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $logStmt->bind_param("iss", $student_id, $action, $details);
             $logStmt->execute();
             $logStmt->close();
+
+            // Reset the penalty to 0.00 when the book is returned
+            $reset_penalty_stmt = $conn->prepare("UPDATE borrow_table SET penalty = 0.00 WHERE borrow_id = ?");
+            $reset_penalty_stmt->bind_param("i", $borrow_id);
+            $reset_penalty_stmt->execute();
+            $reset_penalty_stmt->close();
         }
     } else {
         $_SESSION['alert2'] = 'Error updating status: ' . $stmt->error;
