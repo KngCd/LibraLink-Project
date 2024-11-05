@@ -157,10 +157,13 @@ session_start();
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg" style="background: none;">
             <div class="container-fluid">
-                <a href="" class="navbar-brand text-light">
-                    <img class="img-fluid logo" src="../../img/cropped-libra2.png" alt="Logo" style="height: 40px; width: auto;">
-                    <?php echo 'Welcome, ' . $firstName . '!' ?>
+                <a href="" class="navbar-brand text-light fs-xxl-1 fs-xl-1 fs-lg-1 fs-md-2 fs-sm-5 fs-2 d-flex align-items-center">
+                    <div class="img d-flex align-items-center">
+                        <img class="img-fluid logo d-xxl-block d-xl-block d-lg-block d-md-block d-sm-none d-none" src="../../img/cropped-libra2.png" alt="Logo" style="height: 40px; width: auto;">
+                    </div>
+                    <span class="ms-2"><?php echo 'Welcome, ' . $firstName . '!' ?></span>
                 </a>
+
                 <div class="d-flex">
                     <button class="btn btn-danger me-2 menu" type="button" data-bs-toggle="modal" data-bs-target="#cart">
                         <i class="bi bi-cart2"></i>
@@ -324,6 +327,7 @@ session_start();
                     // Capture search and filter inputs
                     $search = isset($_GET['search']) ? $_GET['search'] : '';
                     $selected_status = isset($_GET['status']) ? $_GET['status'] : '';
+                    $due_date_filter = isset($_GET['due_date_filter']) ? $_GET['due_date_filter'] : '';
 
                     // Build the SQL query based on search and category
                     $where_clauses = [];
@@ -335,6 +339,32 @@ session_start();
 
                     if (!empty($selected_status)) {
                         $where_clauses[] = "status = '" . mysqli_real_escape_string($conn, $selected_status) . "'";
+                    }
+
+                    // Due date filter
+                    if (!empty($due_date_filter)) {
+                        $today = date('Y-m-d');
+                        $start_of_week = date('Y-m-d', strtotime('monday this week'));
+                        $end_of_week = date('Y-m-d', strtotime('sunday this week'));
+                        $start_of_month = date('Y-m-01');
+                        $end_of_month = date('Y-m-t');
+                        $start_of_next_month = date('Y-m-d', strtotime('first day of next month'));
+                        $end_of_next_month = date('Y-m-d', strtotime('last day of next month'));
+
+                        switch ($due_date_filter) {
+                            case 'today':
+                                $where_clauses[] = "br.due_date = '$today'";
+                                break;
+                            case 'this_week':
+                                $where_clauses[] = "br.due_date BETWEEN '$start_of_week' AND '$end_of_week'";
+                                break;
+                            case 'this_month':
+                                $where_clauses[] = "br.due_date BETWEEN '$start_of_month' AND '$end_of_month'";
+                                break;
+                            case 'next_month':
+                                $where_clauses[] = "br.due_date BETWEEN '$start_of_next_month' AND '$end_of_next_month'";
+                                break;
+                        }
                     }
 
                     $where_query = '';
@@ -349,6 +379,14 @@ session_start();
                         <option value="">All Status</option>
                         <option value="active" <?= $selected_status === 'active' ? 'selected' : '' ?>>Active</option>
                         <option value="returned" <?= $selected_status === 'returned' ? 'selected' : '' ?>>Returned</option>
+                    </select>
+
+                    <select name="due_date_filter" class="form-select w-25 me-2" style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
+                        <option value="">All Due Dates</option>
+                        <option value="today" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'today' ? 'selected' : '' ?>>Today</option>
+                        <option value="this_week" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'this_week' ? 'selected' : '' ?>>This Week</option>
+                        <option value="this_month" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'this_month' ? 'selected' : '' ?>>This Month</option>
+                        <option value="next_month" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'next_month' ? 'selected' : '' ?>>Next Month</option>
                     </select>
 
                     <button class="btn btn-outline-danger" type="submit">Search</button>
@@ -397,6 +435,8 @@ session_start();
 
                         // Check if the query was successful
                         if ($query) {
+                            $total_penalty = 0;
+
                             // Display the rows
                             echo "<div class='table-responsive'>";
                             echo "<table class='table table-hover caption-top p-3'>";
@@ -416,6 +456,7 @@ session_start();
                             echo "</tr>";
                             echo "<tbody class='table-group-divider'>";
                             while ($row = mysqli_fetch_assoc($query)) {
+                                $total_penalty += $row['penalty'];
                                 echo "<tr>";
                                 echo "<td>" . $row['title'] . "</td>";
                                 echo "<td><button class='btn " . ($row['status'] == 'Returned' ? 'btn-success' : 'btn-danger') . " disabled'>" . $row['status'] . "</button></td>";
@@ -424,6 +465,13 @@ session_start();
                                 echo "<td>" . $row['penalty'] . "</td>";
                                 echo "</tr>";
                             }
+
+                                // Display totals
+                                echo "<tr>";
+                                echo "<td colspan='4' class='text-center'><b>Total</b></td>";
+                                echo "<td><b>" . $total_penalty . "</b></td>";
+                                echo "</tr>";
+
                             if (mysqli_num_rows($query) === 0) {
                                 echo "<td colspan='5'>No records found</td>"; 
                             }
@@ -443,6 +491,9 @@ session_start();
                             }
                             if (!empty($selected_status)) {
                                 $filter_params .= '&status=' . urlencode($selected_status);
+                            }   
+                            if (!empty($due_date_filter)) {
+                                $filter_params .= '&due_date_filter=' . urlencode($due_date_filter);
                             }   
 
                             // Pagination buttons

@@ -258,6 +258,12 @@ $currentTime = date('H:i:s');
                 </a>
             </div>
             <div class="dashboard-item">
+                <a href="attendance_logs.php" class="dashboard-link">
+                    <i class="bi bi-clock"></i>
+                    <span>Attendance Logs</span>
+                </a>
+            </div>
+            <div class="dashboard-item">
                 <a href="books.php" class="dashboard-link">
                     <i class="bi bi-book-fill"></i>
                     <span>Books</span>
@@ -687,7 +693,7 @@ $currentTime = date('H:i:s');
                             } else {
                                 echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
                             }
-                            echo "<span> Page " . $_SESSION['scurrent_page'] . " </span>";
+                            echo "<span> Page " . $_SESSION['scurrent_page'] . " of $total_pages </span>";
                             if ($total_bstocks > $records_per_page && $_SESSION['scurrent_page'] < $total_pages) {
                                 echo "<a href='?page=" . ($_SESSION['scurrent_page'] + 1) . $filter_params . "' class='btn btn-danger' style='width: 50px;'>&gt;</a>";
                             } else {

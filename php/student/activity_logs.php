@@ -157,10 +157,13 @@ session_start();
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg" style="background: none;">
             <div class="container-fluid">
-                <a href="" class="navbar-brand text-light">
-                    <img class="img-fluid logo" src="../../img/cropped-libra2.png" alt="Logo" style="height: 40px; width: auto;">
-                    <?php echo 'Welcome, ' . $firstName . '!' ?>
+                <a href="" class="navbar-brand text-light fs-xxl-1 fs-xl-1 fs-lg-1 fs-md-2 fs-sm-5 fs-2 d-flex align-items-center">
+                    <div class="img d-flex align-items-center">
+                        <img class="img-fluid logo d-xxl-block d-xl-block d-lg-block d-md-block d-sm-none d-none" src="../../img/cropped-libra2.png" alt="Logo" style="height: 40px; width: auto;">
+                    </div>
+                    <span class="ms-2"><?php echo 'Welcome, ' . $firstName . '!' ?></span>
                 </a>
+
                 <div class="d-flex">
                     <button class="btn btn-danger me-2 menu" type="button" data-bs-toggle="modal" data-bs-target="#cart">
                         <i class="bi bi-cart2"></i>
@@ -193,13 +196,13 @@ session_start();
                     </a>
                 </div>
                 <div class="sidebar-item">
-                    <a href="borrowed_books.php" class="sidebar-link"  id="active">
+                    <a href="borrowed_books.php" class="sidebar-link">
                         <i class="bi bi-journal-bookmark"></i>
                         <span>Borrowed Books</span>
                     </a>
                 </div>
                 <div class="sidebar-item">
-                    <a href="#" class="sidebar-link">
+                    <a href="#" class="sidebar-link" id="active">
                         <i class="bi bi-clipboard-data-fill"></i>
                         <span>Activity Logs</span>
                     </a>

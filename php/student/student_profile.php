@@ -219,8 +219,8 @@
         background-size: cover;
         background-attachment: fixed;
     }
-    #firstName-error, #lastName-error, #email-error, #password-error, #confirmPassword-error, 
-    #contact_num-error, #program-error, #department-error, #cor-error, #id-error, #pic-error{
+    #firstName-error, #lastName-error, #email-error, #password-error, #confirmPassword-error, #oldPassword-error,
+    #contact_num-error, #program-error, #department-error, #cor-error, #id-error, #pic-error, #newPassword-error{
         color: red;
         /* font-size: 0.90rem; */
         /* display: block; */
@@ -229,7 +229,7 @@
         display: block;
         width: 100%;
     }
-        .menu {
+    .menu {
         font-size: 30px;
         cursor: pointer;
         background-color: #dd2222;
@@ -306,10 +306,13 @@
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg" style="background: none;">
             <div class="container-fluid">
-                <a href="" class="navbar-brand text-light">
-                    <img class="img-fluid logo" src="../../img/cropped-libra2.png" alt="Logo" style="height: 40px; width: auto;">
-                    <?php echo 'Welcome, ' . $first_name . '!' ?>
+                <a href="" class="navbar-brand text-light fs-xxl-1 fs-xl-1 fs-lg-1 fs-md-2 fs-sm-5 fs-2 d-flex align-items-center">
+                    <div class="img d-flex align-items-center">
+                        <img class="img-fluid logo d-xxl-block d-xl-block d-lg-block d-md-block d-sm-none d-none" src="../../img/cropped-libra2.png" alt="Logo" style="height: 40px; width: auto;">
+                    </div>
+                    <span class="ms-2"><?php echo 'Welcome, ' . $first_name . '!' ?></span>
                 </a>
+
                 <div class="d-flex">
                     <button class="btn btn-danger me-2 menu" type="button" data-bs-toggle="modal" data-bs-target="#cart">
                         <i class="bi bi-cart2"></i>
@@ -478,7 +481,140 @@
                     <!-- Information Column -->
                     <div class="col-md-8">
                         <h3 style="color: #dd2222; font-weight: 600;">Personal Information</h3>
+
+                        <a href="" type="button" data-bs-toggle="modal" data-bs-target="#changePass" class="change-pass text-muted text-decoration-none">Change Password<i class="bi bi-shield-lock"></i></a>
                         
+                       <?php
+                        if (isset($_POST['changePass'])) {
+
+                            // Retrieve the form data
+                            $user_id = htmlspecialchars($_SESSION['user_id']);
+                            $old_password = htmlspecialchars($_POST['old_password']);
+                            $new_password = htmlspecialchars($_POST['new_password']);
+                            $confirm_password = htmlspecialchars($_POST['confirm_password']);
+                            
+                            // Check if all the inputs is not empty
+                            if (empty($old_password) && empty($new_password) && empty($confirm_password)) {
+                                echo "<script>alert('Please input necessary fields.'); window.location.href = 'student_profile.php';</script>";
+                                exit; // Stop further processing if old password is missing
+                            }
+
+                            // Check if the old password is empty
+                            if (empty($old_password)) {
+                                echo "<script>alert('Old password is required.'); window.location.href = 'student_profile.php';</script>";
+                                exit; // Stop further processing if old password is missing
+                            }
+
+                            // Check if the new password is empty
+                            if (empty($new_password)) {
+                                echo "<script>alert('New password is required.'); window.location.href = 'student_profile.php';</script>";
+                                exit; // Stop further processing if new password is missing
+                            }
+
+                            // Check if the confirm password is empty
+                            if (empty($confirm_password)) {
+                                echo "<script>alert('Please confirm your new password.'); window.location.href = 'student_profile.php';</script>";
+                                exit; // Stop further processing if confirm password is missing
+                            }
+
+                            // Check if the new password and confirm password match
+                            if ($new_password !== $confirm_password) {
+                                echo "<script>alert('New password and confirm password do not match.'); window.location.href = 'student_profile.php';</script>";
+                                exit; // Stop further processing if passwords don't match
+                            }
+
+                            // Fetch the current hashed password from the database
+                            $pass_stmt = $conn->prepare("SELECT password FROM student_table WHERE student_id = ?");
+                            $pass_stmt->bind_param("s", $user_id);
+                            $pass_stmt->execute();
+                            $pass_result = $pass_stmt->get_result();
+
+                            // Check if the user exists
+                            if ($pass_result->num_rows === 1) {
+                                $row = $pass_result->fetch_assoc();
+                                $current_hashed_password = $row['password'];
+
+                                // Verify the old password
+                                if (password_verify($old_password, $current_hashed_password)) {
+                                    // Hash the new password
+                                    $hashed_new_password = password_hash($new_password, PASSWORD_DEFAULT);
+
+                                    // Update the password in the database
+                                    $update_stmt = $conn->prepare("UPDATE student_table SET password = ? WHERE student_id = ?");
+                                    $update_stmt->bind_param("ss", $hashed_new_password, $user_id);
+                                    if ($update_stmt->execute()) {
+                                        echo "<script>alert('Password changed successfully!'); window.location.href = 'student_profile.php';</script>";
+
+                                        $studentId = $_SESSION['user_id'];
+                                        $action = 'Update Password';
+                                        $details = 'You updated your password';
+
+                                        // Insert log activity directly with NOW() for the timestamp
+                                        $stmt3 = $conn->prepare("INSERT INTO activity_logs (student_id, action, details, timestamp) VALUES (?, ?, ?, NOW())");
+                                        $stmt3->bind_param("iss", $studentId, $action, $details); // Use variables here
+                                        $stmt3->execute();
+                                    } else {
+                                        echo "<script>alert('Failed to update the password. Please try again.'); window.location.href = 'student_profile.php';</script>";
+                                    }
+                                } else {
+                                    echo "<script>alert('Old password is incorrect.'); window.location.href = 'student_profile.php';</script>";
+                                }
+                            } else {
+                                echo "<script>alert('User not found.'); window.location.href = 'student_profile.php';</script>";
+                            }
+                        }
+                        ?>
+
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="changePass" tabindex="-2" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Change Password</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <form id="sUpdatePass" action="student_profile.php" method="post" class="mt-3">
+                                            <div class="mt-0 mb-1">
+                                                <label for="oldPassword" class="form-label">Old Password</label>
+                                                <input type="password" class="form-control" id="oldPassword" name="old_password" style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
+                                            </div>
+                                            <!-- Password toggle checkbox -->
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="showOldPassword" style="cursor: pointer;">
+                                                <label class="form-check-label" for="showPassword" style="font-size: 14px; cursor: pointer;">Show Password</label>
+                                            </div>
+
+                                            <div class="mb-1">
+                                                <label for="newPassword" class="form-label">New Password</label>
+                                                <input type="password" class="form-control" id="newPassword" name="new_password" style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
+                                            </div>
+                                            <!-- Password toggle checkbox -->
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="showNewPassword" style="cursor: pointer;">
+                                                <label class="form-check-label" for="showPassword" style="font-size: 14px; cursor: pointer;">Show Password</label>
+                                            </div>
+
+                                            <div class="mb-1">
+                                                <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                                <input type="password" class="form-control" id="confirmPassword" name="confirm_password" style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
+                                            </div>
+                                            <!-- Password toggle checkbox -->
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="showConfirmPassword" style="cursor: pointer;">
+                                                <label class="form-check-label" for="showPassword" style="font-size: 14px; cursor: pointer;">Show Password</label>
+                                            </div>
+
+                                            <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($user_id); ?>">
+                                            <button type="submit" name="changePass" class="btn btn-danger">Change Password</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <form id="editProfileForm" method="POST" action="">
                             <input type="hidden" name="student_id" value="<?php echo $user_id; ?>">
                             <?php
@@ -643,6 +779,78 @@
     <script src="../../js/bootstrap.min.js"></script>
     <script src="../../js/bootstrap.bundle.min.js"></script>
     <script src="../../js/loginValidate.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Toggle old password visibility
+            $('#showOldPassword').on('change', function() {
+                if (this.checked) {
+                    $('#oldPassword').attr('type', 'text');  // Show old password
+                } else {
+                    $('#oldPassword').attr('type', 'password');  // Hide old password
+                }
+            });
+
+            // Toggle new password visibility
+            $('#showNewPassword').on('change', function() {
+                if (this.checked) {
+                    $('#newPassword').attr('type', 'text');  // Show new password
+                } else {
+                    $('#newPassword').attr('type', 'password');  // Hide new password
+                }
+            });
+
+            // Toggle confirm password visibility
+            $('#showConfirmPassword').on('change', function() {
+                if (this.checked) {
+                    $('#confirmPassword').attr('type', 'text');  // Show confirm password
+                } else {
+                    $('#confirmPassword').attr('type', 'password');  // Hide confirm password
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            $("#sUpdatePass").validate({
+                rules: {
+                    old_password: {
+                        required: true // Ensure the old password is required
+                    },
+                    new_password: {
+                        required: true,
+                        minlength: 8 // Password must be at least 8 characters long
+                    },
+                    confirm_password: {
+                        required: true,
+                        equalTo: "#newPassword" // Ensure the confirm password matches the new password
+                    }
+                },
+                messages: {
+                    old_password: {
+                        required: "Please enter your old password"
+                    },
+                    new_password: {
+                        required: "Please enter a new password",
+                        minlength: "Your password must be at least 8 characters long"
+                    },
+                    confirm_password: {
+                        required: "Please confirm your new password",
+                        equalTo: "Passwords do not match"
+                    }
+                },
+                highlight: function(element) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function(element) {
+                    $(element).removeClass('is-invalid');
+                },
+                submitHandler: function(form) {
+                    // jQuery validation passed, now submit the form
+                    form.submit(); // This will trigger PHP execution
+                }
+            });
+        });
+    </script>
 
 </body>
 </html> 

@@ -4,6 +4,12 @@ session_start();
 date_default_timezone_set('Asia/Manila');
 $currentTime = date('H:i:s');
 
+// Check if the admin is logged in
+if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
+    // If the session variable is not set or is false, redirect to the login page
+    header('Location: admin-login.php');
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -259,6 +265,12 @@ $currentTime = date('H:i:s');
                 <a href="#" class="dashboard-link" id="active">
                     <i class="bi bi-buildings"></i>
                     <span>Programs and Departments</span>
+                </a>
+            </div>
+            <div class="dashboard-item">
+                <a href="attendance_logs.php" class="dashboard-link">
+                    <i class="bi bi-clock"></i>
+                    <span>Attendance Logs</span>
                 </a>
             </div>
             <div class="dashboard-item">
@@ -551,7 +563,7 @@ $currentTime = date('H:i:s');
                             } else {
                                 echo "<button type='button' class='btn btn-danger' style='width: 50px;' disabled>&lt;</button>";
                             }
-                            echo "<span> Page " . $_SESSION['pcurrent_page'] . " " . "</span>";
+                            echo "<span> Page " . $_SESSION['pcurrent_page'] . " of $total_pages </span>";
                             if ($total_programs > $records_per_page && $_SESSION['pcurrent_page'] < $total_pages) {
                                 echo "<a href='?page=" . ($_SESSION['pcurrent_page'] + 1) . "$filter_params' class='btn btn-danger' style='width: 50px;'>&gt;</a>";
                             } else {

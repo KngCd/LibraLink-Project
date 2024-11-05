@@ -59,7 +59,9 @@
                             </a>
                             <a href="../index.html" class="navbar-brand fs-xxl-2 fs-xl-2 fs-lg-4 fs-md-4 fs-sm-5 fs-2">
                                 <img class="img-fluid logo" src="../img/libra2-cropped.png" alt="Logo" style="max-height: 150px; width: auto;">
-                                <p class="text-center" style="font-weight: 650;">Integrated System for Student Logging, <br>Borrowing, and Inventory Management</p>
+                                <p class="text-center text-break fs-sm-6 fs-md-4 fs-lg-3 fs-xl-2 fs-3 d-xxl-block d-xl-block d-lg-block d-md-none d-sm-none d-none" style="font-weight: 650;">
+                                    Integrated System for Student Logging, <br>Borrowing, and Inventory Management
+                                </p>
                             </a>
                             <a href="../index.html" class="navbar-brand d-xxl-block d-xl-block d-lg-block d-md-none d-sm-none d-none">
                                 <img class="img-fluid logo" src="../img/redspartan.png" alt="Logo" style="height: 230px; width: 200px;">

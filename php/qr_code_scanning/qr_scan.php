@@ -94,6 +94,24 @@
 
             // Show the result section
             document.getElementById('result').style.display = 'flex';
+
+            // Send student ID to process_logs.php to log time_in or time_out
+            fetch('process_logs.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ student_id: data.student_id })
+            })
+            .then(response => response.json())
+            .then(logResult => {
+                if (logResult.status === 'success') {
+                    console.log('Log processed:', logResult.message);
+                } else {
+                    console.error('Log error:', logResult.message);
+                }
+            })
+            .catch(error => console.error('Request failed:', error));
         });
 
         // Start the scanner
@@ -107,6 +125,7 @@
             })
             .catch(e => console.error('Camera error:', e));
     </script>
+
 
 </body>
 </html>

@@ -1,128 +1,57 @@
 <?php
+// Set timezone to Philippines/Manila
+date_default_timezone_set('Asia/Manila');
+
 // Database connection
-// $conn = new mysqli('localhost', 'root', '', 'libralink3');
-require_once 'db_config.php';
+require_once '../db_config.php';
 
-// if ($_SERVER["REQUEST_METHOD"] == "POST") {
-//     // Get the raw POST data
-//     $inputData = trim(file_get_contents("php://input"));
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $inputData = json_decode(file_get_contents("php://input"), true);
+    $student_id = $inputData['student_id'] ?? null;
 
-//     // Parse the URL-encoded string to retrieve JSON data
-//     parse_str($inputData, $output);
-//     $student_info_json = $output['student_id'] ?? '';
+    if ($student_id) {
+        // Get the current date and time
+        $current_date = date("Y-m-d");
+        $current_time = date("H:i:s");
 
-//     // Decode the JSON data
-//     $student_info = json_decode($student_info_json, true);
-
-//     // Check if the JSON is valid
-//     if (json_last_error() === JSON_ERROR_NONE && isset($student_info['student_id'])) {
-//         $student_id = $student_info['student_id'];
-
-//         // Insert log entry with the current timestamp and retrieve it immediately
-//         $stmt = $conn->prepare("INSERT INTO log_table (student_id, log_datetime) VALUES (?, NOW())");
-//         $stmt->bind_param("i", $student_id);
-//         $stmt->execute();
-        
-//         // Retrieve the exact timestamp from the inserted log entry
-//         $log_id = $conn->insert_id; // Get the ID of the newly inserted log
-//         $log_stmt = $conn->prepare("SELECT log_datetime FROM log_table WHERE log_id = ?");
-//         $log_stmt->bind_param("i", $log_id);
-//         $log_stmt->execute();
-//         $log_result = $log_stmt->get_result();
-//         $log_row = $log_result->fetch_assoc();
-//         $log_datetime = $log_row['log_datetime'];
-
-//         // Format the timestamp into separate date and time
-//         $scanDate = date("Y-m-d", strtotime($log_datetime));
-//         $scanTime = date("H:i:s", strtotime($log_datetime));
-
-//         // Fetch the student's profile picture from the database
-//         $profileStmt = $conn->prepare("SELECT profile_pic FROM student_table WHERE student_id = ?");
-//         $profileStmt->bind_param("i", $student_id);
-//         $profileStmt->execute();
-//         $profileResult = $profileStmt->get_result();
-//         $profileRow = $profileResult->fetch_assoc();
-//         $profilePic = !empty($profileRow['profile_pic']) ? base64_encode($profileRow['profile_pic']) : null;
-
-//         // Display student details with Bootstrap styling
-//         echo '
-//         <!DOCTYPE html>
-//         <html lang="en">
-//         <head>
-//             <meta charset="UTF-8">
-//             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//             <title>Student Details</title>
-//             <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-//         </head>
-//         <body style="background-color: #e3e3e3;">
-//             <div class="container mt-5">
-//                 <div class="card p-4">
-//                     <h4 class="text-center mb-4">Student Details</h4>
-//                     <div class="row">
-//                         <div class="col-md-4 text-center">
-//                             <div class="border p-3" style="height: 200px; width: 200px; display: flex; justify-content: center; align-items: center; overflow: hidden; margin: 0 auto;">
-//                                 ' . ($profilePic ? '<img src="data:image/jpeg;base64,' . $profilePic . '" alt="Profile Picture" style="height: 100%; width: 100%; object-fit: cover;">' : '<p>Student Photo</p>') . '
-//                             </div>
-//                             <h5 class="mt-3">' . htmlspecialchars($student_info['name']) . '</h5>
-//                         </div>
-//                         <div class="col-md-8">
-//                             <h5>Personal Information</h5>
-//                             <p><strong>Full Name:</strong> ' . htmlspecialchars($student_info['name']) . '</p>
-//                             <p><strong>Email:</strong> ' . htmlspecialchars($student_info['email']) . '</p>
-//                             <p><strong>Contact:</strong> ' . htmlspecialchars($student_info['contact']) . '</p>
-//                             <p><strong>Program:</strong> ' . htmlspecialchars($student_info['program']) . '</p>
-//                             <p><strong>Department:</strong> ' . htmlspecialchars($student_info['department']) . '</p>
-//                             <hr>
-//                             <h5>Access Information</h5>
-//                             <p><strong>Date:</strong> ' . $scanDate . '</p>
-//                             <p><strong>Time:</strong> ' . $scanTime . '</p>
-//                         </div>
-//                     </div>
-//                 </div>
-//             </div>
-//         </body>
-//         </html>
-//         ';
-//     } else {
-//         // Debugging output to see what data was received
-//         echo "Invalid JSON data after decoding: " . htmlspecialchars($student_info_json);
-//     }
-// }
-
-// $conn->close();
-?>
-
-<?php
-session_start();
-require_once '../db_config.php'; // Adjust path to your database config
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['student_id'])) {
-    $student_id = $_POST['student_id'];
-
-    // Validate the student ID (ensure it's safe)
-    $stmt = $conn->prepare("SELECT * FROM student_table WHERE student_id = ?");
-    $stmt->bind_param("s", $student_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        // If the student ID exists, log attendance
-        $stmt = $conn->prepare("INSERT INTO attendance_logs (student_id, timestamp) VALUES (?, NOW())");
-        $stmt->bind_param("s", $student_id);
+        // Check if there is already a log entry for the student today
+        $check_sql = "SELECT * FROM log_table WHERE student_id = ? AND date = ? AND time_out IS NULL";
+        $stmt = $conn->prepare($check_sql);
+        $stmt->bind_param("ss", $student_id, $current_date);
         $stmt->execute();
+        $result = $stmt->get_result();
 
-        // Redirect or respond with success message
-        header("Location: success_page.php?status=success");
-        exit;
+        if ($result->num_rows > 0) {
+            // Entry exists for today without time_out, so update the time_out
+            $update_sql = "UPDATE log_table SET time_out = ? WHERE student_id = ? AND date = ? AND time_out IS NULL";
+            $update_stmt = $conn->prepare($update_sql);
+            $update_stmt->bind_param("sss", $current_time, $student_id, $current_date);
+            if ($update_stmt->execute()) {
+                echo json_encode(['status' => 'success', 'message' => 'Time-out logged successfully']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to log time-out', 'error' => $conn->error]);
+            }
+            $update_stmt->close();
+        } else {
+            // No open entry for today, so insert a new row with time_in
+            $insert_sql = "INSERT INTO log_table (student_id, date, time_in) VALUES (?, ?, ?)";
+            $insert_stmt = $conn->prepare($insert_sql);
+            $insert_stmt->bind_param("sss", $student_id, $current_date, $current_time);
+            if ($insert_stmt->execute()) {
+                echo json_encode(['status' => 'success', 'message' => 'Time-in logged successfully']);
+            } else {
+                error_log("Insert Error: " . $insert_stmt->error);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to log time-in', 'error' => $insert_stmt->error]);
+            }
+            $insert_stmt->close();
+        }
+
+        $stmt->close();
     } else {
-        // Handle case where student ID does not exist
-        header("Location: error_page.php?error=not_found");
-        exit;
+        echo json_encode(['status' => 'error', 'message' => 'Invalid student ID in request']);
     }
-} else {
-    // Handle case where no student ID is received
-    header("Location: error_page.php?error=invalid_request");
-    exit;
 }
-?>
 
+// Close the database connection
+$conn->close();
+?>  

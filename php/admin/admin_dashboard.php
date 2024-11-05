@@ -268,6 +268,12 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                 </a>
             </div>
             <div class="dashboard-item">
+                <a href="attendance_logs.php" class="dashboard-link">
+                    <i class="bi bi-clock"></i>
+                    <span>Attendance Logs</span>
+                </a>
+            </div>
+            <div class="dashboard-item">
                 <a href="books.php" class="dashboard-link">
                     <i class="bi bi-book-fill"></i>
                     <span>Books</span>

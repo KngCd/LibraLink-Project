@@ -96,8 +96,7 @@ $(document).ready(function(){
             },
             password:{
                 required: true,
-                minlength: 5,
-                maxlength: 20
+                minlength: 8
             },
             confirmPassword:{
                 required: true,
@@ -213,7 +212,7 @@ $(document).ready(function(){
 
 });
 
-/* FOR FORGET PASSWORD */
+/* FOR FORGOT PASSWORD */
 $(document).ready(function(){
 
     $("#forgotForm").validate({
@@ -223,8 +222,7 @@ $(document).ready(function(){
             },
             password:{
                 required: true,
-                minlength: 5,
-                maxlength: 20
+                minlength: 8,
             },
             confirmPassword:{
                 required: true,
@@ -288,6 +286,48 @@ $(document).ready(function() {
         submitHandler: function(form) {
             console.log("Form is valid and ready to be submitted.");
             form.submit();
+        }
+    });
+});
+
+/* FOR FORGOT PASSWORD (STUDENT HOME) */
+$(document).ready(function() {
+    $("#sUpdatePass").validate({
+        rules: {
+            old_password: {
+                required: true // Ensure the old password is required
+            },
+            new_password: {
+                required: true,
+                minlength: 8 // Password must be at least 8 characters long
+            },
+            confirm_password: {
+                required: true,
+                equalTo: "#newPassword" // Ensure the confirm password matches the new password
+            }
+        },
+        messages: {
+            old_password: {
+                required: "Please enter your old password"
+            },
+            new_password: {
+                required: "Please enter a new password",
+                minlength: "Your password must be at least 8 characters long"
+            },
+            confirm_password: {
+                required: "Please confirm your new password",
+                equalTo: "Passwords do not match"
+            }
+        },
+        highlight: function(element) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function(element) {
+            $(element).removeClass('is-invalid');
+        },
+        submitHandler: function(form) {
+            // jQuery validation passed, now submit the form
+            form.submit(); // This will trigger PHP execution
         }
     });
 });
