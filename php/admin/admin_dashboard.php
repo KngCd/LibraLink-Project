@@ -19,7 +19,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link href="../../css/bootstrap.min.css" rel="stylesheet">
-        <!-- <script src="../../js/bootstrap.bundle.min.js"></script> -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -165,9 +165,80 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         cursor: pointer;
     } 
     .bi-pencil-square{cursor: pointer;}
+    .card-container {
+        display: flex;       
+        flex-wrap: nowrap;        
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+    }
+    .card-container::-webkit-scrollbar {
+        height: 8px;
+    }
+    .card-container::-webkit-scrollbar-thumb {
+        background-color: darkgrey; 
+        border-radius: 10px;
+    }
+    .card-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    .card {
+        flex-shrink: 0;
+        margin-right: 20px;
+        min-width: 250px;
+    }
+    /* Loader Styles */
+    .loader-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999; /* Ensure it appears on top of all content */
+    }
+
+    /* Optional: Customize spinner size */
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+        border-width: 0.25em;
+    }
+    /* Back to Top Button */
+    #backToTop {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        display: none; /* Hidden by default */
+        border: none;
+        background-color: #dd2222;
+        color: white;
+        border-radius: 50%;
+        padding: 15px;
+        font-size: 20px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    #backToTop:hover {
+        background-color: #ca1d1d;
+    }
 </style>
 
 <body>
+
+    <!-- Loading Animation -->
+    <div id="loader" class="loader-container">
+        <div class="spinner-border text-danger" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Back to Top -->
+    <button id="backToTop" class="btn btn-danger" onclick="scrollToTop()">↑</button>
 
     <!-- SIDEBAR -->
     <div class="offcanvas offcanvas-start text-light" data-bs-scroll="true" tabindex="-1" data-bs-backdrop="false" data-bs-backdrop="static" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
@@ -391,79 +462,453 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         </section>
 
         <!-- HOME -->
-        <section class="container-fluid content active" id="home">
+        <section class="container-fluid content active mt-3" id="home">
             <div class="container">
-                    <div class="row">
-                        <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Total Student Register</h5>
-                                    <hr>
-                                    <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $result ?></b></h6>
-                                    <!-- <button class="btn btn-primary" popovertarget="total-register">View</button> -->
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Total Student Accepted</h5>
-                                    <hr>
-                                    <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $result2 ?></b></h6>
-                                    <!-- <button class="btn btn-primary" popovertarget="accepted-student">View</button> -->
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Total Books Available</h5>
-                                    <hr>
-                                    <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $result3 ?></b></h6>
-                                    <!-- <button class="btn btn-primary" popovertarget="books">View</button> -->
-                                </div>
+                <div class="card-container"> <!-- Add this container to allow horizontal scrolling -->
+                    <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Student Register</h5>
+                                <hr>
+                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $result ?></b></h6>
                             </div>
                         </div>
                     </div>
+                    <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Student Accepted</h5>
+                                <hr>
+                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $result2 ?></b></h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Books Available</h5>
+                                <hr>
+                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $result3 ?></b></h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Stocks of Book</h5>
+                                <hr>
+                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $sum_stocks ?></b></h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Borrowed Book</h5>
+                                <hr>
+                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $total_borrow ?></b></h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Available Stocks</h5>
+                                <hr>
+                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $sum_stocks - $total_borrow ?></b></h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                    <div class="row mt-sm-3">
-                        <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Total Stocks of Book</h5>
-                                    <hr>
-                                    <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $sum_stocks ?></b></h6>
-                                    <!-- <button class="btn btn-primary" popovertarget="total-stocks">View</button> -->
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Total Borrowed Book</h5>
-                                    <hr>
-                                    <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $total_borrow ?></b></h6>
-                                    <!-- <button class="btn btn-primary" popovertarget="total-borrowed">View</button> -->
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Total Available Stocks</h5>
-                                    <hr>
-                                    <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $sum_stocks - $total_borrow ?></b></h6>
-                                    <!-- <button class="btn btn-primary" popovertarget="total-available">View</button> -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <section>
+            <?php
+                // Query for the total number of registered students
+                $sql_registered = "SELECT COUNT(*) AS total_registered FROM verification_table"; // Adjust the query as needed
+                $result_registered = $conn->query($sql_registered);
+                $row_registered = $result_registered->fetch_assoc();
+                $total_registered = $row_registered['total_registered'];
+
+                // Query for the total number of accepted students
+                $sql_accepted = "SELECT COUNT(*) AS total_accepted FROM student_table"; // Adjust the query as needed
+                $result_accepted = $conn->query($sql_accepted);
+                $row_accepted = $result_accepted->fetch_assoc();
+                $total_accepted = $row_accepted['total_accepted'];
+
+                // NEWWWWWWW
+
+                // Fetching how many students are there in each department and program
+                $query = "SELECT department, program, COUNT(student_id) AS student_count
+                        FROM student_table
+                        GROUP BY department, program
+                        ORDER BY department, program;";
+                $result = $conn->query($query);
+
+                // Create an array to hold the data for the chart
+                $chartData = [];
+                while ($row = $result->fetch_assoc()) {
+                    $department_name = $row['department'];
+                    $program_name = $row['program'];
+                    $student_count = $row['student_count'];
+
+                    // Add data to the array in the format required by Google Charts
+                    $chartData[] = "['$department_name - $program_name', $student_count]";
+                }
+
+                // Convert the chart data into a format suitable for JavaScript
+                $chartDataString = implode(", ", $chartData);
+
+                // NEWWWWWWW
+
+                // Query to get the count of how many times each book is borrowed
+                $book_query = "SELECT b.title, COUNT(br.book_id) AS borrow_count
+                    FROM borrow_table br
+                    JOIN book_table b ON br.book_id = b.book_id
+                    GROUP BY b.title
+                    ORDER BY borrow_count DESC;";
+
+                $book_result = $conn->query($book_query);
+
+                // Create an array to hold the data for the chart
+                $bookChartData = [];
+                while ($row = $book_result->fetch_assoc()) {
+                    $book_title = $row['title'];  // The book title
+                    $borrow_count = $row['borrow_count'];  // The number of times the book was borrowed
+                    
+                    // Add the data in a format suitable for Google Charts
+                    $bookChartData[] = "['$book_title', $borrow_count]";
+                }
+
+                // Convert the chart data into a format that JavaScript can use
+                $bookChartDataString = implode(", ", $bookChartData);
+
+                // NEWWWWWWW
+
+                // Get a range of the last 30 days
+                $dateRange = [];
+                for ($i = 0; $i < 30; $i++) {
+                    $dateRange[] = date('Y-m-d', strtotime("-$i days"));
+                }
+
+                // SQL query to get attendance count per day in the last 30 days
+                $sql = "SELECT DATE(date) AS date, COUNT(*) AS attendance_count
+                        FROM log_table
+                        WHERE date >= NOW() - INTERVAL 30 DAY
+                        GROUP BY DATE(date)
+                        ORDER BY DATE(date) ASC";
+                $attendanceResult = $conn->query($sql);
+
+                $attendanceData = [];
+                $attendanceDates = [];
+
+                // Fetch data
+                while ($row = $attendanceResult->fetch_assoc()) {
+                    $attendanceDates[] = $row['date'];
+                    $attendanceData[$row['date']] = $row['attendance_count'];
+                }
+
+                // Format the data for the chart
+                $attendanceDataFormatted = [];
+                foreach ($dateRange as $date) {
+                    $attendanceCount = isset($attendanceData[$date]) ? $attendanceData[$date] : 0;
+                    $attendanceDataFormatted[] = "['$date', $attendanceCount]";
+                }
+
+                // Convert to a string for Google Charts
+                $attendanceChartDataString = implode(', ', $attendanceDataFormatted);
+
+                // NEWWWWWWW
+
+                // SQL query to get the total number of books per category
+                $cat_sql = "SELECT category, COUNT(*) AS total_books
+                            FROM book_table
+                            GROUP BY category
+                            ORDER BY total_books DESC";
+                $cat_result = $conn->query($cat_sql);
+
+                $categoryData = [];
+                while ($row = $cat_result->fetch_assoc()) {
+                    $category = $row['category'];
+                    $total_books = $row['total_books'];
+                    $categoryData[] = "['$category', $total_books]"; // Format data for Google Charts
+                }
+
+                // Combine the data into a single string for use in the JavaScript
+                $catChartDataString = implode(', ', $categoryData);
+
+                // NEWWWWWWW
+
+                // Initialize an array to hold the data for each book's stock
+                $bookData = [];
+
+                // Query to get stock data from the inventory table
+                $stock_sql = "SELECT b.title, SUM(i.stocks) as total_stocks
+                            FROM inventory_table i
+                            JOIN book_table b ON i.book_id = b.book_id
+                            GROUP BY b.title
+                            ORDER BY b.title";
+
+                $stock_result = $conn->query($stock_sql);
+
+                // Loop through the result set and prepare the data for the pie chart
+                while ($row = $stock_result->fetch_assoc()) {
+                    $book_title = addslashes($row['title']); // Escape single quotes in titles
+                    $total_stocks = (int)$row['total_stocks'];  // Ensure stock is treated as an integer
+                    
+                    // Add the book title and stock to the data array
+                    $bookData[] = "['$book_title', $total_stocks]";
+                }
+
+                // Combine the data into a string format for use in JavaScript
+                $stockChartDataString = implode(', ', $bookData);
+            ?>
+
+            <div class="container-fluid mt-1">
+                <h4 class="text-muted">Students</h4>
+                <!-- Row containing first two charts -->
+                <div class="row" class="d-flex flex-wrap justify-content-between h-100" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
+                    <!-- First Chart: Registered vs Accepted Students -->
+                    <div id="myChart" class="col-12 col-md-6" style="height: 470px;"></div>
+
+                    <script>
+                        // Google Charts setup
+                        google.charts.load('current', {'packages':['corechart']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            // Create a DataTable and populate it with data from PHP
+                            const data = google.visualization.arrayToDataTable([
+                                ['Category', 'Count'],  // Column headers
+                                ['Registered Students', <?php echo $total_registered; ?>],  // Dynamic PHP data
+                                ['Accepted Students', <?php echo $total_accepted; ?>]  // Dynamic PHP data
+                            ]);
+
+                            const options = {
+                                title: 'Student Registration and Acceptance Status',
+                                pieSliceText: 'percentage', // Show percentages on the pie chart
+                                is3D: true, // Optional: adds a 3D effect to the pie chart
+                            };
+
+                            // Create and draw the chart
+                            const chart = new google.visualization.PieChart(document.getElementById('myChart'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+
+                    <!-- Second Chart: Department and Program Distribution -->
+                    <div id="progDept" class="col-12 col-md-6" style="height: 470px;"></div>
+
+                    <script>
+                        // Google Charts setup
+                        google.charts.load('current', {'packages':['corechart']});
+                        google.charts.setOnLoadCallback(drawChart2);
+
+                        function drawChart2() {
+                            // Create a DataTable and populate it with data from PHP
+                            const data2 = google.visualization.arrayToDataTable([
+                                ['Department and Program', 'Student Count'],  // Column headers
+                                <?php echo $chartDataString; ?>  // Dynamic PHP data (department and program counts)
+                            ]);
+
+                            const options2 = {
+                                title: 'Student Distribution by Department and Program',
+                                is3D: true, // Optional: adds a 3D effect to the pie chart
+                                slices: {
+                                    0: { offset: 0.1 }, // Optional: adds some space to the first slice
+                                    1: { offset: 0.1 },
+                                    // Customize slices as needed
+                                }
+                            };
+
+                            // Create and draw the second chart
+                            const chart2 = new google.visualization.PieChart(document.getElementById('progDept'));
+                            chart2.draw(data2, options2);
+                        }
+                    </script>
+                </div>
+                <hr>
+            </div>
+            
+            <div class="container-fluid">
+                <h4 class="text-muted">Books Borrowed and Attendance Logs</h4>
+                <!-- Row containing second two charts -->
+                <div class="row" class="d-flex flex-wrap justify-content-between h-100 m-0 p-0" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
+                    <div id="bookChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
+
+                    <script>
+                        google.charts.load('current', {'packages':['corechart', 'bar']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            // Create a DataTable and populate it with data from PHP
+                            const data = google.visualization.arrayToDataTable([
+                                ['Book Title', 'Borrow Count '],  // Column headers
+                                <?php echo $bookChartDataString; ?>  // Dynamic PHP data (book borrow counts)
+                            ]);
+
+                            const options = {
+                                title: 'Books Borrowed',
+                                chartArea: { width: '50%' },
+                                hAxis: {
+                                    title: 'Number of Borrows',
+                                    minValue: 0
+                                },
+                                vAxis: {
+                                    title: 'Book Title'
+                                },
+                                bars: 'horizontal', // Optional: Makes it a horizontal bar chart
+                                is3D: true,  // Optional: Adds 3D effect to the bar chart
+                            };
+
+                            // Create and draw the bar chart
+                            const chart = new google.visualization.BarChart(document.getElementById('bookChart'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+
+                    <div id="attendanceChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
+
+                    <script>
+                        google.charts.load('current', {'packages':['corechart', 'bar']});
+                        google.charts.setOnLoadCallback(drawAttendanceChart);
+
+                        function drawAttendanceChart() {
+                            // Create a DataTable and populate it with data from PHP
+                            const data = google.visualization.arrayToDataTable([
+                                ['Date', 'Attendance Count'],  // Column headers
+                                <?php echo $attendanceChartDataString; ?>  // Dynamic PHP data (attendance count per date)
+                            ]);
+
+                            const options = {
+                                title: 'Attendance Log',
+                                curveType: 'function',  // Makes the line smooth
+                                legend: { position: 'bottom' },
+                                hAxis: {
+                                    title: 'Date',
+                                    format: 'yyyy-MM-dd',  // Format for date axis
+                                    gridlines: { count: 10 },
+                                },
+                                vAxis: {
+                                    title: 'Number of Attendees',
+                                    minValue: 0
+                                }
+                            };
+
+                            // Create and draw the line chart
+                            const chart = new google.visualization.LineChart(document.getElementById('attendanceChart'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+                </div>
+                    <hr>
+            </div>
+
+            <div class="container-fluid">
+                <h4 class="text-muted">Book Category and Stocks</h4>
+                <!-- Row containing third two charts -->
+                <div class="row" class="d-flex flex-wrap justify-content-between h-100 m-0 p-0" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
+                    <div id="categoryChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
+
+                    <script>
+                        google.charts.load('current', {'packages':['corechart', 'bar']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            // Create a DataTable and populate it with data from PHP
+                            const data = google.visualization.arrayToDataTable([
+                                ['Category', 'Total Books'],  // Column headers
+                                <?php echo $catChartDataString; ?>  // Dynamic PHP data (book counts per category)
+                            ]);
+
+                            const options = {
+                                title: 'Total Books by Category',
+                                chartArea: { width: '50%' },
+                                hAxis: {
+                                    title: 'Number of Books',
+                                    minValue: 0
+                                },
+                                vAxis: {
+                                    title: 'Book Category'
+                                },
+                                bars: 'horizontal', // Optional: Makes it a horizontal bar chart
+                                is3D: true,  // Optional: Adds a 3D effect to the bar chart
+                            };
+
+                            // Create and draw the bar chart
+                            const chart = new google.visualization.ColumnChart(document.getElementById('categoryChart'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+
+                    <div id="bookStockChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
+
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages':['corechart']});
+                        google.charts.setOnLoadCallback(drawChart);
+
+                        function drawChart() {
+                            // Create a DataTable and populate it with the data from PHP
+                            const data = google.visualization.arrayToDataTable([
+                                ['Book Title', 'Total Stock'],  // Column headers
+                                <?php echo $stockChartDataString; ?>  // Dynamic PHP data (book titles and stock counts)
+                            ]);
+
+                            const options = {
+                                title: 'Total Stock per Book',
+                                is3D: true,  // Optional: Adds a 3D effect
+                                slices: {
+                                    0: { offset: 0.1, color: '#28a745' },
+                                    1: { offset: 0.1, color: '#dc3545' },
+                                    2: { offset: 0.1, color: '#007bff' }
+                                    // Add more slices for more books
+                                },
+                                pieSliceText: 'percentage',  // Show percentage on slices
+                                legend: { position: 'top' }  // Show legend at the top
+                            };
+
+                            // Create and draw the pie chart
+                            const chart = new google.visualization.PieChart(document.getElementById('bookStockChart'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+                </div>
+                    <hr>
             </div>
         </section>
     </main>
 
     <script src="../../js/bootstrap.min.js"></script>
     <script src="../../js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // When the page is fully loaded, hide the loader
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('loader');
+            loader.style.display = 'none'; // Hide the loader
+        });
+
+        // Get the button
+        let backToTopBtn = document.getElementById("backToTop");
+
+        // When the user scrolls down 300px from the top, show the button
+        window.onscroll = function() {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                backToTopBtn.style.display = "block"; // Show the button
+            } else {
+                backToTopBtn.style.display = "none"; // Hide the button
+            }
+        };
+
+        // Function to scroll to the top
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // Smooth scrolling
+            });
+        }
+    </script>
     
     <!-- <script>
         function viewPDF(data, filename) {

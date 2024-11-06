@@ -482,6 +482,10 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                 case 'next_month':
                                     $where_clauses[] = "br.due_date BETWEEN '$start_of_next_month' AND '$end_of_next_month'";
                                     break;
+                                // New case for Past Due Dates
+                                case 'past_due':
+                                    $where_clauses[] = "br.due_date < '$today' AND br.status != 'Returned'";
+                                    break;
                             }
                         }
 
@@ -531,6 +535,8 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 
                         <select name="due_date_filter" class="form-select w-25 me-2" style="width: fit-content;">
                             <option value="">All Due Dates</option>
+                            <!-- New Option for Past Due Dates -->
+                            <option value="past_due" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'past_due' ? 'selected' : '' ?>>Past Due Dates</option>
                             <option value="today" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'today' ? 'selected' : '' ?>>Today</option>
                             <option value="this_week" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'this_week' ? 'selected' : '' ?>>This Week</option>
                             <option value="this_month" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'this_month' ? 'selected' : '' ?>>This Month</option>

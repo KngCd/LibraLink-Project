@@ -178,7 +178,9 @@ if (!isset($_SESSION['user_id'])) {
 
         <div class="offcanvas offcanvas-end text-light" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel">
             <div class="offcanvas-header">
-               <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                <!-- <div data-bs-theme="dark"> -->
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                <!-- </div> -->
             </div>
             <div class="offcanvas-body">
                 <div class="sidebar-item d-flex align-items-center justify-content-center">
