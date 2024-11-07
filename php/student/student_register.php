@@ -59,7 +59,7 @@
         color: black !important; 
     }
     #firstName-error, #lastName-error, #email-error, #password-error, #confirmPassword-error, 
-    #contact-error, #program-error, #department-error, #cor-error, #id-error, #pic-error{
+    #contact-error, #program-error, #department-error, #cor-error, #id-error, #pic-error, #terms-error {
         color: red;
         font-size: 0.90rem;
         /* display: block; */
@@ -86,16 +86,21 @@
     form select, form select option{
         cursor: pointer;
     }
+    .button{
+        border-radius: 30px !important;
+        max-width: 100px;
+    }
 </style>
 
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark py-4">
-        <div class="container">
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #dd2222;">
+        <div class="container-fluid">
             <a href="student-login.php" class="navbar-brand">
-                <img class="img-fluid logo" src="../../img/libra2.png" alt="Logo" style="height: 40px; width: auto;">
+                <img class="img-fluid logo" src="../../img/librawhite.png" alt="Logo" style="height: 40px; width: auto;">
             </a>
+            <a href="student-login.php" class="btn btn-light button fs-sm-6 fs-md-4 fs-lg-3 fs-xl-2 fs-6">← Back</a>
         </div>
     </nav>
     
@@ -105,10 +110,19 @@
                 <div class="row">
                     <div class="text-container d-flex justify-content-center flex-column col-lg-6 col-md-6 col-sm-12 col-12 
                     mt-lg-5 mt-md-5 mt-sm-5 mt-5 mb-5">
-                        <h1 style="font-size: 3.5rem;">Elevate your Library Experience</h1>
+                        <img class="img-fluid d-xxl-none d-xl-none d-lg-none d-md-none d-sm-block d-block mt-3" src="../../img/libra2-cropped.png" alt="Logo" style="max-height: 150px; width: auto;">
+
+                        <h1 class="text-break fs-sm-6 fs-md-4 fs-lg-3 fs-xl-2 d-xxl-block d-xl-block d-lg-block d-md-block d-sm-none d-none" style="font-weight: 650; font-size: 3.5rem;">
+                            Join the
+                            <img class="img-fluid" src="../../img/libra2-cropped.png" alt="Logo" style="max-height: 65px; width: auto;">
+                        </h1>
+                        <h1 class="text-break fs-sm-6 fs-md-4 fs-lg-3 fs-xl-2 d-xxl-block d-xl-block d-lg-block d-md-block d-sm-none d-none" style="font-weight: 650; font-size: 3.5rem;">
+                            Family! Your journey to success <br>starts here!
+                        </h1>
                     </div>
 
-                    <div class="form-container col-lg-6 col-md-6 col-sm-12 col-12 d-flex align-items-center justify-content-center">
+                    <div class="form-container d-flex justify-content-center col-lg-6 col-md-6 col-sm-12 col-12 
+                    mt-lg-5 mt-md-5 mt-sm-0 mt-0 mb-5">
                         <?php
                             // Include the database configuration file
                             require_once '../db_config.php';
@@ -309,6 +323,14 @@
                                 <div class="input-group mb-3">
                                     <label for="id">Upload your Profile Picture</label>
                                     <input type="file" class="form-control" name="pic" id="pic" accept="image/*">
+                                </div>
+
+                                    <!-- Terms and Conditions Checkbox -->
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="terms" name="terms" required style="border: 1px solid black;">
+                                    <label class="form-check" for="terms">
+                                        I agree to the <a href="terms.html" target="_blank">Terms and Conditions</a> and <a href="privacy-policy.html" target="_blank">Privacy Policy</a>.
+                                    </label>
                                 </div>
                                     
                                 <div class="d-flex align-items-center justify-content-center">

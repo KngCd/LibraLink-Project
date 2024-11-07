@@ -86,16 +86,20 @@
         border-top-right-radius: 0; 
         border-bottom-right-radius: 0;
     }
+    .button{
+        border-radius: 30px !important;
+    }
 </style>
 
 <body>
     
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark py-4">
-        <div class="container">
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #dd2222;">
+        <div class="container-fluid">
             <a href="student-login.php" class="navbar-brand">
-                <img class="img-fluid logo" src="../../img/libra2.png" alt="Logo" style="height: 40px; width: auto;">
+                <img class="img-fluid logo" src="../../img/librawhite.png" alt="Logo" style="height: 40px; width: auto;">
             </a>
+            <a href="student-login.php" class="btn btn-light button fs-sm-6 fs-md-4 fs-lg-3 fs-xl-2 fs-6">← Back</a>
         </div>
     </nav>
 
@@ -105,9 +109,10 @@
                 <div class="row">
                     <div class="text-container col-lg-6 col-md-6 col-sm-12 col-12 d-flex flex-column justify-content-center
                     mt-lg-5 mt-md-5 mt-sm-5 mt-5 mb-5">
-                        <h1 style="font-size: 4rem;">LibraLink</h1>
-                        <h4>Integrated System for Student Logging,<br>
-                        Borrowing, and Inventory Management</h4>
+                        <img class="img-fluid" src="../../img/libra2-cropped.png" alt="Logo" style="max-height: 150px; width: auto;">
+                        <p class="text-center text-break fs-sm-6 fs-md-4 fs-lg-3 fs-xl-2 fs-3 d-xxl-block d-xl-block d-lg-block d-md-none d-sm-none d-none" style="font-weight: 650;">
+                            Integrated System for Student Logging, <br>Borrowing, and Inventory Management
+                        </p>
                     </div>
 
                     <div class="form-container col-lg-6 col-md-6 col-sm-12 col-12 d-flex align-items-center justify-content-center">
@@ -115,7 +120,7 @@
                             // Include the database configuration file
                             require_once '../db_config.php';
 
-                            session_start();
+                            // session_start();
 
                             if(isset($_SESSION['error'])){
                                 echo '<script>alert("'.$_SESSION['error'].'");</script>';

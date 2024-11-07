@@ -175,7 +175,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         height: 8px;
     }
     .card-container::-webkit-scrollbar-thumb {
-        background-color: darkgrey; 
+        background-color: #dd2222; 
         border-radius: 10px;
     }
     .card-container::-webkit-scrollbar-track {
@@ -573,12 +573,16 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 
                 // Create an array to hold the data for the chart
                 $bookChartData = [];
+                $total_borrowed_books = 0;  // Initialize a variable to keep track of total borrowed books
                 while ($row = $book_result->fetch_assoc()) {
                     $book_title = $row['title'];  // The book title
                     $borrow_count = $row['borrow_count'];  // The number of times the book was borrowed
                     
-                    // Add the data in a format suitable for Google Charts
+                    // Add the data for the chart (book title and borrow count)
                     $bookChartData[] = "['$book_title', $borrow_count]";
+                    
+                    // Add to the total borrowed count
+                    $total_borrowed_books += $borrow_count;
                 }
 
                 // Convert the chart data into a format that JavaScript can use
@@ -663,152 +667,146 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 
                 // Combine the data into a string format for use in JavaScript
                 $stockChartDataString = implode(', ', $bookData);
+
+                // NEWWWWWWW
+
+                // Query to get the count of active (borrowed) and returned books based on status
+                $active_query = "SELECT
+                        COUNT(br.book_id) AS active_books
+                        FROM borrow_table br
+                        WHERE br.status = 'active'";  // Status is 'active' for currently borrowed books
+
+                $returned_query = "SELECT
+                        COUNT(br.book_id) AS returned_books
+                        FROM borrow_table br
+                        WHERE br.status = 'returned'";  // Status is 'returned' for books that have been returned
+
+                $active_result = $conn->query($active_query);
+                $returned_result = $conn->query($returned_query);
+
+                // Get the active and returned book counts
+                $active_books = 0;
+                $returned_books = 0;
+
+                if ($active_result->num_rows > 0) {
+                    $row = $active_result->fetch_assoc();
+                    $active_books = $row['active_books'];  // Number of active books
+                }
+
+                if ($returned_result->num_rows > 0) {
+                    $row = $returned_result->fetch_assoc();
+                    $returned_books = $row['returned_books'];  // Number of returned books
+                }
             ?>
 
-            <div class="container-fluid mt-1">
+            <div class="container-fluid mt-2">
                 <h4 class="text-muted">Students</h4>
-                <!-- Row containing first two charts -->
-                <div class="row" class="d-flex flex-wrap justify-content-between h-100" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
-                    <!-- First Chart: Registered vs Accepted Students -->
-                    <div id="myChart" class="col-12 col-md-6" style="height: 470px;"></div>
+                <!-- Row containing first three charts -->
+                 <div class="stats">
+                    <div class="row" class="d-flex justify-content-between h-100" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
+                        <!-- First Chart: Registered vs Accepted Students -->
+                        <div id="myChart" class="col-12 col-md-6" style="height: 470px; flex-shrink: 0; width: 50%;"></div>
 
-                    <script>
-                        // Google Charts setup
-                        google.charts.load('current', {'packages':['corechart']});
-                        google.charts.setOnLoadCallback(drawChart);
+                        <script>
+                            // Google Charts setup
+                            google.charts.load('current', {'packages':['corechart']});
+                            google.charts.setOnLoadCallback(drawChart);
 
-                        function drawChart() {
-                            // Create a DataTable and populate it with data from PHP
-                            const data = google.visualization.arrayToDataTable([
-                                ['Category', 'Count'],  // Column headers
-                                ['Registered Students', <?php echo $total_registered; ?>],  // Dynamic PHP data
-                                ['Accepted Students', <?php echo $total_accepted; ?>]  // Dynamic PHP data
-                            ]);
+                            function drawChart() {
+                                // Create a DataTable and populate it with data from PHP
+                                const data = google.visualization.arrayToDataTable([
+                                    ['Category', 'Count'],  // Column headers
+                                    ['Registered Students', <?php echo $total_registered; ?>],  // Dynamic PHP data
+                                    ['Accepted Students', <?php echo $total_accepted; ?>]  // Dynamic PHP data
+                                ]);
 
-                            const options = {
-                                title: 'Student Registration and Acceptance Status',
-                                pieSliceText: 'percentage', // Show percentages on the pie chart
-                                is3D: true, // Optional: adds a 3D effect to the pie chart
-                            };
+                                const options = {
+                                    title: 'Student Registration and Acceptance Status',
+                                    pieSliceText: 'percentage', // Show percentages on the pie chart
+                                    is3D: true, // Optional: adds a 3D effect to the pie chart
+                                };
 
-                            // Create and draw the chart
-                            const chart = new google.visualization.PieChart(document.getElementById('myChart'));
-                            chart.draw(data, options);
-                        }
-                    </script>
+                                // Create and draw the chart
+                                const chart = new google.visualization.PieChart(document.getElementById('myChart'));
+                                chart.draw(data, options);
+                            }
+                        </script>
 
-                    <!-- Second Chart: Department and Program Distribution -->
-                    <div id="progDept" class="col-12 col-md-6" style="height: 470px;"></div>
+                        <!-- Second Chart: Department and Program Distribution -->
+                        <div id="progDept" class="col-12 col-md-6" style="height: 470px; flex-shrink: 0; width: 50%;"></div>
 
-                    <script>
-                        // Google Charts setup
-                        google.charts.load('current', {'packages':['corechart']});
-                        google.charts.setOnLoadCallback(drawChart2);
+                        <script>
+                            // Google Charts setup
+                            google.charts.load('current', {'packages':['corechart']});
+                            google.charts.setOnLoadCallback(drawChart2);
 
-                        function drawChart2() {
-                            // Create a DataTable and populate it with data from PHP
-                            const data2 = google.visualization.arrayToDataTable([
-                                ['Department and Program', 'Student Count'],  // Column headers
-                                <?php echo $chartDataString; ?>  // Dynamic PHP data (department and program counts)
-                            ]);
+                            function drawChart2() {
+                                // Create a DataTable and populate it with data from PHP
+                                const data2 = google.visualization.arrayToDataTable([
+                                    ['Department and Program', 'Student Count'],  // Column headers
+                                    <?php echo $chartDataString; ?>  // Dynamic PHP data (department and program counts)
+                                ]);
 
-                            const options2 = {
-                                title: 'Student Distribution by Department and Program',
-                                is3D: true, // Optional: adds a 3D effect to the pie chart
-                                slices: {
-                                    0: { offset: 0.1 }, // Optional: adds some space to the first slice
-                                    1: { offset: 0.1 },
-                                    // Customize slices as needed
-                                }
-                            };
+                                const options2 = {
+                                    title: 'Student Distribution by Department and Program',
+                                    is3D: true, // Optional: adds a 3D effect to the pie chart
+                                    slices: {
+                                        0: { offset: 0.1 }, // Optional: adds some space to the first slice
+                                        1: { offset: 0.1 },
+                                        // Customize slices as needed
+                                    }
+                                };
 
-                            // Create and draw the second chart
-                            const chart2 = new google.visualization.PieChart(document.getElementById('progDept'));
-                            chart2.draw(data2, options2);
-                        }
-                    </script>
-                </div>
-                <hr>
-            </div>
-            
-            <div class="container-fluid">
-                <h4 class="text-muted">Books Borrowed and Attendance Logs</h4>
-                <!-- Row containing second two charts -->
-                <div class="row" class="d-flex flex-wrap justify-content-between h-100 m-0 p-0" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
-                    <div id="bookChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
+                                // Create and draw the second chart
+                                const chart2 = new google.visualization.PieChart(document.getElementById('progDept'));
+                                chart2.draw(data2, options2);
+                            }
+                        </script>
 
-                    <script>
-                        google.charts.load('current', {'packages':['corechart', 'bar']});
-                        google.charts.setOnLoadCallback(drawChart);
+                        <!-- Third Chart: Attendance Log -->
+                        <div id="attendanceChart" class="col-12 col-md-6" style="height: 470px; flex-shrink: 0; width: 50%;"></div>
 
-                        function drawChart() {
-                            // Create a DataTable and populate it with data from PHP
-                            const data = google.visualization.arrayToDataTable([
-                                ['Book Title', 'Borrow Count '],  // Column headers
-                                <?php echo $bookChartDataString; ?>  // Dynamic PHP data (book borrow counts)
-                            ]);
+                        <script>
+                            google.charts.load('current', {'packages':['corechart', 'bar']});
+                            google.charts.setOnLoadCallback(drawAttendanceChart);
 
-                            const options = {
-                                title: 'Books Borrowed',
-                                chartArea: { width: '50%' },
-                                hAxis: {
-                                    title: 'Number of Borrows',
-                                    minValue: 0
-                                },
-                                vAxis: {
-                                    title: 'Book Title'
-                                },
-                                bars: 'horizontal', // Optional: Makes it a horizontal bar chart
-                                is3D: true,  // Optional: Adds 3D effect to the bar chart
-                            };
+                            function drawAttendanceChart() {
+                                // Create a DataTable and populate it with data from PHP
+                                const data = google.visualization.arrayToDataTable([
+                                    ['Date', 'Attendance Count'],  // Column headers
+                                    <?php echo $attendanceChartDataString; ?>  // Dynamic PHP data (attendance count per date)
+                                ]);
 
-                            // Create and draw the bar chart
-                            const chart = new google.visualization.BarChart(document.getElementById('bookChart'));
-                            chart.draw(data, options);
-                        }
-                    </script>
+                                const options = {
+                                    title: 'Attendance Log',
+                                    curveType: 'function',  // Makes the line smooth
+                                    legend: { position: 'bottom' },
+                                    hAxis: {
+                                        title: 'Date',
+                                        format: 'yyyy-MM-dd',  // Format for date axis
+                                        gridlines: { count: 10 },
+                                    },
+                                    vAxis: {
+                                        title: 'Number of Attendees',
+                                        minValue: 0
+                                    }
+                                };
 
-                    <div id="attendanceChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
-
-                    <script>
-                        google.charts.load('current', {'packages':['corechart', 'bar']});
-                        google.charts.setOnLoadCallback(drawAttendanceChart);
-
-                        function drawAttendanceChart() {
-                            // Create a DataTable and populate it with data from PHP
-                            const data = google.visualization.arrayToDataTable([
-                                ['Date', 'Attendance Count'],  // Column headers
-                                <?php echo $attendanceChartDataString; ?>  // Dynamic PHP data (attendance count per date)
-                            ]);
-
-                            const options = {
-                                title: 'Attendance Log',
-                                curveType: 'function',  // Makes the line smooth
-                                legend: { position: 'bottom' },
-                                hAxis: {
-                                    title: 'Date',
-                                    format: 'yyyy-MM-dd',  // Format for date axis
-                                    gridlines: { count: 10 },
-                                },
-                                vAxis: {
-                                    title: 'Number of Attendees',
-                                    minValue: 0
-                                }
-                            };
-
-                            // Create and draw the line chart
-                            const chart = new google.visualization.LineChart(document.getElementById('attendanceChart'));
-                            chart.draw(data, options);
-                        }
-                    </script>
-                </div>
+                                // Create and draw the line chart
+                                const chart = new google.visualization.LineChart(document.getElementById('attendanceChart'));
+                                chart.draw(data, options);
+                            }
+                        </script>
+                    </div>
                     <hr>
+                 </div>
             </div>
 
             <div class="container-fluid">
                 <h4 class="text-muted">Book Category and Stocks</h4>
                 <!-- Row containing third two charts -->
                 <div class="row" class="d-flex flex-wrap justify-content-between h-100 m-0 p-0" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
+                    <!-- First Chart: Book Category -->
                     <div id="categoryChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
 
                     <script>
@@ -818,7 +816,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                         function drawChart() {
                             // Create a DataTable and populate it with data from PHP
                             const data = google.visualization.arrayToDataTable([
-                                ['Category', 'Total Books'],  // Column headers
+                                ['Category', 'Total Books '],  // Column headers
                                 <?php echo $catChartDataString; ?>  // Dynamic PHP data (book counts per category)
                             ]);
 
@@ -842,6 +840,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                         }
                     </script>
 
+                    <!-- Second Chart: Book Stock Chart -->
                     <div id="bookStockChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
 
                     <script type="text/javascript">
@@ -876,6 +875,82 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                 </div>
                     <hr>
             </div>
+            
+            <div class="container-fluid">
+                <h4 class="text-muted">Books Borrowed</h4>
+                <!-- Row containing second two charts -->
+                <div class="row" class="d-flex flex-wrap justify-content-between h-100 m-0 p-0" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
+                    <!-- First Chart: Total Borrowed Books -->
+                    <div id="bookChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
+
+                    <script>
+                        google.charts.load('current', {'packages':['corechart', 'bar']});
+                        google.charts.setOnLoadCallback(drawBookChart);
+
+                        function drawBookChart() {
+                            // Create a DataTable and populate it with data from PHP
+                            const data = google.visualization.arrayToDataTable([
+                                ['Book Title', 'Borrow Count '],  // Column headers
+                                <?php echo $bookChartDataString; ?>,  // Dynamic PHP data (book borrow counts)
+                                ['Total Borrowed Books', <?php echo $total_borrowed_books; ?>]  // Add total borrow count as a new row
+                            ]);
+
+                            const options = {
+                                title: 'Books Borrowed',
+                                chartArea: { width: '50%' },
+                                hAxis: {
+                                    title: 'Number of Borrows',
+                                    minValue: 0
+                                },
+                                vAxis: {
+                                    title: 'Book Title'
+                                },
+                                bars: 'horizontal', // Makes it a horizontal bar chart
+                                is3D: true,  // Adds 3D effect to the bar chart
+                                colors: ['#4CAF50', '#FF9800'],  // Optional: Customize colors (one for individual books, one for the total)
+                            };
+
+                            // Create and draw the bar chart
+                            const chart = new google.visualization.BarChart(document.getElementById('bookChart'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+
+                    <!-- Second Chart: Active and Returned Books -->
+                    <div id="activeReturnedChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
+
+                    <script>
+                        google.charts.load('current', {'packages':['corechart']});
+                        google.charts.setOnLoadCallback(drawActiveReturnedChart);
+
+                        function drawActiveReturnedChart() {
+                            // Create a DataTable with active and returned books data
+                            const data = google.visualization.arrayToDataTable([
+                                ['Category', 'Book Count'],
+                                ['Active Books', <?php echo $active_books; ?>],  // Active books count
+                                ['Returned Books', <?php echo $returned_books; ?>]  // Returned books count
+                            ]);
+
+                            const options = {
+                                title: 'Active vs Returned Books',
+                                pieSliceText: 'percentage',  // Show percentages on the pie chart
+                                is3D: true,  // Adds 3D effect to the pie chart
+                                slices: {
+                                    0: { offset: 0.1 },  // Optional: Add a little space between slices
+                                    1: { offset: 0.1 }
+                                },
+                                colors: ['#FF5722', '#4CAF50']  // Optional: Customize colors (red for active, green for returned)
+                            };
+
+                            // Create and draw the pie chart
+                            const chart = new google.visualization.PieChart(document.getElementById('activeReturnedChart'));
+                            chart.draw(data, options);
+                        }
+                    </script>
+                </div>
+                    <hr>
+            </div>
+
         </section>
     </main>
 

@@ -324,7 +324,7 @@
             </div>
         </nav>
 
-        <div class="offcanvas offcanvas-end text-light" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel">
+        <div class="offcanvas offcanvas-end text-light" data-bs-backdrop="static" data-bs-scroll= "true" tabindex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel">
             <div class="offcanvas-header">
                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
@@ -381,7 +381,7 @@
             <div class="modal-body">
                 <div class="list-group">
                 <?php 
-                    // $user_id = $_SESSION['user_id'];
+                    $user_id = $_SESSION['user_id'];
 
                     // Fetch book IDs for the user from the cart
                     $stmt = $conn->prepare("SELECT book_id FROM cart WHERE user_id = ?");
@@ -424,6 +424,21 @@
                     $stmt->close();
                 ?>
                 </div>
+
+                 <!-- Borrowing Policies Section (inserted right here) -->
+                <div class="mt-4">
+                    <h5><strong>Borrowing Policies</strong></h5>
+                    <ul>
+                        <li><strong>Maximum number of books:</strong> You can borrow a maximum of 5 books at a time.</li>
+                        <li><strong>Penalty:</strong> There is a penalty of <strong>10.00</strong> per book, per overdue day.</li>
+                        <li><strong>Book condition:</strong> You must return the books in good condition. If the book is damaged, you must buy a replacement. If the book is an older version, you need to buy a new version.</li>
+                        <li><strong>Maximum borrow duration:</strong> Books can be borrowed for a maximum of 7 days.</li>
+                        <li><strong>Renewal:</strong> You can renew the borrowed book once only.</li>
+                        <li><strong>Early returns:</strong> You can return the books early if you wish.</li>
+                    </ul>
+                    <p>By confirming borrowing, you agree to the above policies.</p>
+                </div>
+                
             </div>
 
             <div class="modal-footer">

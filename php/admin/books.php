@@ -557,7 +557,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                                         <div class='modal-content'>
 
                                                             <div class='modal-header'>
-                                                                <h1 class='modal-title fs-5'>Book Information</h1>
+                                                                <h1 class='modal-title fs-5' style='color: #dd2222; font-weight: bold;'>Book Information</h1>
                                                                 <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
                                                             </div>
                                                             
@@ -726,9 +726,12 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
             <div class="modal fade" id="addBooks" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered border-radius-3">
                     <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 style='color: #dd2222; font-weight: bold;'>Add Books</h2>
+                            <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                        </div>
                         <div class="modal-body">
                             <form action="" method="post" enctype="multipart/form-data">
-                                <h2 class="text-center">Add Books</h2><br>
                                 <div class="input-group mb-2">
                                     <input type="text" class="form-control" placeholder="Title" name="title" id="title" autocomplete="off" required style="border-radius: 0.375rem; width: auto;">
                                 </div>

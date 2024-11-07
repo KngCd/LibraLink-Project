@@ -131,8 +131,58 @@ if (!isset($_SESSION['user_id'])) {
     #desc::-webkit-scrollbar {
         display: none;
     }
+    /* Loader Styles */
+    .loader-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999; /* Ensure it appears on top of all content */
+    }
+
+    /* Optional: Customize spinner size */
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+        border-width: 0.25em;
+    }
+    /* Back to Top Button */
+    #backToTop {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        display: none; /* Hidden by default */
+        border: none;
+        background-color: #dd2222;
+        color: white;
+        border-radius: 50%;
+        padding: 15px;
+        font-size: 20px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    #backToTop:hover {
+        background-color: #ca1d1d;
+    }
 </style>
 <body>
+        <!-- Loading Animation -->
+    <div id="loader" class="loader-container">
+        <div class="spinner-border text-danger" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Back to Top -->
+    <button id="backToTop" class="btn btn-danger" onclick="scrollToTop()" style="border-radius: 30px !important;">↑</button>
+
     <?php
        require_once '../db_config.php';
             if (isset($_SESSION['user_id'])) {
@@ -176,7 +226,7 @@ if (!isset($_SESSION['user_id'])) {
             </div>
         </nav>
 
-        <div class="offcanvas offcanvas-end text-light" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel">
+        <div class="offcanvas offcanvas-end text-light" data-bs-backdrop="static" data-bs-scroll= "true" tabindex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel">
             <div class="offcanvas-header">
                 <!-- <div data-bs-theme="dark"> -->
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -278,6 +328,21 @@ if (!isset($_SESSION['user_id'])) {
                     $stmt->close();
                 ?>
                 </div>
+
+                 <!-- Borrowing Policies Section (inserted right here) -->
+                <div class="mt-4">
+                    <h5><strong>Borrowing Policies</strong></h5>
+                    <ul>
+                        <li><strong>Maximum number of books:</strong> You can borrow a maximum of 5 books at a time.</li>
+                        <li><strong>Penalty:</strong> There is a penalty of <strong>10.00</strong> per book, per overdue day.</li>
+                        <li><strong>Book condition:</strong> You must return the books in good condition. If the book is damaged, you must buy a replacement. If the book is an older version, you need to buy a new version.</li>
+                        <li><strong>Maximum borrow duration:</strong> Books can be borrowed for a maximum of 7 days.</li>
+                        <li><strong>Renewal:</strong> You can renew the borrowed book once only.</li>
+                        <li><strong>Early returns:</strong> You can return the books early if you wish.</li>
+                    </ul>
+                    <p>By confirming borrowing, you agree to the above policies.</p>
+                </div>
+
             </div>
 
             <div class="modal-footer">
@@ -524,5 +589,33 @@ if (!isset($_SESSION['user_id'])) {
 
     <script src="../../js/bootstrap.min.js"></script>
     <script src="../../js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // When the page is fully loaded, hide the loader
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('loader');
+            loader.style.display = 'none'; // Hide the loader
+        });
+
+        // Get the button
+        let backToTopBtn = document.getElementById("backToTop");
+
+        // When the user scrolls down 300px from the top, show the button
+        window.onscroll = function() {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                backToTopBtn.style.display = "block"; // Show the button
+            } else {
+                backToTopBtn.style.display = "none"; // Hide the button
+            }
+        };
+
+        // Function to scroll to the top
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // Smooth scrolling
+            });
+        }
+    </script>
 </body>
 </html>

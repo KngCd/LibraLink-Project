@@ -98,16 +98,21 @@ if (isset($_SESSION['user_id'])) {
         border-top-right-radius: 0; 
         border-bottom-right-radius: 0;
     }
+    .button{
+        border-radius: 30px !important;
+        max-width: 100px;
+    }
 </style>
 
 <body>
     
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark py-4">
-        <div class="container">
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #dd2222;">
+        <div class="container-fluid">
             <a href="../admin-student.php" class="navbar-brand">
-                <img class="img-fluid logo" src="../../img/libra2.png" alt="Logo" style="height: 40px; width: auto;">
+                <img class="img-fluid logo" src="../../img/librawhite.png" alt="Logo" style="height: 40px; width: auto;">
             </a>
+            <a href="../admin-student.php" class="btn btn-light button fs-sm-6 fs-md-4 fs-lg-3 fs-xl-2 fs-6">← Back</a>
         </div>
     </nav>
 
@@ -117,125 +122,127 @@ if (isset($_SESSION['user_id'])) {
                 <div class="row">
                     <div class="text-container col-lg-6 col-md-6 col-sm-12 col-12 d-flex flex-column justify-content-center
                     mt-lg-5 mt-md-5 mt-sm-5 mt-5 mb-5">
-                        <h1 style="font-size: 4rem;">LibraLink</h1>
-                        <h4>Integrated System for Student Logging,<br>
-                        Borrowing, and Inventory Management</h4>
+                        <img class="img-fluid" src="../../img/libra2-cropped.png" alt="Logo" style="max-height: 150px; width: auto;">
+                        <p class="text-center text-break fs-sm-6 fs-md-4 fs-lg-3 fs-xl-2 fs-3 d-xxl-block d-xl-block d-lg-block d-md-none d-sm-none d-none" style="font-weight: 650;">
+                            Integrated System for Student Logging, <br>Borrowing, and Inventory Management
+                        </p>
                     </div>
 
                     <div class="form-container col-lg-6 col-md-6 col-sm-12 col-12 d-flex align-items-center justify-content-center">
                         <?php
-                            // Include the database configuration file
-                            require_once '../db_config.php';
+                        // Include the database configuration file
+                        require_once '../db_config.php';
 
-                            // session_start();
+                        // session_start();
 
-                            if(isset($_SESSION['error'])){
-                                echo '<script>alert("'.$_SESSION['error'].'");</script>';
-                                unset($_SESSION['error']); // remove error message from session
+                        if(isset($_SESSION['error'])){
+                            echo '<script>alert("'.$_SESSION['error'].'");</script>';
+                            unset($_SESSION['error']); // remove error message from session
+                        }
+                        if (isset($_SESSION['success'])) {
+                            echo '<script>alert("'.$_SESSION['success'].'");</script>';
+                            unset($_SESSION['success']); // remove success message from session
+                        }
+
+                        // Initialize attempts if it doesn't exist
+                        if (!isset($_SESSION['sattempts'])) {
+                            $_SESSION['sattempts'] = 0;
+                        }
+
+                        // Initialize the timestamp for lockout if it doesn't exist
+                        if (!isset($_SESSION['slockout_time'])) {
+                            $_SESSION['slockout_time'] = null;
+                        }
+
+                        // Check if the user is locked out
+                        if ($_SESSION['slockout_time'] !== null) {
+                            $stime_since_lockout = time() - $_SESSION['slockout_time'];
+
+                            // If 3 minutes have passed, reset attempts and lockout time
+                            if ($stime_since_lockout >= 180) {
+                                $_SESSION['sattempts'] = 0; // Reset attempts
+                                $_SESSION['slockout_time'] = null; // Reset lockout time
                             }
-                            if (isset($_SESSION['success'])) {
-                                echo '<script>alert("'.$_SESSION['success'].'");</script>';
-                                unset($_SESSION['success']); // remove success message from session
-                            }
+                            // } else {
+                            //     // User is still locked out
+                            //     echo "<p>You are locked out. Please try again in " . (180 - $stime_since_lockout) . " seconds.</p>";
+                            //     exit; // Stop further processing
+                            // }
+                        }
 
-                            // Initialize attempts if it doesn't exist
-                            if (!isset($_SESSION['sattempts'])) {
-                                $_SESSION['sattempts'] = 0;
-                            }
+                        // Check if the form has been submitted
+                        if (isset($_POST['submit'])) {
+                            $email = $_POST['email'];
+                            $password = $_POST['password'];
 
-                            // Initialize the timestamp for lockout if it doesn't exist
-                            if (!isset($_SESSION['slockout_time'])) {
-                                $_SESSION['slockout_time'] = null;
-                            }
+                            // Use prepared statements to retrieve user data
+                            $stmt = $conn->prepare("SELECT * FROM student_table WHERE email = ?");
+                            $stmt->bind_param("s", $email);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            $row = $result->fetch_assoc();
 
-                            // Check if the user is locked out
-                            if ($_SESSION['slockout_time'] !== null) {
-                                $stime_since_lockout = time() - $_SESSION['slockout_time'];
+                            if (is_array($row) && !empty($row)) {
+                                // Verify password
+                                if (password_verify($password, $row['password'])) {
+                                    // Login successful, redirect to dashboard
+                                    $_SESSION['user_id'] = $row['student_id']; // pass the information using $_SESSION
+                                    $_SESSION['first_name'] = $row['first_name'];
+                                    $_SESSION['last_name'] = $row['last_name'];
+                                    $_SESSION['email'] = $row['email'];
+                                    $_SESSION['contact_num'] = $row['contact_num'];
+                                    $_SESSION['program'] = $row['program'];
+                                    $_SESSION['department'] = $row['department'];
+                                    $_SESSION['profile_pic'] = $row['profile_pic'];
 
-                                // If 3 minutes have passed, reset attempts and lockout time
-                                if ($stime_since_lockout >= 180) {
-                                    $_SESSION['sattempts'] = 0; // Reset attempts
+                                    // Login successful, reset attempts and lockout time
+                                    $_SESSION['sattempts'] = 0; // Reset attempts on successful login
                                     $_SESSION['slockout_time'] = null; // Reset lockout time
-                                }
-                                // } else {
-                                //     // User is still locked out
-                                //     echo "<p>You are locked out. Please try again in " . (180 - $stime_since_lockout) . " seconds.</p>";
-                                //     exit; // Stop further processing
-                                // }
-                            }
 
-                            // Check if the form has been submitted
-                            if (isset($_POST['submit'])) {
-                                $email = $_POST['email'];
-                                $password = $_POST['password'];
+                                        // Prepare variables for logging
+                                        $studentId = $row['student_id'];
+                                        $action = 'Login';
+                                        $details = 'You logged in';
 
-                                // Use prepared statements to retrieve user data
-                                $stmt = $conn->prepare("SELECT * FROM student_table WHERE email = ?");
-                                $stmt->bind_param("s", $email);
-                                $stmt->execute();
-                                $result = $stmt->get_result();
-                                $row = $result->fetch_assoc();
+                                        // Insert log activity directly with NOW() for the timestamp
+                                        $stmt = $conn->prepare("INSERT INTO activity_logs (student_id, action, details, timestamp) VALUES (?, ?, ?, NOW())");
+                                        $stmt->bind_param("iss", $studentId, $action, $details); // Use variables here
+                                        $stmt->execute();
 
-                                if (is_array($row) && !empty($row)) {
-                                    // Verify password
-                                    if (password_verify($password, $row['password'])) {
-                                        // Login successful, redirect to dashboard
-                                        $_SESSION['user_id'] = $row['student_id']; // pass the information using $_SESSION
-                                        $_SESSION['first_name'] = $row['first_name'];
-                                        $_SESSION['last_name'] = $row['last_name'];
-                                        $_SESSION['email'] = $row['email'];
-                                        $_SESSION['contact_num'] = $row['contact_num'];
-                                        $_SESSION['program'] = $row['program'];
-                                        $_SESSION['department'] = $row['department'];
-                                        $_SESSION['profile_pic'] = $row['profile_pic'];
-
-                                        // Login successful, reset attempts and lockout time
-                                        $_SESSION['sattempts'] = 0; // Reset attempts on successful login
-                                        $_SESSION['slockout_time'] = null; // Reset lockout time
-
-                                            // Prepare variables for logging
-                                            $studentId = $row['student_id'];
-                                            $action = 'Login';
-                                            $details = 'You logged in';
-
-                                            // Insert log activity directly with NOW() for the timestamp
-                                            $stmt = $conn->prepare("INSERT INTO activity_logs (student_id, action, details, timestamp) VALUES (?, ?, ?, NOW())");
-                                            $stmt->bind_param("iss", $studentId, $action, $details); // Use variables here
-                                            $stmt->execute();
-
-                                        header("Location: student_home.php");
-                                        exit;
-                                    } else {
-                                        // Login failed, store error message in session
-                                        // $_SESSION['error'] = 'Invalid email or password';
-                                        // Login failed
-                                        $_SESSION['sattempts']++; // Increment attempt counter on invalid login
-
-                                        // Check if maximum attempts reached
-                                        if ($_SESSION['sattempts'] >= 5) {
-                                            $_SESSION['slockout_time'] = time(); // Set lockout time to current time
-                                        }
-                                        header('Location: student-login.php');
-                                        exit;
-                                    }
+                                    // header("Location: student_home.php");
+                                    echo "<script>window.location.href = 'student_home.php';</script>";
+                                    exit;
                                 } else {
-                                    $_SESSION['error'] = 'USER NOT FOUND!';
+                                    // Login failed, store error message in session
+                                    // $_SESSION['error'] = 'Invalid email or password';
+                                    // Login failed
+                                    $_SESSION['sattempts']++; // Increment attempt counter on invalid login
+
+                                    // Check if maximum attempts reached
+                                    if ($_SESSION['sattempts'] >= 5) {
+                                        $_SESSION['slockout_time'] = time(); // Set lockout time to current time
+                                    }
                                     header('Location: student-login.php');
                                     exit;
                                 }
+                            } else {
+                                $_SESSION['error'] = 'USER NOT FOUND!';
+                                header('Location: student-login.php');
+                                exit;
                             }
+                        }
 
-                            // // Check if the user is locked out
-                            // if ($_SESSION['lockout_time'] !== null) {
-                            //     // Calculate the time since lockout
-                            //     $time_since_lockout = time() - $_SESSION['lockout_time'];
+                        // // Check if the user is locked out
+                        // if ($_SESSION['lockout_time'] !== null) {
+                        //     // Calculate the time since lockout
+                        //     $time_since_lockout = time() - $_SESSION['lockout_time'];
 
-                            //     // If 3 minutes have passed, reset attempts and lockout time
-                            //     if ($time_since_lockout >= 180) {
-                            //         $_SESSION['attempts'] = 0; // Reset attempts
-                            //         $_SESSION['lockout_time'] = null; // Reset lockout time
-                            //     }
-                            // }
+                        //     // If 3 minutes have passed, reset attempts and lockout time
+                        //     if ($time_since_lockout >= 180) {
+                        //         $_SESSION['attempts'] = 0; // Reset attempts
+                        //         $_SESSION['lockout_time'] = null; // Reset lockout time
+                        //     }
+                        // }
                         ?>
 
                         <!-- Form for Student Login -->

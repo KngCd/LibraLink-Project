@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms and Conditions</title>
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+    *{
+        font-family: "Work Sans", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 500;
+        font-style: normal;
+    }
+    section form input{
+        border-radius: 5px;
+    }
+    form{
+        padding: 35px 40px;
+        border-radius: 56px;
+        width: 400px;
+    }
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000; /* Ensure it's on top of other elements */
+    }
+    .navbar-brand{
+        /* font-family: 'Times New Roman', Times, serif; */
+        font-size: 30px;
+        color: black;
+    }
+    .navbar-brand:hover{
+        color: black;
+        text-decoration: underline;
+    }
+    .logo {
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+    .logo:hover {
+        transform: scale(1.1);
+    }
+    body{
+        background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(../../img/bsu.jpg);
+        background-size: cover;
+        background-attachment: fixed;
+    }
+    ::placeholder {
+        color: black !important; 
+    }
+    #firstName-error, #lastName-error, #email-error, #password-error, #confirmPassword-error, 
+    #contact-error, #program-error, #department-error, #cor-error, #id-error, #pic-error, #terms-error {
+        color: red;
+        font-size: 0.90rem;
+        /* display: block; */
+    }
+    .input-group label{
+        display: block;
+        width: 100%;
+    }
+    .input-group input, .input-group select{
+        border-radius: 16px; 
+        border: solid, 1px, black; 
+        width: auto; 
+        display: block;
+        border-top-right-radius: 16px; 
+        border-bottom-right-radius: 16px;
+    }
+    /* .input-group span{
+        border-radius: 16px; 
+        border: solid, 1px, black; 
+        width: auto; 
+        border-top-right-radius: 0; 
+        border-bottom-right-radius: 0;
+    } */
+    form select, form select option{
+        cursor: pointer;
+    }
+    .button{
+        border-radius: 30px !important;
+        max-width: 100px;
+    }
+</style>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #dd2222;">
+        <div class="container-fluid">
+            <a href="student_register.php" class="navbar-brand">
+                <img class="img-fluid logo" src="../../img/librawhite.png" alt="Logo" style="height: 40px; width: auto;">
+            </a>
+            <a href="student_register.php" class="btn btn-light button fs-sm-6 fs-md-4 fs-lg-3 fs-xl-2 fs-6" onclick="window.close();">← Back</a>
+        </div>
+    </nav>
+    
+    <main style="margin-top: 90px;">
+        <section class="container d-flex flex-column align-items-center justify-content-center">
+            <h1 class="font-weight-bold mb-4">Terms and Conditions</h1>
+            <ol class="text-left fs-4">
+                <li>
+                    <h4 style="font-weight: bold;">Introduction</h4>
+                    <p>Welcome to
+                            <img class="img-fluid" src="../../img/libra2-cropped.png" alt="Logo" style="max-height: 30px; width: auto;">
+                            By using our website and services, you agree to the following Terms and Conditions. Please read them carefully before using our website or registering an account. If you do not agree to these terms, do not use the site.</p>
+                </li>
+                <li>
+                    <h4 style="font-weight: bold;">Acceptance of Terms</h4>
+                    <p>By accessing or using our services, you accept and agree to be bound by these Terms and Conditions and our Privacy Policy. If you do not agree with any part of these terms, you must not use the site.</p>
+                </li>
+                <li>
+                    <h4 style="font-weight: bold;">User Accounts</h4>
+                    <p>To access certain features of our website, you may be required to create an account. You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account.</p>
+                    <ul>
+                        <li>You must be a <strong>BSU-Lipa Campus</li>strong> student to register on this website.</li>
+                        <li>You agree to provide accurate and complete information when registering and to update your information if it changes.</li>
+                    </ul>
+                </li>
+                <li>
+                    <h4 style="font-weight: bold;">User Responsibilities</h4>
+                    <p>You agree not to use our services for any unlawful or prohibited activities, including but not limited to:</p>
+                    <ul>
+                        <li>Spamming or phishing.</li>
+                        <li>Uploading harmful content such as viruses or malware.</li>
+                        <li>Engaging in harassment or illegal activities.</li>
+                    </ul>
+                    <p>You must comply with all applicable laws while using our services.</p>
+                </li>
+                <li>
+                    <h4 style="font-weight: bold;">Privacy and Data Collection</h4>
+                    <p>Your privacy is important to us. By using our website, you agree to the collection and use of personal information in accordance with our <a href="privacy-policy.html">Privacy Policy</a>.</p>
+                </li>
+                <li>
+                    <h4 style="font-weight: bold;">Intellectual Property</h4>
+                    <p>All content on this website, including text, images, logos, and trademarks, are the property of LibraLink and are protected by copyright laws. You may not copy, modify, or distribute any of the website content without prior written permission.</p>
+                </li>
+                <li>
+                    <h4 style="font-weight: bold;">Disclaimers</h4>
+                    <p>The website and its services are provided "as is" without any warranties of any kind, either express or implied.</p>
+                    <p>We do not guarantee that our website will be available at all times or free from errors, bugs, or viruses.</p>
+                </li>
+                <li>
+                    <h4 style="font-weight: bold;">Limitation of Liability</h4>
+                    <p>LibraLink will not be held liable for any damages or losses arising from your use of the website or services. This includes any direct, indirect, incidental, or consequential damages.</p>
+                </li>
+                <li>
+                    <h style="font-weight: bold;"4>Termination</h4>
+                    <p>We reserve the right to suspend or terminate your account if you violate these Terms and Conditions. You may also terminate your account by contacting us through the provided support channels.</p>
+                </li>
+                <li>
+                    <h4 style="font-weight: bold;">Changes to the Terms</h4>
+                    <p>We reserve the right to update or change these Terms and Conditions at any time. We will notify you of any material changes, and the updated terms will be posted on this page.</p>
+                </li>
+                <li>
+                    <h4 style="font-weight: bold;">Governing Law</h4>
+                    <p>These Terms and Conditions are governed by and construed in accordance with the laws of the Philppines. Any disputes will be resolved in the competent courts of the country.</p>
+                </li>
+                <li>
+                    <h4 style="font-weight: bold;">Contact Us</h4>
+                    <p>If you have any questions regarding these Terms and Conditions, please contact us at:</p>
+                    <ul>
+                        <li>Email: <a href="mailto:library.lipa@g.batstate-u.edu.ph">library.lipa@g.batstate-u.edu.ph</a></li>
+                        <li>Phone: (+63 43) 980-0385 loc. 3110</li>
+                        <li>Address:  A. Tanco Drive, Marawoy, Lipa, Batangas</li>
+                    </ul>
+                </li>
+            </ol>
+        </section>
+    </main>
+
+    <script src="../../js/bootstrap.min.js"></script>
+    <script src="../../js/loginValidate.js"></script>
+</body>
+</html>
