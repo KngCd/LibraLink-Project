@@ -459,6 +459,11 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                         //     }
                         // }
 
+                        if (isset($_SESSION['alert3'])) {
+                            echo '<script>alert("' . $_SESSION['alert3'] . '")</script>';
+                            unset($_SESSION['alert3']); // Clear the alert after displaying
+                        }
+
                         // Handle next and previous button clicks via GET parameters
                         if (isset($_GET['page'])) {
                             $_SESSION['acurrent_page'] = (int)$_GET['page'];
@@ -488,6 +493,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                             echo "<th>Name</th>";
                             echo "<th>Email</th>";
                             echo "<th>Approved</th>";
+                            echo "<th>Current Status</th>";
                             echo "</tr>";
                             echo "<tbody class='table-group-divider'>";
 
@@ -520,13 +526,13 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                                                 <input type='hidden' name='student_id' value='" . $row['student_id'] . "'>
                                                                 <div class='mb-3'>
                                                                     <label for='contact_num' class='form-label'>Contact Number</label>
-                                                                    <input type='text' class='form-control' name='contact_num' value='" . htmlspecialchars($row['contact_num']) . "' required>
+                                                                    <input type='text' class='form-control' name='contact_num' value='" . htmlspecialchars($row['contact_num']) . "'>
                                                                 </div>
                                                                 <div class='mb-3'>
                                                                     <label for='email' class='form-label'>Email</label>
-                                                                    <input type='email' class='form-control' name='email' value='" . htmlspecialchars($row['email']) . "' required>
+                                                                    <input type='email' class='form-control' name='email' value='" . htmlspecialchars($row['email']) . "'>
                                                                 </div>
-                                                                <button type='submit' class='btn btn-success'>Update</button>
+                                                                <button type='submit' name='updateBtn' class='btn btn-success'>Update</button>
                                                             </form>
                                                         </div>
                                                     </div>
@@ -537,8 +543,19 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                     </div>
                                 </td>";
 
+                                // Dropdown for status
+                                echo "<td>
+                                    <form action='enable_disabled.php' method='post'>
+                                        <input type='hidden' name='student_id' value='" . $row['student_id'] . "'>
+                                        <select class='form-select' name='status' onchange='this.form.submit()'>
+                                            <option value='Enabled'" . ($row['status'] == 'Enabled' ? ' selected' : '') . ">Enabled</option>
+                                            <option value='Disabled'" . ($row['status'] == 'Disabled' ? ' selected' : '') . ">Disabled</option>
+                                        </select>
+                                    </form>
+                                </td>";
+
                                 echo "</tr>";
-                                    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+                                    if (isset($_POST['updateBtn'])) {
                                         $student_id = $_POST['student_id'];
                                         $contact_num = $_POST['contact_num'];
                                         $email = $_POST['email'];
@@ -700,7 +717,49 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 
     <script src="../../js/bootstrap.min.js"></script>
     <script src="../../js/bootstrap.bundle.min.js"></script>
-    <script src="../../js/loginValidate.js"></script>
+    <script>
+        $(document).ready(function(){
+
+        // Custom validation method for contact number
+        $.validator.addMethod("validContact", function(value, element) {
+            // Check if the value starts with '09' and has a total of 11 characters
+            return this.optional(element) || (value.length === 11 && value.startsWith("09"));
+        }, "Contact number must be valid");
+
+        $("#updateForm").validate({
+            rules:{
+                contact_num:{
+                    required: true,
+                    validContact: true // Only use the custom validation method
+                },
+                email:{
+                    required: true,
+                    email: true
+                }
+            },
+            messages:{
+                contact_num:{
+                    required: "Please enter your contact number",
+                    validContact: "Contact number must be valid and please remove any special characters (e.g . '-')"
+                },
+                email:{
+                    required: "Please enter your email address",
+                    email: "Please provide a valid email"
+                }
+            },
+            highlight: function(element) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function(element) { 
+                $(element).removeClass('is-invalid');
+            },
+            submitHandler: function(form) {
+                form.submit();
+            }
+        });
+
+    });
+    </script>
     
     <script>
         function viewPDF(data, filename) {

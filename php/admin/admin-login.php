@@ -190,7 +190,8 @@ if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
                                     }
 
                                     // Redirect to the login page with an error message
-                                    header('Location: admin-login.php');
+                                    // header('Location: admin-login.php');
+                                    echo "<script>window.location.href = 'admin-login.php';</script>";
                                     exit;
                                 }
                             }

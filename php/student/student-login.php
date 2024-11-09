@@ -185,33 +185,43 @@ if (isset($_SESSION['user_id'])) {
                             if (is_array($row) && !empty($row)) {
                                 // Verify password
                                 if (password_verify($password, $row['password'])) {
-                                    // Login successful, redirect to dashboard
-                                    $_SESSION['user_id'] = $row['student_id']; // pass the information using $_SESSION
-                                    $_SESSION['first_name'] = $row['first_name'];
-                                    $_SESSION['last_name'] = $row['last_name'];
-                                    $_SESSION['email'] = $row['email'];
-                                    $_SESSION['contact_num'] = $row['contact_num'];
-                                    $_SESSION['program'] = $row['program'];
-                                    $_SESSION['department'] = $row['department'];
-                                    $_SESSION['profile_pic'] = $row['profile_pic'];
+                                              // Check if the account is enabled
+                                    if ($row['status'] === 'Enabled') {
+                                        // Login successful, store user info in session
+                                        $_SESSION['user_id'] = $row['student_id']; // pass the information using $_SESSION
+                                        $_SESSION['first_name'] = $row['first_name'];
+                                        $_SESSION['last_name'] = $row['last_name'];
+                                        $_SESSION['email'] = $row['email'];
+                                        $_SESSION['contact_num'] = $row['contact_num'];
+                                        $_SESSION['program'] = $row['program'];
+                                        $_SESSION['department'] = $row['department'];
+                                        $_SESSION['profile_pic'] = $row['profile_pic'];
 
-                                    // Login successful, reset attempts and lockout time
-                                    $_SESSION['sattempts'] = 0; // Reset attempts on successful login
-                                    $_SESSION['slockout_time'] = null; // Reset lockout time
+                                        // Reset login attempts and lockout time on successful login
+                                        $_SESSION['sattempts'] = 0; // Reset attempts
+                                        $_SESSION['slockout_time'] = null; // Reset lockout time
 
-                                        // Prepare variables for logging
+                                        // Log the login activity
                                         $studentId = $row['student_id'];
                                         $action = 'Login';
-                                        $details = 'You logged in';
+                                        $details = 'You logged in successfully';
 
-                                        // Insert log activity directly with NOW() for the timestamp
-                                        $stmt = $conn->prepare("INSERT INTO activity_logs (student_id, action, details, timestamp) VALUES (?, ?, ?, NOW())");
-                                        $stmt->bind_param("iss", $studentId, $action, $details); // Use variables here
-                                        $stmt->execute();
+                                        // Insert log activity with NOW() for timestamp
+                                        $stmt_log = $conn->prepare("INSERT INTO activity_logs (student_id, action, details, timestamp) VALUES (?, ?, ?, NOW())");
+                                        $stmt_log->bind_param("iss", $studentId, $action, $details); // Use variables here
+                                        $stmt_log->execute();
 
-                                    // header("Location: student_home.php");
-                                    echo "<script>window.location.href = 'student_home.php';</script>";
-                                    exit;
+                                        // Redirect to the student home page
+                                        // header("Location: student_home.php");
+                                        echo "<script>window.location.href = 'student_home.php';</script>";
+                                        exit;
+                                    } else {
+                                        // Account is disabled
+                                        // $_SESSION['error'] = 'Your account is disabled. Please contact the administrator.';
+                                        // header('Location: student-login.php');
+                                        echo "<script>alert('Your account is disabled. Please contact the administrator.'); window.location.href = 'student-login.php';</script>";
+                                        exit;
+                                    }
                                 } else {
                                     // Login failed, store error message in session
                                     // $_SESSION['error'] = 'Invalid email or password';
@@ -222,12 +232,14 @@ if (isset($_SESSION['user_id'])) {
                                     if ($_SESSION['sattempts'] >= 5) {
                                         $_SESSION['slockout_time'] = time(); // Set lockout time to current time
                                     }
-                                    header('Location: student-login.php');
+                                    // header('Location: student-login.php');
+                                    echo "<script>window.location.href = 'student-login.php';</script>";
                                     exit;
                                 }
                             } else {
                                 $_SESSION['error'] = 'USER NOT FOUND!';
-                                header('Location: student-login.php');
+                                // header('Location: student-login.php');
+                                echo "<script>window.location.href = 'student-login.php';</script>";
                                 exit;
                             }
                         }
