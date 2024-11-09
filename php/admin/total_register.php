@@ -536,8 +536,8 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                         $check_result = mysqli_query($conn, $check_query);
                                         if (mysqli_num_rows($check_result) == 0) {
                                             // Insert the details into student_table
-                                            $query2 = "INSERT INTO student_table (student_id, first_name, last_name, contact_num, email, password, program, department, profile_pic, pic_filetype)
-                                                    VALUES ('$student_id', '$firstName', '$lastName', '$contact', '$email', '$password', '$program', '$department', '" . mysqli_real_escape_string($conn, base64_decode($profile_pic)) . "', '" . mysqli_real_escape_string($conn, $pic_filetype) . "')";
+                                            $query2 = "INSERT INTO student_table (student_id, first_name, last_name, contact_num, email, password, program, department, profile_pic, pic_filetype, status)
+                                                    VALUES ('$student_id', '$firstName', '$lastName', '$contact', '$email', '$password', '$program', '$department', '" . mysqli_real_escape_string($conn, base64_decode($profile_pic)) . "', '" . mysqli_real_escape_string($conn, $pic_filetype) . "', 'Enabled')";
 
                                             if (mysqli_query($conn, $query2)) {
                                                 // Delete from verification_table
