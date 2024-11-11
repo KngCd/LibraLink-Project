@@ -504,7 +504,7 @@ $currentTime = date('H:i:s');
                 <div class="container">
                     <?php
                         // Set the number of records per page
-                        $records_per_page = 3;
+                        $records_per_page = 9;
 
                         // Get the current page from the session or set it to 1
                         if (!isset($_SESSION['logcurrent_page'])) {
@@ -531,7 +531,7 @@ $currentTime = date('H:i:s');
                                                     FROM log_table l 
                                                     LEFT JOIN student_table s ON l.student_id = s.student_id
                                                     $where_query 
-                                                    ORDER BY l.date DESC, l.time_in
+                                                    ORDER BY l.date DESC, l.time_in DESC
                                                     LIMIT $start_from, $records_per_page");
 
                         if ($query) {
@@ -598,7 +598,7 @@ $currentTime = date('H:i:s');
                             echo "</form>";
                             echo "</div>";
 
-                            echo "<hr>";
+                            // echo "<hr>";
                         } else {
                             echo "Error fetching data: " . mysqli_error($conn);
                         }

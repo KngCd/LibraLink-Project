@@ -353,7 +353,7 @@ session_start();
                     }
 
                     if (!empty($selected_status)) {
-                        $where_clauses[] = "status = '" . mysqli_real_escape_string($conn, $selected_status) . "'";
+                        $where_clauses[] = "br.status = '" . mysqli_real_escape_string($conn, $selected_status) . "'";
                     }
 
                     // Due date filter
@@ -449,7 +449,7 @@ session_start();
                                                         FROM borrow_table AS br
                                                         INNER JOIN student_table AS s ON br.student_id = s.student_id
                                                         INNER JOIN book_table AS b ON br.book_id = b.book_id
-                                                        $where_query AND s.student_id = $user_id ORDER BY br.penalty DESC
+                                                        $where_query AND s.student_id = $user_id ORDER BY br.penalty, br.date_borrowed DESC
                                                         LIMIT $start_from, $records_per_page");
 
                         // echo "Total: $total_borrowed";

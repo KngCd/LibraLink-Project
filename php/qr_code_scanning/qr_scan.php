@@ -2,51 +2,124 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>QR Code Scanner</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            display: flex;
-            align-items: flex-start; /* Aligns items to the top */
-        }
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Sweet Alert -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.js"></script>
 
-        #preview {
-            width: 50%; /* Adjust as needed */
-        }
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+    *{
+        font-family: "Work Sans", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 500;
+        font-style: normal;
+    }
+    .container {
+        display: flex;
+        align-items: flex-start; /* Aligns items to the top */
+    }
 
-        #result {
-            margin-left: 20px; /* Spacing between video and data */
-        }
+    #preview {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        max-width: 100%; /* Prevents exceeding the screen width */
+        max-height: 100%; /* Prevents exceeding the screen height */
+    }
 
-    </style>
+    .navbar{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 10;
+        /* backdrop-filter: blur(5px); */
+    }
+    .navbar-brand{
+        /* font-family: 'Times New Roman', Times, serif; */
+        font-size: 30px;
+        color: black;
+    }
+    .navbar-brand:hover{
+        color: black;
+        text-decoration: underline;
+    }
+    .logo {
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+    .logo:hover {
+        transform: scale(1.1);
+    }
+    .bg {
+        background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(../../img/bsu.jpg);
+        background-size: cover;
+        background-attachment: fixed;
+    }
+    .button{
+        border-radius: 30px !important;
+    }
+</style>
 </head>
 <body>
-    <h2>QR Code Tracking</h2>
 
-    <div class="container d-flex">
-        <video id="preview" class="w-50" autoplay></video>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #dd2222;">
+        <div class="container-fluid">
+            <a href="../admin-student.php" class="navbar-brand">
+                <img class="img-fluid logo" src="../../img/librawhite.png" alt="Logo" style="height: 40px; width: auto;">
+            </a>
+            <!-- <a href="../admin-student.php" class="btn btn-light button" style="width: 150px;">← Back</a> -->
+        </div>
+    </nav>
 
-        <div id="result" class="ml-3" style="display: none;">
-            <div class="d-flex flex-column align-items-start">
-                <img id="profile_pic" src="" alt="Profile Picture" class="img-fluid mb-3" style="max-width: 350px; height: auto;">
-                <div>
-                    <h3>Scanned Data:</h3>
-                    <p><strong>Student ID:</strong> <span id="student_id_display"></span></p>
-                    <p><strong>Name:</strong> <span id="student_name_display"></span></p>
-                    <p><strong>Email:</strong> <span id="student_email_display"></span></p>
-                    <p><strong>Contact:</strong> <span id="student_contact_display"></span></p>
-                    <p><strong>Program:</strong> <span id="student_program_display"></span></p>
-                    <p><strong>Department:</strong> <span id="student_department_display"></span></p>
+    <main class="bg">
+        <section class="vh-100 d-flex align-items-center justify-content-center">
+            <!-- Subtract 56px (navbar height) from the viewport height -->
+            <div class="container-fluid p-x-2 mt-5">
+                <div class="row" style="height: 100%;">
+                    <!-- Video Card -->
+                    <div class="col-12 col-md-6">
+                        <div class="card shadow-lg h-100">
+                            <div class="card-body p-0">
+                                <video id="preview" autoplay style="width: 100%; height: 100%; object-fit: cover;"></video>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scanned Data Card -->
+                    <div class="col-12 col-md-6">
+                        <div class="card" style="background: none; border: none;">
+                            <div class="card-body" style="padding: 20px; height: 450px; overflow: hidden;">
+                                <div id="result" style="display: none;">
+                                    <div class="d-flex flex-column align-items-start">
+                                        <img id="profile_pic" src="" alt="Profile Picture" class="img-fluid mb-3" style="max-width: 350px; height: auto;">
+                                        <div>
+                                            <h3>Scanned Data:</h3>
+                                            <p><strong>Student ID:</strong> <span id="student_id_display"></span></p>
+                                            <p><strong>Name:</strong> <span id="student_name_display"></span></p>
+                                            <p><strong>Email:</strong> <span id="student_email_display"></span></p>
+                                            <p><strong>Contact:</strong> <span id="student_contact_display"></span></p>
+                                            <p><strong>Program:</strong> <span id="student_program_display"></span></p>
+                                            <p><strong>Department:</strong> <span id="student_department_display"></span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
+
+
 
     <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
 
@@ -59,6 +132,13 @@
                 data = JSON.parse(content); // Assuming QR contains JSON
             } catch (e) {
                 console.error('Invalid QR code content:', content);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Invalid QR code format. Please scan a valid QR code.',
+                    icon: 'error',
+                    confirmButtonText: 'Okay',
+                    confirmButtonColor: "#dc3545",
+                });
                 return;
             }
 
@@ -105,13 +185,53 @@
             })
             .then(response => response.json())
             .then(logResult => {
+                // Check if it's time-in or time-out based on the message
                 if (logResult.status === 'success') {
-                    console.log('Log processed:', logResult.message);
+                    if (logResult.message.includes("Time-in")) {
+                        // Time-in Success Alert
+                        Swal.fire({
+                            title: 'Time-In Logged!',
+                            text: 'You have successfully logged in!',
+                            icon: 'success',
+                            confirmButtonText: 'Okay',
+                            confirmButtonColor: "#198754",
+                        });
+                    } else if (logResult.message.includes("Time-out")) {
+                        // Time-out Success Alert
+                        Swal.fire({
+                            title: 'Time-Out Logged!',
+                            text: 'You have successfully logged out!',
+                            icon: 'success',
+                            confirmButtonText: 'Okay',
+                            confirmButtonColor: "#198754",
+                        });
+                    }
                 } else {
-                    console.error('Log error:', logResult.message);
+                    // Error alert
+                    Swal.fire({
+                        title: 'Error!',
+                        text: logResult.message,
+                        icon: 'error',
+                        confirmButtonText: 'Okay',
+                        confirmButtonColor: "#dc3545",
+                    });
                 }
             })
-            .catch(error => console.error('Request failed:', error));
+            .catch(error => {
+                console.error('Request failed:', error);
+                // Show a generic error message if the fetch request fails
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while processing the log.',
+                    icon: 'error',
+                    confirmButtonText: 'Okay',
+                    confirmButtonColor: "#dc3545",
+                });
+            });
+
+            setTimeout(function () {
+                document.getElementById('result').style.display = 'none';
+            }, 3000); // Adjust the time as needed
         });
 
         // Start the scanner
@@ -125,7 +245,5 @@
             })
             .catch(e => console.error('Camera error:', e));
     </script>
-
-
 </body>
 </html>

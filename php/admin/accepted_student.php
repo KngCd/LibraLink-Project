@@ -25,6 +25,9 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Sweet Alert -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.js"></script>
 </head>
 
 <style>
@@ -172,6 +175,16 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         cursor: pointer;
     } 
     .bi-pencil-square{cursor: pointer;}
+    #updateForm {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%; /* Make sure it takes up the full height of the container */
+    }
+
+    #updateForm .mb-5 {
+        flex-grow: 1; /* This will take up the available space and push the button to the bottom */
+    }
 </style>
 
 <body>
@@ -460,7 +473,16 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                         // }
 
                         if (isset($_SESSION['alert3'])) {
-                            echo '<script>alert("' . $_SESSION['alert3'] . '")</script>';
+                            // echo '<script>alert("' . $_SESSION['alert3'] . '")</script>';
+                            echo '<script>
+                                Swal.fire({
+                                    title: "Notification",
+                                    text: "' . $_SESSION['alert3'] . '",
+                                    icon: "info", // You can change this to success, error, warning, etc.
+                                    confirmButtonText: "Okay",
+                                    confirmButtonColor: "#198754",
+                                });
+                            </script>';
                             unset($_SESSION['alert3']); // Clear the alert after displaying
                         }
 
@@ -509,7 +531,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                             <div class='modal-content'>
 
                                                 <div class='modal-header'>
-                                                    <h1 class='modal-title fs-5'>Personal Information</h1>
+                                                    <h1 class='modal-title fs-5' style='color: #dd2222; font-weight: bold;'>Personal Information</h1>
                                                     <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
                                                 </div>
                                                 
@@ -528,11 +550,11 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                                                     <label for='contact_num' class='form-label'>Contact Number</label>
                                                                     <input type='text' class='form-control' name='contact_num' value='" . htmlspecialchars($row['contact_num']) . "'>
                                                                 </div>
-                                                                <div class='mb-3'>
+                                                                <div class='mb-5'>
                                                                     <label for='email' class='form-label'>Email</label>
                                                                     <input type='email' class='form-control' name='email' value='" . htmlspecialchars($row['email']) . "'>
                                                                 </div>
-                                                                <button type='submit' name='updateBtn' class='btn btn-success'>Update</button>
+                                                                <button type='submit' name='updateBtn' class='btn btn-success w-50'>Update</button>
                                                             </form>
                                                         </div>
                                                     </div>
@@ -603,7 +625,18 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                                 // If the email exists in either table, show an alert
                                                 if ($emailCheckStmt->num_rows > 0 || $emailCheckStmt2->num_rows > 0) {
                                                     // echo "<script>alert('Email already exists! Please use a different email.'); window.location.href='accepted_student.php';</script>";
-                                                    echo "<script>window.location.href='accepted_student.php?alert=danger&message=" . urlencode('ERROR: Email already exist!') . "';</script>";
+                                                    // echo "<script>window.location.href='accepted_student.php?alert=danger&message=" . urlencode('ERROR: Email already exist!') . "';</script>";
+                                                    echo "<script>
+                                                        Swal.fire({
+                                                            icon: 'error',
+                                                            title: 'ERROR',
+                                                            text: 'Email already exists!',
+                                                            showConfirmButton: true,
+                                                            confirmButtonColor: '#dc3545',
+                                                        }).then(function() {
+                                                            window.location.href = 'accepted_student.php';
+                                                        });
+                                                    </script>";
                                                     exit;
                                                 }
                                             }
@@ -717,6 +750,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 
     <script src="../../js/bootstrap.min.js"></script>
     <script src="../../js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/loginValidate.js"></script>
     <script>
         $(document).ready(function(){
 
@@ -758,7 +792,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
             }
         });
 
-    });
+        });
     </script>
     
     <script>

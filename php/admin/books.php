@@ -582,7 +582,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                                                                 <label for='category' class='form-label'>Category</label>
                                                                                 <input type='text' class='form-control' name='category' value='" . htmlspecialchars($row['category']) . "' required>
                                                                             </div>
-                                                                            <div class='mb-2'>
+                                                                            <div class='mb-4'>
                                                                                 <label for='email' class='form-label'>Description</label>
                                                                                 <textarea class='form-control' name='desc' required>" . htmlspecialchars($row['description']) . "</textarea>                                                                            </div>
                                                                             <button type='submit' name='bookUpdate' class='btn btn-success'>Update</button>

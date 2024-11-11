@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $row = $result->fetch_assoc();
     
     if (!$row) {
-        echo "Error: Borrow ID not found.";
+        echo "ERROR: Borrow ID not found.";
         exit();
     }
 
@@ -36,14 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Check if the student already has 5 active books
         if ($active_count >= 5) {
-            $_SESSION['alert2'] = "Error: The student cannot have more than 5 active books.";
+            $_SESSION['alert2'] = "ERROR: The student cannot have more than 5 active books.";
             header("Location: borrowed.php");
             exit();
         }
 
         // Prevent changing status from Returned to Active if the limit is reached
         if ($current_status == 'Returned' && $active_count >= 5) {
-            $_SESSION['alert2'] = "Error: Cannot change status from Returned to Active when the student has 5 active books.";
+            $_SESSION['alert2'] = "ERROR: Cannot change status from Returned to Active when the student has 5 active books.";
             header("Location: borrowed.php");
             exit();
         }
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $reset_penalty_stmt->close();
         }
     } else {
-        $_SESSION['alert2'] = 'Error updating status: ' . $stmt->error;
+        $_SESSION['alert2'] = 'ERROR updating status: ' . $stmt->error;
     }
 
     $stmt->close();

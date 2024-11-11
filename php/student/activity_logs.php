@@ -352,7 +352,7 @@ session_start();
                                 <?php
                                 // Fetch logs for the current date for the specific student
                                 $dateValue = $date['log_date'];
-                                $logQuery = "SELECT action, details, timestamp FROM activity_logs WHERE DATE(timestamp) = '$dateValue' AND student_id = '$user_id' ORDER BY timestamp"; // Ensure student_id is filtered here
+                                $logQuery = "SELECT action, details, timestamp FROM activity_logs WHERE DATE(timestamp) = '$dateValue' AND student_id = '$user_id' ORDER BY timestamp DESC"; // Ensure student_id is filtered here
                                 $logResult = $conn->query($logQuery);
 
                                 // Format the date

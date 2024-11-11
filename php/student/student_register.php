@@ -9,6 +9,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Sweet Alert -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.js"></script>
+
 </head>
 
 <style>
@@ -211,17 +215,64 @@
 
                                     // Check file sizes against the maximum upload size
                                     if ($_FILES['cor']['size'] > $maxUploadSizeBytes) {
-                                        echo "<script>alert('The uploaded COR file exceeds the maximum allowed size of $maxUploadSize.'); window.location.href='student_register.php';</script>";
+                                        // echo "<script>alert('The uploaded COR file exceeds the maximum allowed size of $maxUploadSize.'); window.location.href='student_register.php';</script>";
+                                        echo "<script>
+                                            Swal.fire({
+                                                title: 'File Size Error',
+                                                text: 'The uploaded COR file exceeds the maximum allowed size of $maxUploadSize.',
+                                                icon: 'error',
+                                                confirmButtonText: 'Okay',
+                                                confirmButtonColor: '#dc3545',
+                                                customClass: {
+                                                    confirmButton: 'no-border'
+                                                },
+                                            }).then(function() {
+                                                window.location.href = 'student_register.php';
+                                            });    
+                                            // Remove the border
+                                            document.querySelector('.swal2-confirm').style.border = 'none';
+                                        </script>";
                                         exit;
                                     }
 
                                     if ($_FILES['id']['size'] > $maxUploadSizeBytes) {
-                                        echo "<script>alert('The uploaded ID file exceeds the maximum allowed size of $maxUploadSize.'); window.location.href='student_register.php';</script>";
+                                        // echo "<script>alert('The uploaded ID file exceeds the maximum allowed size of $maxUploadSize.'); window.location.href='student_register.php';</script>";
+                                        echo "<script>
+                                            Swal.fire({
+                                                title: 'File Size Error',
+                                                text: 'The uploaded ID file exceeds the maximum allowed size of $maxUploadSize.',
+                                                icon: 'error',
+                                                confirmButtonText: 'Okay',
+                                                confirmButtonColor: '#dc3545',
+                                                customClass: {
+                                                    confirmButton: 'no-border'
+                                                },
+                                            }).then(function() {
+                                                window.location.href = 'student_register.php';
+                                            });    
+                                            // Remove the border
+                                            document.querySelector('.swal2-confirm').style.border = 'none';
+                                        </script>";
                                         exit;
                                     }
 
                                     if ($_FILES['pic']['size'] > $maxUploadSizeBytes) {
-                                        echo "<script>alert('The uploaded profile picture exceeds the maximum allowed size of $maxUploadSize.'); window.location.href='student_register.php';</script>";
+                                        echo "<script>
+                                            Swal.fire({
+                                                title: 'File Size Error',
+                                                text: 'The uploaded profile picture exceeds the maximum allowed size of $maxUploadSize.',
+                                                icon: 'error',
+                                                confirmButtonText: 'Okay',
+                                                confirmButtonColor: '#dc3545',
+                                                customClass: {
+                                                    confirmButton: 'no-border'
+                                                },
+                                            }).then(function() {
+                                                window.location.href = 'student_register.php';
+                                            });    
+                                            // Remove the border
+                                            document.querySelector('.swal2-confirm').style.border = 'none';
+                                        </script>";
                                         exit;
                                     }
                                     
@@ -238,7 +289,24 @@
 
                                     if ($emailCheckStmt->num_rows > 0 || $emailCheckStmt2->num_rows > 0) {
                                         // Email already exists
-                                        echo "<script>alert('Email already exists! Please use a different email.'); window.location.href='student_register.php';</script>";
+                                        // echo "<script>alert('Email already exists! Please use a different email.'); window.location.href='student_register.php';</script>";
+                                        echo "<script>
+                                            Swal.fire({
+                                                title: 'Email Error',
+                                                text: 'Email already exists! Please use a different email.',
+                                                icon: 'error',
+                                                confirmButtonText: 'Okay',
+                                                confirmButtonColor: '#dc3545',
+                                                customClass: {
+                                                    confirmButton: 'no-border'
+                                                },
+                                            }).then(function() {
+                                                window.location.href = 'student_register.php';
+                                            });    
+                                            // Remove the border
+                                            document.querySelector('.swal2-confirm').style.border = 'none';
+                                        </script>";
+                                        exit;
                                     } else {
                                         // Get the file contents
                                         $corContent = file_get_contents($_FILES['cor']['tmp_name']);
@@ -253,9 +321,43 @@
                                         
                                         // Execute the statement and check for success
                                         if ($stmt->execute()) {
-                                            echo "<script>alert('Register Successful!'); window.location.href='student-login.php';</script>";
+                                            // echo "<script>alert('Register Successful!'); window.location.href='student-login.php';</script>";
+                                            echo "<script>
+                                                Swal.fire({
+                                                    title: 'Success!',
+                                                    text: 'Registration Successful!',
+                                                    icon: 'success',
+                                                    confirmButtonText: 'Okay',
+                                                    confirmButtonColor: '#198754',
+                                                    customClass: {
+                                                        confirmButton: 'no-border'
+                                                    },
+                                                }).then(function() {
+                                                    window.location.href = 'student-login.php';
+                                                });
+                                                // Remove the border
+                                                document.querySelector('.swal2-confirm').style.border = 'none';
+                                            </script>";
+                                            exit;
                                         } else {
-                                            echo "<script>alert('Uploading Failed!'); window.location.href='student_register.php';</script>";
+                                            // echo "<script>alert('Uploading Failed!'); window.location.href='student_register.php';</script>";
+                                            echo "<script>
+                                                Swal.fire({
+                                                    title: 'Oops!',
+                                                    text: 'Uploading Failed!',
+                                                    icon: 'error',
+                                                    confirmButtonText: 'Try Again',
+                                                    confirmButtonColor: '#dc3545',
+                                                    customClass: {
+                                                        confirmButton: 'no-border'
+                                                    },
+                                                }).then(function() {
+                                                    window.location.href = 'student_register.php';
+                                                });
+                                                // Remove the border
+                                                document.querySelector('.swal2-confirm').style.border = 'none';
+                                            </script>";
+                                            exit;
                                         }
                                         
                                         // Close the statement
@@ -266,7 +368,24 @@
                                     $emailCheckStmt->close();
                                     $emailCheckStmt2->close();
                                 } else {
-                                    echo "<script>alert('Sorry, only PDF files for COR and ID, and image files for Profile Picture are allowed to upload!'); window.location.href='student_register.php';</script>";
+                                    // echo "<script>alert('Sorry, only PDF files for COR and ID, and image files for Profile Picture are allowed to upload!'); window.location.href='student_register.php';</script>";
+                                    echo "<script>
+                                        Swal.fire({
+                                            title: 'File Type Error',
+                                            text: 'Sorry, only PDF files for COR and ID, and image files for Profile Picture are allowed to upload!',
+                                            icon: 'error',
+                                            confirmButtonText: 'Okay',
+                                            confirmButtonColor: '#dc3545',
+                                            customClass: {
+                                                confirmButton: 'no-border'
+                                            },
+                                        }).then(function() {
+                                            window.location.href = 'student_register.php';
+                                        });
+                                        // Remove the border
+                                        document.querySelector('.swal2-confirm').style.border = 'none';
+                                    </script>";
+                                    exit;
                                 }
                             }
                         ?>

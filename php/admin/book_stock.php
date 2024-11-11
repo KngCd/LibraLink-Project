@@ -19,6 +19,9 @@ $currentTime = date('H:i:s');
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Sweet Alert -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.js"></script>
 </head>
 
 <style>
@@ -444,84 +447,6 @@ $currentTime = date('H:i:s');
                 <div class="container p-3">
                     <!-- Handle the Adding of Stocks -->
                     <?php
-                    if (isset($_POST['add'])) {
-                        $book_id = $_POST['book_id'];
-                        $new_stocks = $_POST['stocks'];
-
-                        // Check if the book_id already exists in the inventory_table
-                        $check_query = "SELECT stocks FROM inventory_table WHERE book_id = '$book_id'";
-                        $check_result = mysqli_query($conn, $check_query);
-
-                        if (mysqli_num_rows($check_result) == 0) {
-                            // If the book doesn't exist, allow insertion of new stocks
-                            if ($new_stocks < 0) {
-                                // Prevent negative stock input for new books
-                                echo "<script>alert('Cannot add negative stocks for a new book.'); window.location.href = 'book_stock.php';</script>";
-                                exit;
-                            }
-
-                            // Insert the new book record
-                            $query = "INSERT INTO inventory_table (book_id, stocks, status) VALUES ('$book_id', '$new_stocks', 'Available')";
-                            $result = mysqli_query($conn, $query);
-
-                            if ($result) {
-                                echo "<script>window.location.href = 'book_stock.php?alert=success';</script>";
-                            } else {
-                                echo "<script>window.location.href = 'book_stock.php?alert=danger';</script>";
-                            }
-                            exit;
-
-                        } else {
-                            // Book exists; check current stock
-                            $current_stock = mysqli_fetch_assoc($check_result)['stocks'];
-
-                            // Fetch the actual count of borrowed copies for this book
-                            $borrowed_query = "SELECT COUNT(*) AS borrowed FROM borrow_table WHERE book_id = '$book_id'";
-                            $borrowed_result = mysqli_query($conn, $borrowed_query);
-                            $borrowed_row = mysqli_fetch_assoc($borrowed_result);
-                            $borrowed = $borrowed_row['borrowed'];
-
-                            // Calculate available stock
-                            $available_stock = $current_stock - $borrowed;
-
-                            // Check if the new stocks value is negative
-                            if ($new_stocks < 0) {
-                                // Ensure available stock doesn't go negative
-                                if ($available_stock + $new_stocks < 0) {
-                                    echo "<script>alert('Cannot decrease stocks below zero. Available stocks would be negative.'); window.location.href = 'book_stock.php';</script>";
-                                    exit;
-                                }
-                            }
-
-                            // Update the existing record
-                            $new_total_stock = $current_stock + $new_stocks;
-
-                            // Prevent stocks from going negative
-                            if ($new_total_stock < 0) {
-                                echo "<script>alert('Cannot decrease stocks below zero.'); window.location.href = 'book_stock.php';</script>";
-                                exit;
-                            }
-
-                            // Update the inventory
-                            $query = "UPDATE inventory_table SET stocks = '$new_total_stock' WHERE book_id = '$book_id'";
-                            $update = mysqli_query($conn, $query);
-
-                            // Update the status based on new available stocks
-                            $status = $new_total_stock <= 0 ? 'Not Available' : 'Available';
-
-                            // Update the status in the database
-                            $status_query = "UPDATE inventory_table SET status = '$status' WHERE book_id = '$book_id'";
-                            mysqli_query($conn, $status_query);
-
-                            if ($update) {
-                                echo "<script>window.location.href = 'book_stock.php?alert=success';</script>";
-                            } else {
-                                echo "<script>window.location.href = 'book_stock.php?alert=danger';</script>";
-                            }
-                            exit;
-                        }
-                    }
-                    // ANOTHER OPTION
                     // if (isset($_POST['add'])) {
                     //     $book_id = $_POST['book_id'];
                     //     $new_stocks = $_POST['stocks'];
@@ -562,19 +487,19 @@ $currentTime = date('H:i:s');
                     //         // Calculate available stock
                     //         $available_stock = $current_stock - $borrowed;
 
-                    //         // Check if we are trying to decrease stocks below available stock
+                    //         // Check if the new stocks value is negative
                     //         if ($new_stocks < 0) {
-                    //             // Case 1: 1 stock, 1 borrowed, 0 available -- prevent further decrease of stock
-                    //             if ($available_stock <= 0) {
-                    //                 echo "<script>alert('Cannot decrease stocks below zero. There are borrowed books, so stock would go negative.'); window.location.href = 'book_stock.php';</script>";
+                    //             // Ensure available stock doesn't go negative
+                    //             if ($available_stock + $new_stocks < 0) {
+                    //                 echo "<script>alert('Cannot decrease stocks below zero. Available stocks would be negative.'); window.location.href = 'book_stock.php';</script>";
                     //                 exit;
                     //             }
                     //         }
 
-                    //         // Calculate the new total stock after adding the new stock value
+                    //         // Update the existing record
                     //         $new_total_stock = $current_stock + $new_stocks;
 
-                    //         // Case 2: If the new stock is less than 0, prevent update
+                    //         // Prevent stocks from going negative
                     //         if ($new_total_stock < 0) {
                     //             echo "<script>alert('Cannot decrease stocks below zero.'); window.location.href = 'book_stock.php';</script>";
                     //             exit;
@@ -584,7 +509,7 @@ $currentTime = date('H:i:s');
                     //         $query = "UPDATE inventory_table SET stocks = '$new_total_stock' WHERE book_id = '$book_id'";
                     //         $update = mysqli_query($conn, $query);
 
-                    //         // Determine the status based on the new total stock
+                    //         // Update the status based on new available stocks
                     //         $status = $new_total_stock <= 0 ? 'Not Available' : 'Available';
 
                     //         // Update the status in the database
@@ -599,6 +524,117 @@ $currentTime = date('H:i:s');
                     //         exit;
                     //     }
                     // }
+                    // ANOTHER OPTION
+                    if (isset($_POST['add'])) {
+                        $book_id = $_POST['book_id'];
+                        $new_stocks = $_POST['stocks'];
+
+                        // Check if the book_id already exists in the inventory_table
+                        $check_query = "SELECT stocks FROM inventory_table WHERE book_id = '$book_id'";
+                        $check_result = mysqli_query($conn, $check_query);
+
+                        if (mysqli_num_rows($check_result) == 0) {
+                            // If the book doesn't exist, allow insertion of new stocks
+                            if ($new_stocks < 0) {
+                                // Prevent negative stock input for new books
+                                // echo "<script>alert('Cannot add negative stocks for a new book.'); window.location.href = 'book_stock.php';</script>";
+                                echo '<script>
+                                    Swal.fire({
+                                        title: "Error!",
+                                        text: "Cannot add negative stocks for a new book.",
+                                        icon: "error",
+                                        confirmButtonText: "Okay",
+                                        confirmButtonColor: "#dc3545",
+                                    }).then((result) => {
+                                        window.location.href = "book_stock.php";
+                                    });
+                                </script>';
+                                exit;
+                            }
+
+                            // Insert the new book record
+                            $query = "INSERT INTO inventory_table (book_id, stocks, status) VALUES ('$book_id', '$new_stocks', 'Available')";
+                            $result = mysqli_query($conn, $query);
+
+                            if ($result) {
+                                echo "<script>window.location.href = 'book_stock.php?alert=success';</script>";
+                            } else {
+                                echo "<script>window.location.href = 'book_stock.php?alert=danger';</script>";
+                            }
+                            exit;
+
+                        } else {
+                            // Book exists; check current stock
+                            $current_stock = mysqli_fetch_assoc($check_result)['stocks'];
+
+                            // Fetch the actual count of borrowed copies for this book
+                            $borrowed_query = "SELECT COUNT(*) AS borrowed FROM borrow_table WHERE book_id = '$book_id' and status = 'Active'";
+                            $borrowed_result = mysqli_query($conn, $borrowed_query);
+                            $borrowed_row = mysqli_fetch_assoc($borrowed_result);
+                            $borrowed = $borrowed_row['borrowed'];
+
+                            // Calculate available stock
+                            $available_stock = $current_stock - $borrowed;
+
+                            // Check if we are trying to decrease stocks below available stock
+                            if ($new_stocks < 0) {
+                                // Case 1: 1 stock, 1 borrowed, 0 available -- prevent further decrease of stock
+                                if ($available_stock <= 0) {
+                                    // echo "<script>alert('Cannot decrease stocks below zero. There are borrowed books, so stock would go negative.'); window.location.href = 'book_stock.php';</script>";
+                                    echo '<script>
+                                        Swal.fire({
+                                            title: "Error!",
+                                            text: "Cannot decrease stocks below zero. There are borrowed books, so stock would go negative.",
+                                            icon: "error",
+                                            confirmButtonText: "Okay",
+                                            confirmButtonColor: "#dc3545",
+                                        }).then((result) => {
+                                            window.location.href = "book_stock.php";
+                                        });
+                                    </script>';
+                                    exit;
+                                }
+                            }
+
+                            // Calculate the new total stock after adding the new stock value
+                            $new_total_stock = $current_stock + $new_stocks;
+
+                            // Case 2: If the new stock is less than 0, prevent update
+                            if ($new_total_stock < 0) {
+                                // echo "<script>alert('Cannot decrease stocks below zero.'); window.location.href = 'book_stock.php';</script>";
+                                echo '<script>
+                                    Swal.fire({
+                                        title: "Error!",
+                                        text: "Cannot decrease stocks below zero.",
+                                        icon: "error",
+                                        confirmButtonText: "Okay",
+                                        confirmButtonColor: "#dc3545",
+                                    }).then((result) => {
+                                        window.location.href = "book_stock.php";
+                                    });
+                                </script>';
+                                exit;
+                            }
+
+                            // Update the inventory
+                            $query = "UPDATE inventory_table SET stocks = '$new_total_stock' WHERE book_id = '$book_id'";
+                            $update = mysqli_query($conn, $query);
+
+                            // Determine the status based on the new total stock
+                            $status = $new_total_stock <= 0 ? 'Not Available' : 'Available';
+
+                            // Update the status in the database
+                            $status_query = "UPDATE inventory_table SET status = '$status' WHERE book_id = '$book_id'";
+                            mysqli_query($conn, $status_query);
+
+                            if ($update) {
+                                echo "<script>window.location.href = 'book_stock.php?alert=success';</script>";
+                            } else {
+                                echo "<script>window.location.href = 'book_stock.php?alert=danger';</script>";
+                            }
+                            exit;
+                        }
+                    }
                     ?>
                 
                     <?php

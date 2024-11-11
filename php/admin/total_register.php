@@ -25,6 +25,9 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Sweet Alert -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.js"></script>
 </head>
 
 <style>
@@ -498,9 +501,8 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                 echo '<td>' . ($row['cor_filetype'] === 'pdf' ? '<a href="#" class="view-pdf-link-2" onclick="viewPDF(\''. base64_encode($row['cor']). '\', \''. htmlspecialchars($row['first_name'] . ' ' . $row['last_name'], ENT_QUOTES) .'\')">View COR</a>' : '') . '</td>';
                                 echo '<td>' . ($row['id_filetype'] === 'pdf' ? '<a href="#" class="view-pdf-link-2" onclick="viewPDF(\''. base64_encode($row['id_file']). '\', \''. htmlspecialchars($row['first_name'] . ' ' . $row['last_name'], ENT_QUOTES) .'\')">View ID</a>' : '') . '</td>';
 
-                                // Approve/Reject form
                                 echo "<td>
-                                    <form action='' method='post' onsubmit='return confirmDelete();'>
+                                    <form action='' method='post' onsubmit='confirmDelete(event);'>
                                         <input type='hidden' name='student_id' value='" . $row['student_id'] . "'>
                                         <input type='hidden' name='firstName' value='" . $row['first_name'] . "'>
                                         <input type='hidden' name='lastName' value='" . $row['last_name'] . "'>
@@ -511,10 +513,15 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                         <input type='hidden' name='department' value='" . $row['department'] . "'>
                                         <input type='hidden' name='profile_pic' value='" . (isset($row['profile_pic']) ? base64_encode($row['profile_pic']) : '') . "'>
                                         <input type='hidden' name='pic_filetype' value='" . (isset($row['pic_filetype']) ? $row['pic_filetype'] : '') . "'>
-                                        <button type='submit' name='approve' value='yes' class='btn btn-success'>Yes</button>
-                                        <button type='submit' name='approve' value='no' class='btn btn-danger mt-sm-1'>No</button>
+                                        
+                                        <!-- Hidden input to store the approve value (yes or no) -->
+                                        <input type='hidden' name='approve' value=''>
+                                        
+                                        <button type='submit' value='yes' class='btn btn-success'>Yes</button>
+                                        <button type='submit' value='no' class='btn btn-danger mt-sm-1'>No</button>
                                     </form>
                                 </td>";
+
                                 echo "</tr>";
 
                                 // Process form submission
@@ -620,8 +627,29 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                         }
                     ?>
                     <script>
-                        function confirmDelete() {
-                            return confirm("Are you sure to continue?");
+                        function confirmDelete(event) {
+                            event.preventDefault();  // Prevent the form from submitting immediately
+
+                            // Get the value of the button that was clicked (yes or no)
+                            const approveValue = event.target.querySelector('button[type="submit"]:focus').value;
+
+                            // Show SweetAlert confirmation dialog
+                            Swal.fire({
+                                title: 'Are you sure?',
+                                text: 'Do you really want to continue?',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonText: 'Yes!',
+                                confirmButtonColor: '#198754',
+                                cancelButtonText: 'No',
+                                reverseButtons: true
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // If confirmed, set the hidden 'approve' input value to the button's value
+                                    event.target.querySelector('input[name="approve"]').value = approveValue;
+                                    event.target.submit();  // Submit the form after confirmation
+                                }
+                            });
                         }
                     </script>
 

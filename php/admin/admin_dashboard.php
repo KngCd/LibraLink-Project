@@ -524,182 +524,79 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         </section>
 
         <section>
-            <?php
-                // Query for the total number of registered students
-                $sql_registered = "SELECT COUNT(*) AS total_registered FROM verification_table"; // Adjust the query as needed
-                $result_registered = $conn->query($sql_registered);
-                $row_registered = $result_registered->fetch_assoc();
-                $total_registered = $row_registered['total_registered'];
-
-                // Query for the total number of accepted students
-                $sql_accepted = "SELECT COUNT(*) AS total_accepted FROM student_table"; // Adjust the query as needed
-                $result_accepted = $conn->query($sql_accepted);
-                $row_accepted = $result_accepted->fetch_assoc();
-                $total_accepted = $row_accepted['total_accepted'];
-
-                // NEWWWWWWW
-
-                // Fetching how many students are there in each department and program
-                $query = "SELECT department, program, COUNT(student_id) AS student_count
-                        FROM student_table
-                        GROUP BY department, program
-                        ORDER BY department, program;";
-                $result = $conn->query($query);
-
-                // Create an array to hold the data for the chart
-                $chartData = [];
-                while ($row = $result->fetch_assoc()) {
-                    $department_name = $row['department'];
-                    $program_name = $row['program'];
-                    $student_count = $row['student_count'];
-
-                    // Add data to the array in the format required by Google Charts
-                    $chartData[] = "['$department_name - $program_name', $student_count]";
-                }
-
-                // Convert the chart data into a format suitable for JavaScript
-                $chartDataString = implode(", ", $chartData);
-
-                // NEWWWWWWW
-
-                // Query to get the count of how many times each book is borrowed
-                $book_query = "SELECT b.title, COUNT(br.book_id) AS borrow_count
-                    FROM borrow_table br
-                    JOIN book_table b ON br.book_id = b.book_id
-                    GROUP BY b.title
-                    ORDER BY borrow_count DESC;";
-
-                $book_result = $conn->query($book_query);
-
-                // Create an array to hold the data for the chart
-                $bookChartData = [];
-                $total_borrowed_books = 0;  // Initialize a variable to keep track of total borrowed books
-                while ($row = $book_result->fetch_assoc()) {
-                    $book_title = $row['title'];  // The book title
-                    $borrow_count = $row['borrow_count'];  // The number of times the book was borrowed
-                    
-                    // Add the data for the chart (book title and borrow count)
-                    $bookChartData[] = "['$book_title', $borrow_count]";
-                    
-                    // Add to the total borrowed count
-                    $total_borrowed_books += $borrow_count;
-                }
-
-                // Convert the chart data into a format that JavaScript can use
-                $bookChartDataString = implode(", ", $bookChartData);
-
-                // NEWWWWWWW
-
-                // Get a range of the last 30 days
-                $dateRange = [];
-                for ($i = 0; $i < 30; $i++) {
-                    $dateRange[] = date('Y-m-d', strtotime("-$i days"));
-                }
-
-                // SQL query to get attendance count per day in the last 30 days
-                $sql = "SELECT DATE(date) AS date, COUNT(*) AS attendance_count
-                        FROM log_table
-                        WHERE date >= NOW() - INTERVAL 30 DAY
-                        GROUP BY DATE(date)
-                        ORDER BY DATE(date) ASC";
-                $attendanceResult = $conn->query($sql);
-
-                $attendanceData = [];
-                $attendanceDates = [];
-
-                // Fetch data
-                while ($row = $attendanceResult->fetch_assoc()) {
-                    $attendanceDates[] = $row['date'];
-                    $attendanceData[$row['date']] = $row['attendance_count'];
-                }
-
-                // Format the data for the chart
-                $attendanceDataFormatted = [];
-                foreach ($dateRange as $date) {
-                    $attendanceCount = isset($attendanceData[$date]) ? $attendanceData[$date] : 0;
-                    $attendanceDataFormatted[] = "['$date', $attendanceCount]";
-                }
-
-                // Convert to a string for Google Charts
-                $attendanceChartDataString = implode(', ', $attendanceDataFormatted);
-
-                // NEWWWWWWW
-
-                // SQL query to get the total number of books per category
-                $cat_sql = "SELECT category, COUNT(*) AS total_books
-                            FROM book_table
-                            GROUP BY category
-                            ORDER BY total_books DESC";
-                $cat_result = $conn->query($cat_sql);
-
-                $categoryData = [];
-                while ($row = $cat_result->fetch_assoc()) {
-                    $category = $row['category'];
-                    $total_books = $row['total_books'];
-                    $categoryData[] = "['$category', $total_books]"; // Format data for Google Charts
-                }
-
-                // Combine the data into a single string for use in the JavaScript
-                $catChartDataString = implode(', ', $categoryData);
-
-                // NEWWWWWWW
-
-                // Initialize an array to hold the data for each book's stock
-                $bookData = [];
-
-                // Query to get stock data from the inventory table
-                $stock_sql = "SELECT b.title, SUM(i.stocks) as total_stocks
-                            FROM inventory_table i
-                            JOIN book_table b ON i.book_id = b.book_id
-                            GROUP BY b.title
-                            ORDER BY b.title";
-
-                $stock_result = $conn->query($stock_sql);
-
-                // Loop through the result set and prepare the data for the pie chart
-                while ($row = $stock_result->fetch_assoc()) {
-                    $book_title = addslashes($row['title']); // Escape single quotes in titles
-                    $total_stocks = (int)$row['total_stocks'];  // Ensure stock is treated as an integer
-                    
-                    // Add the book title and stock to the data array
-                    $bookData[] = "['$book_title', $total_stocks]";
-                }
-
-                // Combine the data into a string format for use in JavaScript
-                $stockChartDataString = implode(', ', $bookData);
-
-                // NEWWWWWWW
-
-                // Query to get the count of active (borrowed) and returned books based on status
-                $active_query = "SELECT
-                        COUNT(br.book_id) AS active_books
-                        FROM borrow_table br
-                        WHERE br.status = 'active'";  // Status is 'active' for currently borrowed books
-
-                $returned_query = "SELECT
-                        COUNT(br.book_id) AS returned_books
-                        FROM borrow_table br
-                        WHERE br.status = 'returned'";  // Status is 'returned' for books that have been returned
-
-                $active_result = $conn->query($active_query);
-                $returned_result = $conn->query($returned_query);
-
-                // Get the active and returned book counts
-                $active_books = 0;
-                $returned_books = 0;
-
-                if ($active_result->num_rows > 0) {
-                    $row = $active_result->fetch_assoc();
-                    $active_books = $row['active_books'];  // Number of active books
-                }
-
-                if ($returned_result->num_rows > 0) {
-                    $row = $returned_result->fetch_assoc();
-                    $returned_books = $row['returned_books'];  // Number of returned books
-                }
-            ?>
-
             <div class="container-fluid mt-2">
+                <?php
+                    // FIRST CHART
+                    // Query for the total number of registered students
+                    $sql_registered = "SELECT COUNT(*) AS total_registered FROM verification_table"; // Adjust the query as needed
+                    $result_registered = $conn->query($sql_registered);
+                    $row_registered = $result_registered->fetch_assoc();
+                    $total_registered = $row_registered['total_registered'];
+
+                    // Query for the total number of accepted students
+                    $sql_accepted = "SELECT COUNT(*) AS total_accepted FROM student_table"; // Adjust the query as needed
+                    $result_accepted = $conn->query($sql_accepted);
+                    $row_accepted = $result_accepted->fetch_assoc();
+                    $total_accepted = $row_accepted['total_accepted'];
+                    
+                    // SECOND CHART
+                    // Fetching how many students are there in each department and program
+                    $query = "SELECT department, program, COUNT(student_id) AS student_count
+                            FROM student_table
+                            GROUP BY department, program
+                            ORDER BY department, program;";
+                    $result = $conn->query($query);
+
+                    // Create an array to hold the data for the chart
+                    $chartData = [];
+                    while ($row = $result->fetch_assoc()) {
+                        $department_name = $row['department'];
+                        $program_name = $row['program'];
+                        $student_count = $row['student_count'];
+
+                        // Add data to the array in the format required by Google Charts
+                        $chartData[] = "['$department_name - $program_name', $student_count]";
+                    }
+
+                    // Convert the chart data into a format suitable for JavaScript
+                    $chartDataString = implode(", ", $chartData);
+
+                    // THIRD CHART
+                    // Get a range of the last 30 days
+                    $dateRange = [];
+                    for ($i = 0; $i < 30; $i++) {
+                        $dateRange[] = date('Y-m-d', strtotime("-$i days"));
+                    }
+
+                    // SQL query to get attendance count per day in the last 30 days
+                    $sql = "SELECT DATE(date) AS date, COUNT(*) AS attendance_count
+                            FROM log_table
+                            WHERE date >= NOW() - INTERVAL 30 DAY
+                            GROUP BY DATE(date)
+                            ORDER BY DATE(date) ASC";
+                    $attendanceResult = $conn->query($sql);
+
+                    $attendanceData = [];
+                    $attendanceDates = [];
+
+                    // Fetch data
+                    while ($row = $attendanceResult->fetch_assoc()) {
+                        $attendanceDates[] = $row['date'];
+                        $attendanceData[$row['date']] = $row['attendance_count'];
+                    }
+
+                    // Format the data for the chart
+                    $attendanceDataFormatted = [];
+                    foreach ($dateRange as $date) {
+                        $attendanceCount = isset($attendanceData[$date]) ? $attendanceData[$date] : 0;
+                        $attendanceDataFormatted[] = "['$date', $attendanceCount]";
+                    }
+
+                    // Convert to a string for Google Charts
+                    $attendanceChartDataString = implode(', ', $attendanceDataFormatted);
+
+                    // FOURTH CHART
+                ?>
                 <h4 class="text-muted">Students</h4>
                 <!-- Row containing first three charts -->
                  <div class="stats">
@@ -716,8 +613,8 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                 // Create a DataTable and populate it with data from PHP
                                 const data = google.visualization.arrayToDataTable([
                                     ['Category', 'Count'],  // Column headers
-                                    ['Registered Students', <?php echo $total_registered; ?>],  // Dynamic PHP data
-                                    ['Accepted Students', <?php echo $total_accepted; ?>]  // Dynamic PHP data
+                                    ['Registered Students ', <?php echo $total_registered; ?>],  // Dynamic PHP data
+                                    ['Accepted Students ', <?php echo $total_accepted; ?>]  // Dynamic PHP data
                                 ]);
 
                                 const options = {
@@ -762,7 +659,8 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                 chart2.draw(data2, options2);
                             }
                         </script>
-
+                    </div>
+                    <div class="row" class="d-flex justify-content-between h-100" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
                         <!-- Third Chart: Attendance Log -->
                         <div id="attendanceChart" class="col-12 col-md-6" style="height: 470px; flex-shrink: 0; width: 50%;"></div>
 
@@ -773,7 +671,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                             function drawAttendanceChart() {
                                 // Create a DataTable and populate it with data from PHP
                                 const data = google.visualization.arrayToDataTable([
-                                    ['Date', 'Attendance Count'],  // Column headers
+                                    ['Date', 'Attendance Count '],  // Column headers
                                     <?php echo $attendanceChartDataString; ?>  // Dynamic PHP data (attendance count per date)
                                 ]);
 
@@ -803,6 +701,50 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
             </div>
 
             <div class="container-fluid">
+                <?php
+                    // FIRST CHART
+                    // SQL query to get the total number of books per category
+                    $cat_sql = "SELECT category, COUNT(*) AS total_books
+                                FROM book_table
+                                GROUP BY category
+                                ORDER BY total_books DESC";
+                    $cat_result = $conn->query($cat_sql);
+
+                    $categoryData = [];
+                    while ($row = $cat_result->fetch_assoc()) {
+                        $category = $row['category'];
+                        $total_books = $row['total_books'];
+                        $categoryData[] = "['$category', $total_books]"; // Format data for Google Charts
+                    }
+
+                    // Combine the data into a single string for use in the JavaScript
+                    $catChartDataString = implode(', ', $categoryData);
+
+                    // SECOND CHART
+                    // Initialize an array to hold the data for each book's stock
+                    $bookData = [];
+
+                    // Query to get stock data from the inventory table
+                    $stock_sql = "SELECT b.title, SUM(i.stocks) as total_stocks
+                                FROM inventory_table i
+                                JOIN book_table b ON i.book_id = b.book_id
+                                GROUP BY b.title
+                                ORDER BY b.title";
+
+                    $stock_result = $conn->query($stock_sql);
+
+                    // Loop through the result set and prepare the data for the pie chart
+                    while ($row = $stock_result->fetch_assoc()) {
+                        $book_title = addslashes($row['title']); // Escape single quotes in titles
+                        $total_stocks = (int)$row['total_stocks'];  // Ensure stock is treated as an integer
+                        
+                        // Add the book title and stock to the data array
+                        $bookData[] = "['$book_title', $total_stocks]";
+                    }
+
+                    // Combine the data into a string format for use in JavaScript
+                    $stockChartDataString = implode(', ', $bookData);
+                ?>
                 <h4 class="text-muted">Book Category and Stocks</h4>
                 <!-- Row containing third two charts -->
                 <div class="row" class="d-flex flex-wrap justify-content-between h-100 m-0 p-0" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
@@ -850,7 +792,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                         function drawChart() {
                             // Create a DataTable and populate it with the data from PHP
                             const data = google.visualization.arrayToDataTable([
-                                ['Book Title', 'Total Stock'],  // Column headers
+                                ['Book Title', 'Total Stock '],  // Column headers
                                 <?php echo $stockChartDataString; ?>  // Dynamic PHP data (book titles and stock counts)
                             ]);
 
@@ -877,6 +819,63 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
             </div>
             
             <div class="container-fluid">
+                <?php
+                    // FIRST CHART
+                    // Query to get the count of how many times each book is borrowed
+                    $book_query = "SELECT b.title, COUNT(br.book_id) AS borrow_count
+                        FROM borrow_table br
+                        JOIN book_table b ON br.book_id = b.book_id
+                        GROUP BY b.title
+                        ORDER BY borrow_count DESC;";
+
+                    $book_result = $conn->query($book_query);
+
+                    // Create an array to hold the data for the chart
+                    $bookChartData = [];
+                    $total_borrowed_books = 0;  // Initialize a variable to keep track of total borrowed books
+                    while ($row = $book_result->fetch_assoc()) {
+                        $book_title = $row['title'];  // The book title
+                        $borrow_count = $row['borrow_count'];  // The number of times the book was borrowed
+                        
+                        // Add the data for the chart (book title and borrow count)
+                        $bookChartData[] = "['$book_title', $borrow_count]";
+                        
+                        // Add to the total borrowed count
+                        $total_borrowed_books += $borrow_count;
+                    }
+
+                    // Convert the chart data into a format that JavaScript can use
+                    $bookChartDataString = implode(", ", $bookChartData);
+
+                    // SECOND CHART
+                    // Query to get the count of active (borrowed) and returned books based on status
+                    $active_query = "SELECT
+                            COUNT(br.book_id) AS active_books
+                            FROM borrow_table br
+                            WHERE br.status = 'active'";  // Status is 'active' for currently borrowed books
+
+                    $returned_query = "SELECT
+                            COUNT(br.book_id) AS returned_books
+                            FROM borrow_table br
+                            WHERE br.status = 'returned'";  // Status is 'returned' for books that have been returned
+
+                    $active_result = $conn->query($active_query);
+                    $returned_result = $conn->query($returned_query);
+
+                    // Get the active and returned book counts
+                    $active_books = 0;
+                    $returned_books = 0;
+
+                    if ($active_result->num_rows > 0) {
+                        $row = $active_result->fetch_assoc();
+                        $active_books = $row['active_books'];  // Number of active books
+                    }
+
+                    if ($returned_result->num_rows > 0) {
+                        $row = $returned_result->fetch_assoc();
+                        $returned_books = $row['returned_books'];  // Number of returned books
+                    }
+                ?>
                 <h4 class="text-muted">Books Borrowed</h4>
                 <!-- Row containing second two charts -->
                 <div class="row" class="d-flex flex-wrap justify-content-between h-100 m-0 p-0" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
@@ -926,7 +925,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                         function drawActiveReturnedChart() {
                             // Create a DataTable with active and returned books data
                             const data = google.visualization.arrayToDataTable([
-                                ['Category', 'Book Count'],
+                                ['Category', 'Book Count '],
                                 ['Active Books', <?php echo $active_books; ?>],  // Active books count
                                 ['Returned Books', <?php echo $returned_books; ?>]  // Returned books count
                             ]);

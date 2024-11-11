@@ -1,3 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Home</title>
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Sweet Alert -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.js"></script>
+</head>
+<body>
 <?php
 session_start();
 require_once '../db_config.php'; // Include the database connection file
@@ -18,7 +32,18 @@ if (isset($_POST['submit'])) {
 
     // Check if the cart has any contents
     if ($result->num_rows == 0) {
-        echo "<script>alert('Your cart is empty!'); window.location.href='student_home.php';</script>";
+        // echo "<script>alert('Your cart is empty!'); window.location.href='student_home.php';</script>";
+        echo "<script>
+            Swal.fire({
+                title: 'Error!',
+                text: 'Your cart is empty!',
+                icon: 'error',
+                confirmButtonText: 'Okay',
+                confirmButtonColor: '#dc3545',
+            }).then(function() {
+                window.location.href = 'student_home.php';
+            });
+        </script>";
         exit();
     }
 
@@ -71,7 +96,18 @@ if (isset($_POST['submit'])) {
     $can_borrow = $max_borrows - $current_borrows;
 
     if ($can_borrow <= 0) {
-        echo "<script>alert('You cannot borrow more than $max_borrows books at a time. Please return some books first.'); window.location.href='student_home.php';</script>";
+        // echo "<script>alert('You cannot borrow more than $max_borrows books at a time. Please return some books first.'); window.location.href='student_home.php';</script>";
+        echo "<script>
+            Swal.fire({
+                title: 'Error!',
+                text: 'You cannot borrow more than $max_borrows books at a time, Please return some books first!',
+                icon: 'error',
+                confirmButtonText: 'Okay',
+                confirmButtonColor: '#dc3545',
+            }).then(function() {
+                window.location.href = 'student_home.php';
+            });
+        </script>";
         exit();
     }
 
@@ -124,14 +160,50 @@ if (isset($_POST['submit'])) {
         $logStmt->bind_param("iss", $studentId, $action, $details);
         $logStmt->execute();
         $logStmt->close();
-        echo "<script>alert('Successfully borrowed $borrowed_books book(s)!');</script>";
+        // echo "<script>alert('Successfully borrowed $borrowed_books book(s)!');</script>";
+        echo "<script>
+            Swal.fire({
+                title: 'Success!',
+                text: 'Successfully borrowed $borrowed_books book(s)!',
+                icon: 'success',
+                confirmButtonText: 'Okay',
+                confirmButtonColor: '#198754',
+            }).then(function() {
+                window.location.href = 'student_home.php';
+            });
+        </script>";
+        exit();
     }
     if (!empty($unavailable_books)) {
         $unavailable_names = implode(", ", $unavailable_books); // Join book titles
-        echo "<script>alert('The following book(s) were not available for borrowing: $unavailable_names');</script>";
+        // echo "<script>alert('The following book(s) were not available for borrowing: $unavailable_names');</script>";
+            echo "<script>
+            Swal.fire({
+                title: 'Error!',
+                text: 'The following book(s) were not available for borrowing: $unavailable_names',
+                icon: 'error',
+                confirmButtonText: 'Okay',
+                confirmButtonColor: '#dc3545',
+            }).then(function() {
+                window.location.href = 'student_home.php';
+            });
+        </script>";
+        exit();
     }
     if ($borrowed_books == 0 && empty($unavailable_books)) {
-        echo "<script>alert('No books were borrowed. Please check availability.');</script>";
+        // echo "<script>alert('No books were borrowed. Please check availability.');</script>";
+        echo "<script>
+            Swal.fire({
+                title: 'Error!',
+                text: 'No books were borrowed. Please check availability again.',
+                icon: 'error',
+                confirmButtonText: 'Okay',
+                confirmButtonColor: '#dc3545',
+            }).then(function() {
+                window.location.href = 'student_home.php';
+            });
+        </script>";
+        exit();
     }
 
     // Redirect to the home page after the process
@@ -141,3 +213,6 @@ if (isset($_POST['submit'])) {
 // Close the database connection
 mysqli_close($conn);
 ?>
+
+</body>
+</html>

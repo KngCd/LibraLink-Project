@@ -25,6 +25,9 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Sweet Alert -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.js"></script>
 </head>
 
 <style>
@@ -421,7 +424,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                         }
 
                         if (!empty($selected_status)) {
-                            $where_clauses[] = "status = '" . mysqli_real_escape_string($conn, $selected_status) . "'";
+                            $where_clauses[] = "br.status = '" . mysqli_real_escape_string($conn, $selected_status) . "'";
                         }
                         
                         // Borrow date filter
@@ -568,7 +571,15 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                         // }
 
                         if (isset($_SESSION['alert2'])) {
-                            echo '<script>alert("' . $_SESSION['alert2'] . '")</script>';
+                            echo '<script>
+                                Swal.fire({
+                                    title: "Notification",
+                                    text: "' . $_SESSION['alert2'] . '",
+                                    icon: "info", // You can change this to success, error, warning, etc.
+                                    confirmButtonText: "Okay",
+                                    confirmButtonColor: "#198754",
+                                });
+                            </script>';
                             unset($_SESSION['alert2']); // Clear the alert after displaying
                         }
 

@@ -17,6 +17,9 @@ if (!isset($_SESSION['user_id'])) {
     <link href="../../css/bootstrap.min.css" rel="stylesheet">
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Sweet Alert -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.js"></script>
 </head>
 
 <style>
@@ -533,7 +536,11 @@ if (!isset($_SESSION['user_id'])) {
                                                                     if (in_array($row['book_id'], $cart_books)) {
                                                                         echo '<button class="btn btn-danger disabled">Already Added to Cart</button>';
                                                                     } else {
-                                                                        echo '<a href="add_to_cart.php?book_id=' . $row['book_id'] . '" onclick="alert(\'Book has been added to your cart!\')"><button class="btn btn-danger">Add to Cart</button></a>';
+                                                                        echo '<a href="add_to_cart.php?book_id=' . $row['book_id'] . '" 
+                                                                                onclick="event.preventDefault(); addToCart(' . $row['book_id'] . ')">
+                                                                                <button class="btn btn-danger">Add to Cart</button>
+                                                                            </a>';                                   
+                                                                        // echo '<a href="add_to_cart.php?book_id=' . $row['book_id'] . '" onclick="alert(\'Book has been added to your cart!\')"><button class="btn btn-danger">Add to Cart</button></a>';                                 
                                                                     }
                                                                 } else {
                                                                     if ($already_borrowed) {
@@ -582,6 +589,24 @@ if (!isset($_SESSION['user_id'])) {
                         $stmt2->close();
                     ?>
                 </div>
+
+                <script>
+                    function addToCart(bookId) {
+                        // Trigger SweetAlert confirmation
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Book has been added to your cart!',
+                            icon: 'success',
+                            confirmButtonText: 'Okay',
+                            confirmButtonColor: '#198754',
+                        }).then((result) => {
+                            // After clicking "OK", redirect to add_to_cart.php with the book_id
+                            if (result.isConfirmed) {
+                                window.location.href = 'add_to_cart.php?book_id=' + bookId;
+                            }
+                        });
+                    }
+                </script>
             </div>
             <!-- </div> -->
         </section>

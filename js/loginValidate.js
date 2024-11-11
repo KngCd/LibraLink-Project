@@ -9,8 +9,7 @@ $(document).ready(function(){
             },
             password:{
                 required: true,
-                minlength: 5,
-                maxlength: 20
+                minlength: 5
             }
         },
         messages:{
@@ -44,8 +43,7 @@ $(document).ready(function(){
             },
             password:{
                 required: true,
-                minlength: 5,
-                maxlength: 20
+                minlength: 8
             }
         },
         messages:{

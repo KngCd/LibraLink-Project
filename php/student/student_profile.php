@@ -1,3 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibraLink - Student Profile</title>
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <!-- Sweet Alert -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.js"></script>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+    *{
+        font-family: "Work Sans", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 500;
+        font-style: normal;
+    }
+    .navbar-brand{
+        /* font-family: 'Times New Roman', Times, serif; */
+        font-size: 30px;
+        color: black;
+    }
+    .navbar-brand:hover{
+        color: black;
+        text-decoration: underline;
+    }
+    body{
+        background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(../../img/bsu.jpg);
+        background-size: cover;
+        background-attachment: fixed;
+    }
+    #firstName-error, #lastName-error, #email-error, #password-error, #confirmPassword-error, #oldPassword-error,
+    #contact_num-error, #program-error, #department-error, #cor-error, #id-error, #pic-error, #newPassword-error{
+        color: red;
+        /* font-size: 0.90rem; */
+        /* display: block; */
+    }
+    .input-group label{
+        display: block;
+        width: 100%;
+    }
+    .menu {
+        font-size: 30px;
+        cursor: pointer;
+        background-color: #dd2222;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+    }
+    .offcanvas {
+        width: 300px !important;
+        background-color: #dd2222;
+    }
+    .content {
+        display: none; /* Hide all content sections by default */
+    }
+
+    .content.active {
+        display: block; /* Show the active content section */
+    }
+    /* .main-content {
+        display: flex;
+        /* flex-direction: column; */
+        /* align-items: center;
+        justify-content: center;
+        min-height: 100vh; /* Full height of the viewport */
+    /* } */
+    .sidebar-item {
+        padding: 10px;
+    }
+    .sidebar-link {
+        display: block;
+        padding: 10px;
+        background-color: #dd2222;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+    .sidebar-link:hover, .dashboard-link:focus, #active {
+        background-color: #ca1d1d;
+    }
+
+    .sidebar-link i {
+        margin-right: 10px;
+        font-size: 18px;
+    }
+    .sidebar-link span {
+        font-size: 20px;
+    }
+    
+    .offcanvas-body::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    .offcanvas-body::-webkit-scrollbar-thumb {
+        background-color: #ca1d1d;
+        border-radius: 5px;
+        box-shadow: none;
+        cursor: pointer;
+    }
+    .offcanvas-body::-webkit-scrollbar-track {
+        background-color: transparent;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    .button{
+        border-radius: 30px !important;
+    }
+</style>
+
+</head>
+
+<body>
+
+<!-- Moved the php script inside the HTML for the SWAL -->
 <?php
     // Include the PHP QR Code library
     require_once 'phpqrcode/qrlib.php'; // Update this path as necessary
@@ -71,7 +194,18 @@
         $emailCheckStmt->close();
 
         if ($emailCount > 0) {
-            echo "<script>alert('Email is already in use. Please use a different email.'); window.location.href = 'student_profile.php';</script>";
+            // echo "<script>alert('Email is already in use. Please use a different email.'); window.location.href = 'student_profile.php';</script>";
+            echo "<script>
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Email is already in use. Please use a different email.',
+                    icon: 'error',
+                    confirmButtonText: 'Okay',
+                    confirmButtonColor: '#dc3545',
+                }).then(function() {
+                    window.location.href = 'student_profile.php';
+                });
+            </script>";
         } else {
             // Update user details in the database
             $stmt = $conn->prepare("UPDATE student_table SET first_name = ?, last_name = ?, email = ?, contact_num = ?, program = ?, department = ? WHERE student_id = ?");
@@ -183,124 +317,6 @@
         exit; // Make sure to exit after outputting the PDF
     }
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LibraLink - Student Profile</title>
-    <link href="../../css/bootstrap.min.css" rel="stylesheet">
-    <!-- Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
-
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
-    *{
-        font-family: "Work Sans", sans-serif;
-        font-optical-sizing: auto;
-        font-weight: 500;
-        font-style: normal;
-    }
-    .navbar-brand{
-        /* font-family: 'Times New Roman', Times, serif; */
-        font-size: 30px;
-        color: black;
-    }
-    .navbar-brand:hover{
-        color: black;
-        text-decoration: underline;
-    }
-    body{
-        background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(../../img/bsu.jpg);
-        background-size: cover;
-        background-attachment: fixed;
-    }
-    #firstName-error, #lastName-error, #email-error, #password-error, #confirmPassword-error, #oldPassword-error,
-    #contact_num-error, #program-error, #department-error, #cor-error, #id-error, #pic-error, #newPassword-error{
-        color: red;
-        /* font-size: 0.90rem; */
-        /* display: block; */
-    }
-    .input-group label{
-        display: block;
-        width: 100%;
-    }
-    .menu {
-        font-size: 30px;
-        cursor: pointer;
-        background-color: #dd2222;
-        color: white;
-        padding: 10px 15px;
-        border: none;
-    }
-    .offcanvas {
-        width: 300px !important;
-        background-color: #dd2222;
-    }
-    .content {
-        display: none; /* Hide all content sections by default */
-    }
-
-    .content.active {
-        display: block; /* Show the active content section */
-    }
-    /* .main-content {
-        display: flex;
-        /* flex-direction: column; */
-        /* align-items: center;
-        justify-content: center;
-        min-height: 100vh; /* Full height of the viewport */
-    /* } */
-    .sidebar-item {
-        padding: 10px;
-    }
-    .sidebar-link {
-        display: block;
-        padding: 10px;
-        background-color: #dd2222;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 5px;
-        transition: background-color 0.3s ease;
-    }
-    .sidebar-link:hover, .dashboard-link:focus, #active {
-        background-color: #ca1d1d;
-    }
-
-    .sidebar-link i {
-        margin-right: 10px;
-        font-size: 18px;
-    }
-    .sidebar-link span {
-        font-size: 20px;
-    }
-    
-    .offcanvas-body::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
-    }
-    .offcanvas-body::-webkit-scrollbar-thumb {
-        background-color: #ca1d1d;
-        border-radius: 5px;
-        box-shadow: none;
-        cursor: pointer;
-    }
-    .offcanvas-body::-webkit-scrollbar-track {
-        background-color: transparent;
-        border-radius: 0;
-        box-shadow: none;
-    }
-    .button{
-        border-radius: 30px !important;
-    }
-</style>
-
-</head>
-<body>
 
     <header class="sticky-top z-1" style="background-color: #dd2222;">
         <!-- Navbar -->
@@ -558,7 +574,18 @@
                                     $update_stmt = $conn->prepare("UPDATE student_table SET password = ? WHERE student_id = ?");
                                     $update_stmt->bind_param("ss", $hashed_new_password, $user_id);
                                     if ($update_stmt->execute()) {
-                                        echo "<script>alert('Password changed successfully!'); window.location.href = 'student_profile.php';</script>";
+                                        // echo "<script>alert('Password changed successfully!'); window.location.href = 'student_profile.php';</script>";
+                                        echo "<script>
+                                            Swal.fire({
+                                                title: 'Success!',
+                                                text: 'Password changed successfully',
+                                                icon: 'success',
+                                                confirmButtonText: 'Okay',
+                                                confirmButtonColor: '#198754',
+                                            }).then(function() {
+                                                window.location.href = 'student_profile.php';
+                                            });
+                                        </script>";
 
                                         $studentId = $_SESSION['user_id'];
                                         $action = 'Update Password';
@@ -569,13 +596,46 @@
                                         $stmt3->bind_param("iss", $studentId, $action, $details); // Use variables here
                                         $stmt3->execute();
                                     } else {
-                                        echo "<script>alert('Failed to update the password. Please try again.'); window.location.href = 'student_profile.php';</script>";
+                                        // echo "<script>alert('Failed to update the password. Please try again.'); window.location.href = 'student_profile.php';</script>";
+                                        echo "<script>
+                                            Swal.fire({
+                                                title: 'Error!',
+                                                text: 'Failed to update the password. Please try again.',
+                                                icon: 'error',
+                                                confirmButtonText: 'Okay',
+                                                confirmButtonColor: '#dc3545',
+                                            }).then(function() {
+                                                window.location.href = 'student_profile.php';
+                                            });
+                                        </script>";
                                     }
                                 } else {
-                                    echo "<script>alert('Old password is incorrect.'); window.location.href = 'student_profile.php';</script>";
+                                    // echo "<script>alert('Old password is incorrect.'); window.location.href = 'student_profile.php';</script>";
+                                    echo "<script>
+                                            Swal.fire({
+                                                title: 'Error!',
+                                                text: 'Old password is incorrect.',
+                                                icon: 'error',
+                                                confirmButtonText: 'Okay',
+                                                confirmButtonColor: '#dc3545',
+                                            }).then(function() {
+                                                window.location.href = 'student_profile.php';
+                                            });
+                                        </script>";
                                 }
                             } else {
-                                echo "<script>alert('User not found.'); window.location.href = 'student_profile.php';</script>";
+                                // echo "<script>alert('User not found.'); window.location.href = 'student_profile.php';</script>";
+                                echo "<script>
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: 'User not found.',
+                                        icon: 'error',
+                                        confirmButtonText: 'Okay',
+                                        confirmButtonColor: '#dc3545',
+                                    }).then(function() {
+                                        window.location.href = 'student_profile.php';
+                                    });
+                                </script>";
                             }
                         }
                         ?>
