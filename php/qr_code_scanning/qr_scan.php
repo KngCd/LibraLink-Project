@@ -1,3 +1,8 @@
+<?php
+date_default_timezone_set('Asia/Manila');
+$currentTime = date('H:i:s'); 
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -75,6 +80,29 @@
                 <img class="img-fluid logo" src="../../img/librawhite.png" alt="Logo" style="height: 40px; width: auto;">
             </a>
             <!-- <a href="../admin-student.php" class="btn btn-light button" style="width: 150px;">← Back</a> -->
+            <h2 class="text-light" id="currentTime"><?php echo $currentTime; ?></h2>
+            <script>
+                function updateClock() {
+                    
+                    const now = new Date();
+                    
+                    const options = {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: true,
+                        timeZone: 'Asia/Manila'
+                    };
+                    
+                    const formatter = new Intl.DateTimeFormat('en-US', options);
+                    const timeString = formatter.format(now);
+                    
+                    document.getElementById('currentTime').textContent = timeString;
+                }
+
+                updateClock();
+                setInterval(updateClock, 1000);
+            </script>
         </div>
     </nav>
 
@@ -138,6 +166,7 @@
                     icon: 'error',
                     confirmButtonText: 'Okay',
                     confirmButtonColor: "#dc3545",
+                    timer: 1500,
                 });
                 return;
             }
@@ -195,6 +224,7 @@
                             icon: 'success',
                             confirmButtonText: 'Okay',
                             confirmButtonColor: "#198754",
+                            timer: 1500,
                         });
                     } else if (logResult.message.includes("Time-out")) {
                         // Time-out Success Alert
@@ -204,6 +234,7 @@
                             icon: 'success',
                             confirmButtonText: 'Okay',
                             confirmButtonColor: "#198754",
+                            timer: 1500,
                         });
                     }
                 } else {
@@ -214,6 +245,7 @@
                         icon: 'error',
                         confirmButtonText: 'Okay',
                         confirmButtonColor: "#dc3545",
+                        timer: 1500,
                     });
                 }
             })
@@ -226,12 +258,13 @@
                     icon: 'error',
                     confirmButtonText: 'Okay',
                     confirmButtonColor: "#dc3545",
+                    timer: 1500,
                 });
             });
 
             setTimeout(function () {
                 document.getElementById('result').style.display = 'none';
-            }, 3000); // Adjust the time as needed
+            }, 2500); // Adjust the time as needed
         });
 
         // Start the scanner
