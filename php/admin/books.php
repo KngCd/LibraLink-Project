@@ -354,7 +354,11 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
             <!-- Navbar -->
             <nav class="navbar navbar-expand-lg" style="height: 80px;">
                 <div class="container">
-                    <a href=""><h1 class="navbar-brand fs-1">Book Inventory</h1></a>
+                    <a href="">
+                        <h1 class="navbar-brand fs-1">
+                            <span style="color: #dd2222; font-weight: bold;">Book</span> Inventory
+                        </h1>
+                    </a>
                     <!-- <button class="navbar-toggler bg-danger text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
                         <span class="navbar-toggler-icon"></span>
                     </button> -->

@@ -94,6 +94,13 @@
         border-radius: 30px !important;
         max-width: 100px;
     }
+    .input-group span{
+        border-radius: 16px; 
+        border: solid, 1px, black; 
+        width: auto; 
+        border-top-right-radius: 0; 
+        border-bottom-right-radius: 0;
+    }
 </style>
 
 <body>
@@ -287,6 +294,17 @@
                                     $emailCheckStmt2->execute();
                                     $emailCheckStmt2->store_result();
 
+                                    // Check if the contact number is unique
+                                    $contactCheckStmt = $conn->prepare("SELECT contact_num FROM verification_table WHERE contact_num = ?");
+                                    $contactCheckStmt->bind_param("s", $contact); // Assuming $contact_number is the variable storing the contact number
+                                    $contactCheckStmt->execute();
+                                    $contactCheckStmt->store_result();
+
+                                    $contactCheckStmt2 = $conn->prepare("SELECT contact_num FROM student_table WHERE contact_num = ?");
+                                    $contactCheckStmt2->bind_param("s", $contact);
+                                    $contactCheckStmt2->execute();
+                                    $contactCheckStmt2->store_result();
+
                                     if ($emailCheckStmt->num_rows > 0 || $emailCheckStmt2->num_rows > 0) {
                                         // Email already exists
                                         // echo "<script>alert('Email already exists! Please use a different email.'); window.location.href='student_register.php';</script>";
@@ -294,6 +312,25 @@
                                             Swal.fire({
                                                 title: 'Email Error',
                                                 text: 'Email already exists! Please use a different email.',
+                                                icon: 'error',
+                                                confirmButtonText: 'Okay',
+                                                confirmButtonColor: '#dc3545',
+                                                customClass: {
+                                                    confirmButton: 'no-border'
+                                                },
+                                            }).then(function() {
+                                                window.location.href = 'student_register.php';
+                                            });    
+                                            // Remove the border
+                                            document.querySelector('.swal2-confirm').style.border = 'none';
+                                        </script>";
+                                        exit;
+                                    } elseif ($contactCheckStmt->num_rows > 0 || $contactCheckStmt2->num_rows > 0) {
+                                        // Contact number already exists
+                                        echo "<script>
+                                            Swal.fire({
+                                                title: 'Contact Number Error',
+                                                text: 'Contact number already exists! Please use a different contact number.',
                                                 icon: 'error',
                                                 confirmButtonText: 'Okay',
                                                 confirmButtonColor: '#dc3545',
@@ -408,9 +445,11 @@
                                 </div>
 
                                 <div class="input-group mb-2">
+                                    <span class="input-group-text" onclick="togglePassword()"><i class="bi bi-eye-slash-fill" id="password-icon" style="cursor: pointer;"></i></span>
                                     <input type="password" class="form-control" placeholder="Password" name="password" id="password" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
                                 </div>
                                 <div class="input-group mb-2">
+                                    <span class="input-group-text" onclick="toggle()"><i class="bi bi-eye-slash-fill" id="password-icon2" style="cursor: pointer;"></i></span>
                                     <input type="password" class="form-control" placeholder="Confirm Password" name="confirmPassword" id="confirmPassword" autocomplete="off" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
                                 </div>
                                 <div class="input-group mb-2">
@@ -448,7 +487,7 @@
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="terms" name="terms" required style="border: 1px solid black;">
                                     <label class="form-check" for="terms">
-                                        I agree to the <a href="terms.html" target="_blank">Terms and Conditions</a> and <a href="privacy-policy.html" target="_blank">Privacy Policy</a>.
+                                        I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsConditions">Terms and Conditions</a> and <a href="#" data-bs-toggle="modal" data-bs-target="#policy">Privacy Policy</a>.
                                     </label>
                                 </div>
                                     
@@ -457,6 +496,183 @@
                                 </div>
                             </div>
                         </form>
+                        <!-- Terms and Conditions Modal -->
+                        <div class="modal fade" id="termsConditions" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="staticBackdropLabel" style="color: #dd2222; font-weight: bold;">Terms And Conditions</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <ol class="text-left fs-4">
+                                            <li>
+                                                <h4 style="font-weight: bold;">Introduction</h4>
+                                                <p>Welcome to
+                                                        <img class="img-fluid" src="../../img/libra2-cropped.png" alt="Logo" style="max-height: 30px; width: auto;">
+                                                        By using our website and services, you agree to the following Terms and Conditions. Please read them carefully before using our website or registering an account. If you do not agree to these terms, do not use the site.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Acceptance of Terms</h4>
+                                                <p>By accessing or using our services, you accept and agree to be bound by these Terms and Conditions and our Privacy Policy. If you do not agree with any part of these terms, you must not use the site.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">User Accounts</h4>
+                                                <p>To access certain features of our website, you may be required to create an account. You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account.</p>
+                                                <ul>
+                                                    <li>You must be a <strong>BSU-Lipa Campus</li>strong> student to register on this website.</li>
+                                                    <li>You agree to provide accurate and complete information when registering and to update your information if it changes.</li>
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">User Responsibilities</h4>
+                                                <p>You agree not to use our services for any unlawful or prohibited activities, including but not limited to:</p>
+                                                <ul>
+                                                    <li>Spamming or phishing.</li>
+                                                    <li>Uploading harmful content such as viruses or malware.</li>
+                                                    <li>Engaging in harassment or illegal activities.</li>
+                                                </ul>
+                                                <p>You must comply with all applicable laws while using our services.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Privacy and Data Collection</h4>
+                                                <p>Your privacy is important to us. By using our website, you agree to the collection and use of personal information in accordance with our <a href="privacy-policy.html">Privacy Policy</a>.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Intellectual Property</h4>
+                                                <p>All content on this website, including text, images, logos, and trademarks, are the property of LibraLink and are protected by copyright laws. You may not copy, modify, or distribute any of the website content without prior written permission.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Disclaimers</h4>
+                                                <p>The website and its services are provided "as is" without any warranties of any kind, either express or implied.</p>
+                                                <p>We do not guarantee that our website will be available at all times or free from errors, bugs, or viruses.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Limitation of Liability</h4>
+                                                <p>LibraLink will not be held liable for any damages or losses arising from your use of the website or services. This includes any direct, indirect, incidental, or consequential damages.</p>
+                                            </li>
+                                            <li>
+                                                <h style="font-weight: bold;"4>Termination</h4>
+                                                <p>We reserve the right to suspend or terminate your account if you violate these Terms and Conditions. You may also terminate your account by contacting us through the provided support channels.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Changes to the Terms</h4>
+                                                <p>We reserve the right to update or change these Terms and Conditions at any time. We will notify you of any material changes, and the updated terms will be posted on this page.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Governing Law</h4>
+                                                <p>These Terms and Conditions are governed by and construed in accordance with the laws of the Philppines. Any disputes will be resolved in the competent courts of the country.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Contact Us</h4>
+                                                <p>If you have any questions regarding these Terms and Conditions, please contact us at:</p>
+                                                <ul>
+                                                    <li>Email: <a href="mailto:library.lipa@g.batstate-u.edu.ph">library.lipa@g.batstate-u.edu.ph</a></li>
+                                                    <li>Phone: (+63 43) 980-0385 loc. 3110</li>
+                                                    <li>Address:  A. Tanco Drive, Marawoy, Lipa, Batangas</li>
+                                                </ul>
+                                            </li>
+                                        </ol>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Understood</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Privacy Policy Modal -->
+                        <div class="modal fade" id="policy" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="staticBackdropLabel" style="color: #dd2222; font-weight: bold;">Privacy Policy</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <ol class="fs-4">
+                                            <li>
+                                                <h4 style="font-weight: bold;">Introduction</h4>
+                                                <p>Welcome to
+                                                    <img class="img-fluid" src="../../img/libra2-cropped.png" alt="Logo" style="max-height: 30px; width: auto;">
+                                                    This Privacy Policy explains how we collect, use, and protect your personal information when you use our website and services. By using our website, you agree to the collection and use of information in accordance with this policy. If you do not agree with this policy, please do not use the site.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Information We Collect</h4>
+                                                <p>We collect various types of information to provide and improve our services, including:</p>
+                                                <ul>
+                                                    <li><strong>Personal Information:</strong> This includes data such as your name, email address, phone number, and any other information you provide when registering or using our services.</li>
+                                                    <li><strong>Usage Data:</strong> We may collect information on how the website is accessed and used, including your IP address, browser type, and device information.</li>
+                                                    <li><strong>Cookies:</strong> We use cookies and similar tracking technologies to monitor activity on our site and improve user experience.</li>
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">How We Use Your Information</h4>
+                                                <p>We use the information we collect for the following purposes:</p>
+                                                <ul>
+                                                    <li>To provide and maintain our services.</li>
+                                                    <li>To notify you about changes to our services or any issues related to your account.</li>
+                                                    <li>To improve and customize the user experience on our website.</li>
+                                                    <li>To send marketing communications, if you have opted in to receive them.</li>
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Data Retention</h4>
+                                                <p>We will retain your personal information for as long as necessary to fulfill the purposes outlined in this Privacy Policy. If you wish to delete your data or stop using our services, you can contact us directly.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Data Security</h4>
+                                                <p>We take reasonable precautions to protect your personal information from unauthorized access, use, or disclosure. However, no method of electronic transmission or storage is 100% secure, and we cannot guarantee the absolute security of your data.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Sharing Your Information</h4>
+                                                <p>We do not sell, trade, or rent your personal information to third parties. We may share your information with third-party service providers who help us operate our website or provide our services, but only in accordance with this Privacy Policy. These third parties are obligated to keep your information confidential and secure.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Your Rights</h4>
+                                                <p>You have the right to:</p>
+                                                <ul>
+                                                    <li>Access the personal data we hold about you.</li>
+                                                    <li>Request corrections or updates to your information.</li>
+                                                    <li>Request the deletion of your personal data (subject to legal and contractual limitations).</li>
+                                                    <li>Opt-out of receiving marketing communications at any time.</li>
+                                                </ul>
+                                                <p>If you wish to exercise these rights, please contact us at the provided contact details below.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Cookies and Tracking Technologies</h4>
+                                                <p>We use cookies to track activity on our website and improve the user experience. You can choose to accept or decline cookies by adjusting your browser settings. However, disabling cookies may affect your ability to use some features of our website.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Third-Party Links</h4>
+                                                <p>Our website may contain links to other websites that are not operated by us. We are not responsible for the privacy practices or content of those external sites. We encourage you to review the privacy policies of any third-party sites you visit.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Changes to This Privacy Policy</h4>
+                                                <p>We reserve the right to update or modify this Privacy Policy at any time. Any changes will be posted on this page, and the updated policy will take effect as soon as it is published. We encourage you to review this policy periodically for any updates.</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Governing Law</h4>
+                                                <p>This Privacy Policy is governed by the laws of the Philippines. Any disputes related to privacy or data protection will be resolved in the competent courts of [Location].</p>
+                                            </li>
+                                            <li>
+                                                <h4 style="font-weight: bold;">Contact Us</h4>
+                                                <p>If you have any questions or concerns about this Privacy Policy or how we handle your personal data, please contact us:</p>
+                                                <ul>
+                                                    <li>Email: <a href="mailto:library.lipa@g.batstate-u.edu.ph">library.lipa@g.batstate-u.edu.ph</a></li>
+                                                    <li>Phone: (+63 43) 980-0385 loc. 3110</li>
+                                                    <li>Address:  A. Tanco Drive, Marawoy, Lipa, Batangas</li>
+                                                </ul>
+                                            </li>
+                                        </ol>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Understood</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <script>
                             // Populate programs based on department selection
                             document.getElementById('department').addEventListener('change', function() {

@@ -357,7 +357,12 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
             <nav class="navbar navbar-expand-lg" style="height: 80px;">
                 <div class="container">
                     <!-- <img class="img-fluid logo text-center" src="../../img/libra2.png" alt="Logo" style="height: 40px; width: auto;"> -->
-                    <a href=""> <h1 class="navbar-brand fs-1">Programs and Departments</h1></a>
+                    <a href="">
+                        <h1 class="navbar-brand fs-1">
+                            <span style="color: #dd2222; font-weight: bold;">Programs</span> and 
+                            <span style="color: #dd2222; font-weight: bold;">Departments</span>
+                        </h1>
+                    </a>
                     <!-- <button class="navbar-toggler bg-danger text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
                         <span class="navbar-toggler-icon"></span>
                     </button> -->

@@ -353,7 +353,11 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
             <!-- Navbar -->
             <nav class="navbar navbar-expand-lg" style="height: 80px;">
                 <div class="container">
-                    <a href=""><h1 class="navbar-brand fs-1">Borrowed Books</h1></a>
+                    <a href="">
+                        <h1 class="navbar-brand fs-1">
+                            <span style="color: #dd2222; font-weight: bold;">Borrowed</span> Books
+                        </h1>
+                    </a>
                     <!-- <button class="navbar-toggler bg-danger text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
                         <span class="navbar-toggler-icon"></span>
                     </button> -->
@@ -428,68 +432,71 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                         }
                         
                         // Borrow date filter
-                        if (!empty($borrow_date_filter)) {
-                            $today = date('Y-m-d');
-                            $start_of_week = date('Y-m-d', strtotime('monday this week'));
-                            $end_of_week = date('Y-m-d', strtotime('sunday this week'));
-                            $start_of_month = date('Y-m-01');
-                            $end_of_month = date('Y-m-t');
-                            $yesterday = date('Y-m-d', strtotime('-1 day'));
-                            $start_of_past_week = date('Y-m-d', strtotime('last monday'));
-                            $end_of_past_week = date('Y-m-d', strtotime('last sunday'));
-                            $start_of_past_month = date('Y-m-d', strtotime('first day of last month'));
-                            $end_of_past_month = date('Y-m-d', strtotime('last day of last month'));
+                        // if (!empty($borrow_date_filter)) {
+                        //     $today = date('Y-m-d');
+                        //     $start_of_week = date('Y-m-d', strtotime('monday this week'));
+                        //     $end_of_week = date('Y-m-d', strtotime('sunday this week'));
+                        //     $start_of_month = date('Y-m-01');
+                        //     $end_of_month = date('Y-m-t');
+                        //     $yesterday = date('Y-m-d', strtotime('-1 day'));
+                        //     $start_of_past_week = date('Y-m-d', strtotime('last monday'));
+                        //     $end_of_past_week = date('Y-m-d', strtotime('last sunday'));
+                        //     $start_of_past_month = date('Y-m-d', strtotime('first day of last month'));
+                        //     $end_of_past_month = date('Y-m-d', strtotime('last day of last month'));
 
-                            switch ($borrow_date_filter) {
-                                case 'today':
-                                    $where_clauses[] = "br.date_borrowed = '$today'";
-                                    break;
-                                case 'this_week':
-                                    $where_clauses[] = "br.date_borrowed BETWEEN '$start_of_week' AND '$end_of_week'";
-                                    break;
-                                case 'this_month':
-                                    $where_clauses[] = "br.date_borrowed BETWEEN '$start_of_month' AND '$end_of_month'";
-                                    break;
-                                case 'past_day':
-                                    $where_clauses[] = "br.date_borrowed = '$yesterday'";
-                                    break;
-                                case 'past_week':
-                                    $where_clauses[] = "br.date_borrowed BETWEEN '$start_of_past_week' AND '$end_of_past_week'";
-                                    break;
-                                case 'past_month':
-                                    $where_clauses[] = "br.date_borrowed BETWEEN '$start_of_past_month' AND '$end_of_past_month'";
-                                    break;
-                            }
-                        }
+                        //     switch ($borrow_date_filter) {
+                        //         case 'today':
+                        //             $where_clauses[] = "br.date_borrowed = '$today'";
+                        //             break;
+                        //         case 'this_week':
+                        //             $where_clauses[] = "br.date_borrowed BETWEEN '$start_of_week' AND '$end_of_week'";
+                        //             break;
+                        //         case 'this_month':
+                        //             $where_clauses[] = "br.date_borrowed BETWEEN '$start_of_month' AND '$end_of_month'";
+                        //             break;
+                        //         case 'past_day':
+                        //             $where_clauses[] = "br.date_borrowed = '$yesterday'";
+                        //             break;
+                        //         case 'past_week':
+                        //             $where_clauses[] = "br.date_borrowed BETWEEN '$start_of_past_week' AND '$end_of_past_week'";
+                        //             break;
+                        //         case 'past_month':
+                        //             $where_clauses[] = "br.date_borrowed BETWEEN '$start_of_past_month' AND '$end_of_past_month'";
+                        //             break;
+                        //     }
+                        // }
 
                         // Due date filter
-                        if (!empty($due_date_filter)) {
-                            $today = date('Y-m-d');
-                            $start_of_week = date('Y-m-d', strtotime('monday this week'));
-                            $end_of_week = date('Y-m-d', strtotime('sunday this week'));
-                            $start_of_month = date('Y-m-01');
-                            $end_of_month = date('Y-m-t');
-                            $start_of_next_month = date('Y-m-d', strtotime('first day of next month'));
-                            $end_of_next_month = date('Y-m-d', strtotime('last day of next month'));
+                        // if (!empty($due_date_filter)) {
+                        //     $today = date('Y-m-d');
+                        //     $start_of_week = date('Y-m-d', strtotime('monday this week'));
+                        //     $end_of_week = date('Y-m-d', strtotime('sunday this week'));
+                        //     $start_of_month = date('Y-m-01');
+                        //     $end_of_month = date('Y-m-t');
+                        //     $start_of_next_month = date('Y-m-d', strtotime('first day of next month'));
+                        //     $end_of_next_month = date('Y-m-d', strtotime('last day of next month'));
 
-                            switch ($due_date_filter) {
-                                case 'today':
-                                    $where_clauses[] = "br.due_date = '$today'";
-                                    break;
-                                case 'this_week':
-                                    $where_clauses[] = "br.due_date BETWEEN '$start_of_week' AND '$end_of_week'";
-                                    break;
-                                case 'this_month':
-                                    $where_clauses[] = "br.due_date BETWEEN '$start_of_month' AND '$end_of_month'";
-                                    break;
-                                case 'next_month':
-                                    $where_clauses[] = "br.due_date BETWEEN '$start_of_next_month' AND '$end_of_next_month'";
-                                    break;
-                                // New case for Past Due Dates
-                                case 'past_due':
-                                    $where_clauses[] = "br.due_date < '$today' AND br.status != 'Returned'";
-                                    break;
-                            }
+                        //     switch ($due_date_filter) {
+                        //         case 'today':
+                        //             $where_clauses[] = "br.due_date = '$today'";
+                        //             break;
+                        //         case 'this_week':
+                        //             $where_clauses[] = "br.due_date BETWEEN '$start_of_week' AND '$end_of_week'";
+                        //             break;
+                        //         case 'this_month':
+                        //             $where_clauses[] = "br.due_date BETWEEN '$start_of_month' AND '$end_of_month'";
+                        //             break;
+                        //         case 'next_month':
+                        //             $where_clauses[] = "br.due_date BETWEEN '$start_of_next_month' AND '$end_of_next_month'";
+                        //             break;
+                        //         // New case for Past Due Dates
+                        //         case 'past_due':
+                        //             $where_clauses[] = "br.due_date < '$today' AND br.status != 'Returned'";
+                        //             break;
+                        //     }
+                        // }
+                        if (!empty($due_date_filter)) {
+                            $where_clauses[] = "DATE(due_date) = '$due_date_filter'"; // Filter by the selected due date
                         }
 
                         // Construct the WHERE query
@@ -536,15 +543,17 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                             <option value="returned" <?= $selected_status === 'returned' ? 'selected' : '' ?>>Returned</option>
                         </select>
 
-                        <select name="due_date_filter" class="form-select w-25 me-2" style="width: fit-content;">
+                        <!-- <select name="due_date_filter" class="form-select w-25 me-2" style="width: fit-content;">
                             <option value="">All Due Dates</option>
-                            <!-- New Option for Past Due Dates -->
                             <option value="past_due" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'past_due' ? 'selected' : '' ?>>Past Due Dates</option>
                             <option value="today" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'today' ? 'selected' : '' ?>>Today</option>
                             <option value="this_week" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'this_week' ? 'selected' : '' ?>>This Week</option>
                             <option value="this_month" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'this_month' ? 'selected' : '' ?>>This Month</option>
                             <option value="next_month" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'next_month' ? 'selected' : '' ?>>Next Month</option>
-                        </select>
+                        </select> -->
+
+                        <!-- Date Picker for selecting specific due date -->
+                        <input type="date" name="due_date_filter" class="form-control w-25 me-2" value="<?= isset($_GET['due_date_filter']) ? htmlspecialchars($_GET['due_date_filter']) : '' ?>" />
 
                         <button class="btn btn-outline-danger" type="submit">Search</button>
                     </form>
@@ -716,7 +725,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                 echo "</tr>";
 
                             if (mysqli_num_rows($query) === 0) {
-                                echo "<td colspan='10'>No records found</td>"; 
+                                echo "<td colspan='11'>No records found</td>"; 
                             }
                             echo "</tr>";
                             echo "</tbody>";

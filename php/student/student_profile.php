@@ -1,3 +1,57 @@
+<?php
+// Include the PHP QR Code library
+require_once 'phpqrcode/qrlib.php'; // Update this path as necessary
+require_once '../fpdf_lib/fpdf.php';
+require_once '../db_config.php'; // Include your database configuration
+
+session_start();
+
+// Check if the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: student-login.php"); // Redirect to login if not logged in
+    exit;
+}
+
+// Get user information from the session
+$user_id = $_SESSION['user_id'];
+$first_name = $_SESSION['first_name'];
+$last_name = $_SESSION['last_name'];
+$email = $_SESSION['email'];
+$contact_num = $_SESSION['contact_num'];
+$program = $_SESSION['program'];
+$department = $_SESSION['department'];
+
+if (isset($_POST['download_pdf']) && isset($_POST['qr_code_path'])) {
+    $qrCodeFilePath = $_POST['qr_code_path'];
+
+    // Create a new PDF document
+    $pdf = new FPDF();
+    $pdf->AddPage();
+
+    // Set the logo path (adjust the path as necessary)
+    $logoPath = '../../img/libra2.png'; // Change this to the correct path
+
+    // Get page width for centering
+    $pageWidth = $pdf->GetPageWidth();
+    $logoWidth = 60; // Adjust this for the logo width (in mm)
+    
+    // Add logo and center it
+    $pdf->Image($logoPath, ($pageWidth - $logoWidth) / 2, 10, $logoWidth); // Centered at top
+
+    // Add the QR code image
+    $pdf->Image($qrCodeFilePath, ($pageWidth - 100) / 2, 40, 100); // Centered below the logo
+
+    // Set font for the name
+    $pdf->SetFont('Arial', 'B', 16);
+    $pdf->Ln(130); // Move down to position the name below the QR code
+    $pdf->Cell(0, 10, $first_name . ' ' . $last_name, 0, 1, 'C'); // Centered
+
+    // Output the PDF to the browser for download
+    $pdf->Output('D', 'QRCode_' . $first_name . '_' . $last_name . '.pdf'); // 'D' for download
+    exit; // Make sure to exit after outputting the PDF
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -122,28 +176,6 @@
 
 <!-- Moved the php script inside the HTML for the SWAL -->
 <?php
-    // Include the PHP QR Code library
-    require_once 'phpqrcode/qrlib.php'; // Update this path as necessary
-    require_once '../fpdf_lib/fpdf.php';
-    require_once '../db_config.php'; // Include your database configuration
-
-    session_start();
-
-    // Check if the user is logged in
-    if (!isset($_SESSION['user_id'])) {
-        header("Location: student-login.php"); // Redirect to login if not logged in
-        exit;
-    }
-
-    // Get user information from the session
-    $user_id = $_SESSION['user_id'];
-    $first_name = $_SESSION['first_name'];
-    $last_name = $_SESSION['last_name'];
-    $email = $_SESSION['email'];
-    $contact_num = $_SESSION['contact_num'];
-    $program = $_SESSION['program'];
-    $department = $_SESSION['department'];
-
     // Fetch profile picture from the database
     $stmt = $conn->prepare("SELECT profile_pic FROM student_table WHERE student_id = ?");
     $stmt->bind_param("s", $user_id);
@@ -193,12 +225,35 @@
         $emailCheckStmt->fetch();
         $emailCheckStmt->close();
 
+        // Check if contact number exists
+        $contactCheckStmt = $conn->prepare("SELECT COUNT(*) 
+                        FROM student_table WHERE contact_num = ? AND student_id != ? 
+                        UNION ALL 
+                        SELECT COUNT(*) 
+                        FROM verification_table WHERE contact_num = ?");
+        $contactCheckStmt->bind_param("sis", $contact_num, $user_id, $contact_num);
+        $contactCheckStmt->execute();
+        $contactCheckStmt->bind_result($contactCount);
+        $contactCheckStmt->fetch();
+
         if ($emailCount > 0) {
             // echo "<script>alert('Email is already in use. Please use a different email.'); window.location.href = 'student_profile.php';</script>";
             echo "<script>
                 Swal.fire({
                     title: 'Error!',
                     text: 'Email is already in use. Please use a different email.',
+                    icon: 'error',
+                    confirmButtonText: 'Okay',
+                    confirmButtonColor: '#dc3545',
+                }).then(function() {
+                    window.location.href = 'student_profile.php';
+                });
+            </script>";
+        } elseif ($contactCount > 0) {
+            echo "<script>
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Contact number is already in use. Please use a different contact number.',
                     icon: 'error',
                     confirmButtonText: 'Okay',
                     confirmButtonColor: '#dc3545',
@@ -285,36 +340,6 @@
             echo "<script>window.location.href = 'student_profile.php?error=" . $_FILES['profile_pic']['error'] . "';</script>";
             exit;
         }
-    }
-
-    if (isset($_POST['download_pdf']) && isset($_POST['qr_code_path'])) {
-        $qrCodeFilePath = $_POST['qr_code_path'];
-
-        // Create a new PDF document
-        $pdf = new FPDF();
-        $pdf->AddPage();
-
-        // Set the logo path (adjust the path as necessary)
-        $logoPath = '../../img/libra2.png'; // Change this to the correct path
-
-        // Get page width for centering
-        $pageWidth = $pdf->GetPageWidth();
-        $logoWidth = 60; // Adjust this for the logo width (in mm)
-        
-        // Add logo and center it
-        $pdf->Image($logoPath, ($pageWidth - $logoWidth) / 2, 10, $logoWidth); // Centered at top
-
-        // Add the QR code image
-        $pdf->Image($qrCodeFilePath, ($pageWidth - 100) / 2, 40, 100); // Centered below the logo
-
-        // Set font for the name
-        $pdf->SetFont('Arial', 'B', 16);
-        $pdf->Ln(130); // Move down to position the name below the QR code
-        $pdf->Cell(0, 10, $first_name . ' ' . $last_name, 0, 1, 'C'); // Centered
-
-        // Output the PDF to the browser for download
-        $pdf->Output('D', 'QRCode_' . $first_name . '_' . $last_name . '.pdf'); // 'D' for download
-        exit; // Make sure to exit after outputting the PDF
     }
 ?>
 

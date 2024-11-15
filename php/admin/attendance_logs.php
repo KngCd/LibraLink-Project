@@ -14,7 +14,7 @@ $currentTime = date('H:i:s');
     <link href="../../css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
- <style>
+<style>
     @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
     *{
         font-family: "Work Sans", sans-serif;
@@ -362,7 +362,11 @@ $currentTime = date('H:i:s');
             <nav class="navbar navbar-expand-lg" style="height: 80px;">
                 <div class="container">
                     <!-- <img class="img-fluid logo text-center" src="../../img/libra2.png" alt="Logo" style="height: 40px; width: auto;"> -->
-                    <a href=""> <h1 class="navbar-brand fs-1">Log Records</h1></a>
+                    <a href="">
+                        <h1 class="navbar-brand fs-1">
+                            <span style="color: #dd2222; font-weight: bold;">Log</span> Records
+                        </h1>
+                    </a>
                     <!-- <button class="navbar-toggler bg-danger text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
                         <span class="navbar-toggler-icon"></span>
                     </button> -->
@@ -379,7 +383,7 @@ $currentTime = date('H:i:s');
         </section>
         
         <!--Log Records -->
-        <section class="container-fluid content active" id="attendance-logs">
+        <section class="container-fluid content active mt-2" id="attendance-logs">
             <div id="attendance-student" class="container p-3">
                 <div class="container">
                     <?php
@@ -392,15 +396,15 @@ $currentTime = date('H:i:s');
                     $time_sort = isset($_GET['time_sort']) ? $_GET['time_sort'] : '';
 
                     // Fetch distinct date filter options (Optional, if you need to fetch distinct dates for any reason)
-                    $date_filters = [
-                        'today' => 'Today',
-                        'yesterday' => 'Yesterday',
-                        'this_week' => 'This Week',
-                        'this_month' => 'This Month',
-                        'next_month' => 'Next Month',
-                        'previous_week' => 'Previous Week',
-                        'previous_month' => 'Previous Month',
-                    ];
+                    // $date_filters = [
+                    //     'today' => 'Today',
+                    //     'yesterday' => 'Yesterday',
+                    //     'this_week' => 'This Week',
+                    //     'this_month' => 'This Month',
+                    //     'next_month' => 'Next Month',
+                    //     'previous_week' => 'Previous Week',
+                    //     'previous_month' => 'Previous Month',
+                    // ];
 
                     // Build the SQL query based on search, program, and department
                     $where_clauses = [];
@@ -411,39 +415,46 @@ $currentTime = date('H:i:s');
                     }
 
                     // Date filter handling
-                    $date_filter_clause = '';
-                    if (!empty($selected_date_filter)) {
-                        switch ($selected_date_filter) {
-                            case 'today':
-                                $date_filter_clause = "DATE(date) = CURDATE()";
-                                break;
-                            case 'yesterday':
-                                $date_filter_clause = "DATE(date) = CURDATE() - INTERVAL 1 DAY";
-                                break;
-                            case 'this_week':
-                                $date_filter_clause = "YEARWEEK(date, 1) = YEARWEEK(CURDATE(), 1)";
-                                break;
-                            case 'this_month':
-                                $date_filter_clause = "MONTH(date) = MONTH(CURDATE()) AND YEAR(date) = YEAR(CURDATE())";
-                                break;
-                            case 'next_month':
-                                $date_filter_clause = "MONTH(date) = MONTH(CURDATE()) + 1 AND YEAR(date) = YEAR(CURDATE())";
-                                break;
-                            case 'previous_week':
-                                $date_filter_clause = "YEARWEEK(date, 1) = YEARWEEK(CURDATE(), 1) - 1";
-                                break;
-                            case 'previous_month':
-                                $date_filter_clause = "MONTH(date) = MONTH(CURDATE()) - 1 AND YEAR(date) = YEAR(CURDATE())";
-                                break;
-                            default:
-                                $date_filter_clause = ''; // No date filter
-                                break;
-                        }
+                    // $date_filter_clause = '';
+                    // if (!empty($selected_date_filter)) {
+                    //     switch ($selected_date_filter) {
+                    //         case 'today':
+                    //             $date_filter_clause = "DATE(date) = CURDATE()";
+                    //             break;
+                    //         case 'yesterday':
+                    //             $date_filter_clause = "DATE(date) = CURDATE() - INTERVAL 1 DAY";
+                    //             break;
+                    //         case 'this_week':
+                    //             $date_filter_clause = "YEARWEEK(date, 1) = YEARWEEK(CURDATE(), 1)";
+                    //             break;
+                    //         case 'this_month':
+                    //             $date_filter_clause = "MONTH(date) = MONTH(CURDATE()) AND YEAR(date) = YEAR(CURDATE())";
+                    //             break;
+                    //         case 'next_month':
+                    //             $date_filter_clause = "MONTH(date) = MONTH(CURDATE()) + 1 AND YEAR(date) = YEAR(CURDATE())";
+                    //             break;
+                    //         case 'previous_week':
+                    //             $date_filter_clause = "YEARWEEK(date, 1) = YEARWEEK(CURDATE(), 1) - 1";
+                    //             break;
+                    //         case 'previous_month':
+                    //             $date_filter_clause = "MONTH(date) = MONTH(CURDATE()) - 1 AND YEAR(date) = YEAR(CURDATE())";
+                    //             break;
+                    //         default:
+                    //             $date_filter_clause = ''; // No date filter
+                    //             break;
+                    //     }
                         
-                        if ($date_filter_clause) {
-                            $where_clauses[] = $date_filter_clause;
-                        }
+                    //     if ($date_filter_clause) {
+                    //         $where_clauses[] = $date_filter_clause;
+                    //     }
+                    // }
+
+                    // Date filter handling
+                    if (!empty($selected_date_filter)) {
+                        // Ensure that the date format is correct (YYYY-MM-DD)
+                        $where_clauses[] = "DATE(date) = '$selected_date_filter'";
                     }
+
 
                     $where_query = '';
                     if (count($where_clauses) > 0) {
@@ -474,7 +485,7 @@ $currentTime = date('H:i:s');
                     <form class="d-flex" method="GET">
                         <input class="form-control me-2 w-50 me-5" type="search" name="search" placeholder="Search for Name" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
-                        <select name="date_filter" class="form-select w-25 me-2" style="width: fit-content;">
+                        <!-- <select name="date_filter" class="form-select w-25 me-2" style="width: fit-content;">
                             <option value="">All Dates</option>
                             <option value="today" <?= isset($_GET['date_filter']) && $_GET['date_filter'] === 'today' ? 'selected' : '' ?>>Today</option>
                             <option value="yesterday" <?= isset($_GET['date_filter']) && $_GET['date_filter'] === 'yesterday' ? 'selected' : '' ?>>Yesterday</option>
@@ -483,7 +494,9 @@ $currentTime = date('H:i:s');
                             <option value="next_month" <?= isset($_GET['date_filter']) && $_GET['date_filter'] === 'next_month' ? 'selected' : '' ?>>Next Month</option>
                             <option value="previous_week" <?= isset($_GET['date_filter']) && $_GET['date_filter'] === 'previous_week' ? 'selected' : '' ?>>Previous Week</option>
                             <option value="previous_month" <?= isset($_GET['date_filter']) && $_GET['date_filter'] === 'previous_month' ? 'selected' : '' ?>>Previous Month</option>
-                        </select>
+                        </select> -->
+                        <!-- Date Picker for selecting specific date -->
+                        <input type="date" name="date_filter" class="form-control w-25 me-2" value="<?= isset($_GET['date_filter']) ? htmlspecialchars($_GET['date_filter']) : '' ?>" />
 
                         <!-- OPTIONAL -->
                         <!-- <select name="date_sort" class="form-select w-25 me-2" style="width: fit-content;">
@@ -501,6 +514,7 @@ $currentTime = date('H:i:s');
                         <button class="btn btn-outline-danger" type="submit">Search</button>
                     </form>
                 </div>
+                
                 <div class="container">
                     <?php
                         // Set the number of records per page
@@ -577,8 +591,8 @@ $currentTime = date('H:i:s');
                                 $filter_params .= '&search=' . urlencode($search);
                             }
                             // Add filter parameter
-                            if (!empty($date_filter)) {
-                                $filter_params .= '&date_filter=' . urlencode($date_filter);
+                            if (!empty($selected_date_filter)) {
+                                $filter_params .= '&date_filter=' . urlencode($selected_date_filter);
                             }
 
                             if ($_SESSION['logcurrent_page'] > 1) {

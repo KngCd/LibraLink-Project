@@ -134,10 +134,49 @@ session_start();
                                 require __DIR__ . '../../../vendor/autoload.php';
                                 require_once '../db_config.php';
 
-                                if (isset($_GET['otp_sent']) && $_GET['otp_sent'] == 'true') {
-                                    // Show OTP form
-                                    $student_id = $_GET['student_id']; // Get student ID from query
+                                // if (isset($_GET['otp_sent']) && $_GET['otp_sent'] == 'true') {
+                                //     // Show OTP form
+                                //     $student_id = $_GET['student_id']; // Get student ID from query
+                                // }
+
+                                // Ensure the student_id is set and valid
+                                if (!isset($_GET['student_id']) || empty($_GET['student_id'])) {
+                                    // If student_id is not passed in the URL, redirect back to the form or previous page
+                                    echo "<script>
+                                        Swal.fire({
+                                            title: 'Error!',
+                                            text: 'Student ID is missing or invalid. Please try again.',
+                                            icon: 'error',
+                                            confirmButtonText: 'Okay',
+                                            confirmButtonColor: '#dc3545',
+                                        }).then(function() {
+                                            // Redirect back to the OTP request page or previous page
+                                            window.location.href = '" . (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'forgot_password_reset.php') . "';
+                                        });
+                                    </script>";
+                                    exit(); // Make sure the rest of the script doesn't execute
                                 }
+
+                                // Check if OTP was sent (keep your existing condition)
+                                // if (isset($_GET['otp_sent']) && $_GET['otp_sent'] == 'true') {
+                                //     // Show OTP form and proceed
+                                //     $student_id = $_GET['student_id']; // Get student ID from query
+                                // } else {
+                                //     // If otp_sent is not true, you can redirect or show an error message
+                                //     echo "<script>
+                                //         Swal.fire({
+                                //             title: 'Error!',
+                                //             text: 'OTP was not sent successfully. Please try again.',
+                                //             icon: 'error',
+                                //             confirmButtonText: 'Okay',
+                                //             confirmButtonColor: '#dc3545',
+                                //         }).then(function() {
+                                //             // Redirect back to the OTP request page or previous page
+                                //             window.location.href = '" . (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'forgot_password.php') . "';
+                                //         });
+                                //     </script>";
+                                //     exit(); // Prevent further code execution
+                                // }
 
                                 if (isset($_POST['otp']) && isset($_GET['student_id'])) {
                                     $enteredOtp = mysqli_real_escape_string($conn, $_POST['otp']);
@@ -148,7 +187,12 @@ session_start();
                                     $row = mysqli_fetch_assoc($result);
                                 
                                     if ($row) {
-                                        $current_time = time();
+                                        // $current_time = time();
+                                        // $current_time = date('Y-m-d H:i:s'); // Current date and time
+
+                                        // Create a DateTime object with a specific time zone
+                                        $datetime = new DateTime('now', new DateTimeZone('Asia/Manila'));
+                                        $current_time = $datetime->format('Y-m-d H:i:s'); // Format the current time
                                         
                                         if ($current_time > $row['expiry_time']) {
                                             // OTP expired, delete from DB

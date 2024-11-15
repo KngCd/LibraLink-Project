@@ -25,6 +25,8 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Include Highcharts -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
 </head>
 
 <style>
@@ -225,6 +227,10 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 
     #backToTop:hover {
         background-color: #ca1d1d;
+    }
+    #mostBorrowedBooksChart, #progDept {
+        height: 470px !important;
+        width: 50% !important; /* Adjust width as needed */
     }
 </style>
 
@@ -429,7 +435,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         }
 
         // Fetch the students who borrows a book/s from the database
-        $query5 = mysqli_query($conn, "SELECT *FROM borrow_table");
+        $query5 = mysqli_query($conn, "SELECT *FROM borrow_table WHERE status = 'Active'");
         $total_borrow = mysqli_num_rows($query5);
 
         if(isset($_SESSION['message'])) {
@@ -596,105 +602,225 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                     $attendanceChartDataString = implode(', ', $attendanceDataFormatted);
 
                     // FOURTH CHART
+                    // SQL query to get the top 10 students with the most borrowed books
+                    $most_sql = "SELECT s.first_name, s.last_name, COUNT(*) AS total_borrowed_books
+                            FROM borrow_table b
+                            JOIN student_table s ON b.student_id = s.student_id
+                            WHERE b.status IN ('active', 'returned')
+                            GROUP BY b.student_id
+                            ORDER BY total_borrowed_books DESC
+                            LIMIT 10";
+
+                    $most_result = mysqli_query($conn, $most_sql);
+
+                    $mostBorrowedBooksData = [];
+                    $studentNames = [];
+                    while ($row = mysqli_fetch_assoc($most_result)) {
+                        $studentName = $row['first_name'] . ' ' . $row['last_name'];
+                        $borrowCount = (int)$row['total_borrowed_books'];
+
+                        // Prepare data in format suitable for Highcharts
+                        $mostBorrowedBooksData[] = $borrowCount;
+                        $studentNames[] = $studentName;
+                    }
+
+                    // Convert to JavaScript-friendly format
+                    $borrowedDataString = implode(", ", $mostBorrowedBooksData);
+                    $namesDataString = implode(", ", array_map(function($name) { return "'$name'"; }, $studentNames));
                 ?>
                 <h4 class="text-muted">Students</h4>
-                <!-- Row containing first three charts -->
+                <!-- Row containing first four charts -->
                  <div class="stats">
                     <div class="row" class="d-flex justify-content-between h-100" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
                         <!-- First Chart: Registered vs Accepted Students -->
                         <div id="myChart" class="col-12 col-md-6" style="height: 470px; flex-shrink: 0; width: 50%;"></div>
 
                         <script>
-                            // Google Charts setup
-                            google.charts.load('current', {'packages':['corechart']});
-                            google.charts.setOnLoadCallback(drawChart);
-
-                            function drawChart() {
-                                // Create a DataTable and populate it with data from PHP
-                                const data = google.visualization.arrayToDataTable([
-                                    ['Category', 'Count'],  // Column headers
-                                    ['Registered Students ', <?php echo $total_registered; ?>],  // Dynamic PHP data
-                                    ['Accepted Students ', <?php echo $total_accepted; ?>]  // Dynamic PHP data
-                                ]);
-
-                                const options = {
-                                    title: 'Student Registration and Acceptance Status',
-                                    pieSliceText: 'percentage', // Show percentages on the pie chart
-                                    is3D: true, // Optional: adds a 3D effect to the pie chart
-                                };
-
-                                // Create and draw the chart
-                                const chart = new google.visualization.PieChart(document.getElementById('myChart'));
-                                chart.draw(data, options);
-                            }
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    Highcharts.chart('myChart', {
+                                        chart: {
+                                            type: 'pie',
+                                            options3d: {
+                                                enabled: true,
+                                                alpha: 45 // Control the 3D rotation angle
+                                            }
+                                        },
+                                        title: {
+                                            text: 'Student Registration and Acceptance Status'
+                                        },
+                                        plotOptions: {
+                                            pie: {
+                                                depth: 45, // 3D effect depth
+                                                dataLabels: {
+                                                    enabled: true,
+                                                    format: '{point.name}: {point.percentage:.1f}%' // Display percentages
+                                                }
+                                            }
+                                        },
+                                        series: [{
+                                            name: 'Count',
+                                            data: [
+                                                ['Registered Students', <?php echo $total_registered; ?>],
+                                                ['Accepted Students', <?php echo $total_accepted; ?>]
+                                            ]
+                                        }]
+                                    });
+                                });
                         </script>
 
                         <!-- Second Chart: Department and Program Distribution -->
                         <div id="progDept" class="col-12 col-md-6" style="height: 470px; flex-shrink: 0; width: 50%;"></div>
-
+                        
                         <script>
-                            // Google Charts setup
-                            google.charts.load('current', {'packages':['corechart']});
-                            google.charts.setOnLoadCallback(drawChart2);
-
-                            function drawChart2() {
-                                // Create a DataTable and populate it with data from PHP
-                                const data2 = google.visualization.arrayToDataTable([
-                                    ['Department and Program', 'Student Count'],  // Column headers
-                                    <?php echo $chartDataString; ?>  // Dynamic PHP data (department and program counts)
-                                ]);
-
-                                const options2 = {
-                                    title: 'Student Distribution by Department and Program',
-                                    is3D: true, // Optional: adds a 3D effect to the pie chart
-                                    slices: {
-                                        0: { offset: 0.1 }, // Optional: adds some space to the first slice
-                                        1: { offset: 0.1 },
-                                        // Customize slices as needed
-                                    }
-                                };
-
-                                // Create and draw the second chart
-                                const chart2 = new google.visualization.PieChart(document.getElementById('progDept'));
-                                chart2.draw(data2, options2);
-                            }
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    // Highcharts pie chart for Department and Program distribution
+                                    Highcharts.chart('progDept', {
+                                        chart: {
+                                            type: 'pie',
+                                            options3d: {
+                                                enabled: true,
+                                                alpha: 45 // 3D effect angle
+                                            }
+                                        },
+                                        title: {
+                                            text: 'Student Distribution by Department and Program'
+                                        },
+                                        plotOptions: {
+                                            pie: {
+                                                depth: 45, // 3D depth
+                                                dataLabels: {
+                                                    enabled: true,
+                                                    format: '{point.name}: {point.percentage:.1f}%' // Percentage format
+                                                },
+                                                slices: {
+                                                    // Add some offset to slices if necessary (like in the Google Charts example)
+                                                    0: { offset: 0.1 }, 
+                                                    1: { offset: 0.1 }
+                                                }
+                                            }
+                                        },
+                                        series: [{
+                                            name: 'Student Count',
+                                            data: [
+                                                <?php echo $chartDataString; ?> // PHP dynamic data for department and program distribution
+                                            ]
+                                        }]
+                                    });
+                                });
                         </script>
                     </div>
+
                     <div class="row" class="d-flex justify-content-between h-100" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
                         <!-- Third Chart: Attendance Log -->
                         <div id="attendanceChart" class="col-12 col-md-6" style="height: 470px; flex-shrink: 0; width: 50%;"></div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                Highcharts.chart('attendanceChart', {
+                                    chart: {
+                                        type: 'line',
+                                    },
+                                    title: {
+                                        text: 'Attendance Log'
+                                    },
+                                    xAxis: {
+                                        categories: [
+                                            <?php echo implode(', ', array_map(function($date) { return "'$date'"; }, $dateRange)); ?>
+                                        ],
+                                        title: {
+                                            text: 'Date'
+                                        },
+                                        labels: {
+                                            rotation: -45, // Rotate the date labels to avoid overlap
+                                        },            
+                                        scrollbar: {
+                                            enabled: true // Enable horizontal scrollbar
+                                        },
+                                        min: 0, // Set the starting position of the x-axis
+                                        max: 29 // Default visible range for the last 30 days
+                                    },
+                                    yAxis: {
+                                        title: {
+                                            text: 'Number of Attendees'
+                                        },
+                                        min: 0
+                                    },
+                                    series: [{
+                                        name: 'Attendance Count',
+                                        data: [
+                                            <?php echo $attendanceChartDataString; ?>
+                                        ],
+                                        marker: {
+                                            radius: 4 // Increase size of data points for better visibility
+                                        }
+                                    }],
+                                    plotOptions: {
+                                        line: {
+                                            dataLabels: {
+                                                enabled: true,
+                                                format: '{y}' // Show the exact number on top of the points
+                                            },
+                                            enableMouseTracking: true
+                                        }
+                                    },
+                                    tooltip: {
+                                        headerFormat: '<b>{point.x}</b><br>',
+                                        pointFormat: 'Attendance Count: {point.y}'
+                                    }
+                                });
+                            });
+                        </script>
+
+                        <!-- Fourth Chart: Most Borrowed Books -->
+                        <div id="mostBorrowedBooksChart" class="col-12 col-md-6" style="height: 470px; flex-shrink: 0; width: 50%;"></div>
 
                         <script>
-                            google.charts.load('current', {'packages':['corechart', 'bar']});
-                            google.charts.setOnLoadCallback(drawAttendanceChart);
-
-                            function drawAttendanceChart() {
-                                // Create a DataTable and populate it with data from PHP
-                                const data = google.visualization.arrayToDataTable([
-                                    ['Date', 'Attendance Count '],  // Column headers
-                                    <?php echo $attendanceChartDataString; ?>  // Dynamic PHP data (attendance count per date)
-                                ]);
-
-                                const options = {
-                                    title: 'Attendance Log',
-                                    curveType: 'function',  // Makes the line smooth
-                                    legend: { position: 'bottom' },
-                                    hAxis: {
-                                        title: 'Date',
-                                        format: 'yyyy-MM-dd',  // Format for date axis
-                                        gridlines: { count: 10 },
+                            document.addEventListener('DOMContentLoaded', function () {
+                                Highcharts.chart('mostBorrowedBooksChart', {
+                                    chart: {
+                                        type: 'bar',
                                     },
-                                    vAxis: {
-                                        title: 'Number of Attendees',
-                                        minValue: 0
+                                    title: {
+                                        text: 'Top 10 Students with the Most Borrowed Books (Active/Returned)'
+                                    },
+                                    xAxis: {
+                                        categories: [<?php echo $namesDataString; ?>],
+                                        title: {
+                                            text: 'Student Name'
+                                        },
+                                        labels: {
+                                            rotation: -45, // Rotate labels to avoid overlap
+                                            style: {
+                                                fontSize: '12px'
+                                            }
+                                        }
+                                    },
+                                    yAxis: {
+                                        title: {
+                                            text: 'Number of Borrowed Books'
+                                        },
+                                        min: 0
+                                    },
+                                    series: [{
+                                        name: 'Borrowed Books',
+                                        data: [<?php echo $borrowedDataString; ?>],
+                                        color: '#007bff'
+                                    }],
+                                    plotOptions: {
+                                        bar: {
+                                            dataLabels: {
+                                                enabled: true,
+                                                format: '{y}'
+                                            }
+                                        }
+                                    },
+                                    tooltip: {
+                                        headerFormat: '<b>{point.x}</b><br>',
+                                        pointFormat: 'Borrowed Books: {point.y}'
                                     }
-                                };
-
-                                // Create and draw the line chart
-                                const chart = new google.visualization.LineChart(document.getElementById('attendanceChart'));
-                                chart.draw(data, options);
-                            }
+                                });
+                            });
                         </script>
+                        
                     </div>
                     <hr>
                  </div>
@@ -709,16 +835,23 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                 GROUP BY category
                                 ORDER BY total_books DESC";
                     $cat_result = $conn->query($cat_sql);
+                        // Prepare arrays to store categories and total book counts
+                        $categoryData = [];
+                        $categoryNames = [];
 
-                    $categoryData = [];
-                    while ($row = $cat_result->fetch_assoc()) {
-                        $category = $row['category'];
-                        $total_books = $row['total_books'];
-                        $categoryData[] = "['$category', $total_books]"; // Format data for Google Charts
-                    }
+                        // Fetch data from the database
+                        while ($row = $cat_result->fetch_assoc()) {
+                            $category = $row['category'];
+                            $total_books = $row['total_books'];
 
-                    // Combine the data into a single string for use in the JavaScript
-                    $catChartDataString = implode(', ', $categoryData);
+                            // Add category and book count to the arrays
+                            $categoryNames[] = $category;  // Store category names
+                            $categoryData[] = $total_books;  // Store total books in each category
+                        }
+
+                        // Convert arrays into JavaScript-friendly format
+                        $catChartDataString = implode(", ", $categoryData);
+                        $catChartCategoriesString = "'" . implode("', '", $categoryNames) . "'";
 
                     // SECOND CHART
                     // Initialize an array to hold the data for each book's stock
@@ -752,68 +885,93 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                     <div id="categoryChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
 
                     <script>
-                        google.charts.load('current', {'packages':['corechart', 'bar']});
-                        google.charts.setOnLoadCallback(drawChart);
-
-                        function drawChart() {
-                            // Create a DataTable and populate it with data from PHP
-                            const data = google.visualization.arrayToDataTable([
-                                ['Category', 'Total Books '],  // Column headers
-                                <?php echo $catChartDataString; ?>  // Dynamic PHP data (book counts per category)
-                            ]);
-
-                            const options = {
-                                title: 'Total Books by Category',
-                                chartArea: { width: '50%' },
-                                hAxis: {
-                                    title: 'Number of Books',
-                                    minValue: 0
+                        document.addEventListener('DOMContentLoaded', function () {
+                            Highcharts.chart('categoryChart', {
+                                chart: {
+                                    type: 'column',  // Change from 'bar' to 'column' for a vertical chart
                                 },
-                                vAxis: {
-                                    title: 'Book Category'
+                                title: {
+                                    text: 'Total Books by Category'  // Title of the chart
                                 },
-                                bars: 'horizontal', // Optional: Makes it a horizontal bar chart
-                                is3D: true,  // Optional: Adds a 3D effect to the bar chart
-                            };
-
-                            // Create and draw the bar chart
-                            const chart = new google.visualization.ColumnChart(document.getElementById('categoryChart'));
-                            chart.draw(data, options);
-                        }
+                                xAxis: {
+                                    title: {
+                                        text: 'Book Category'  // X-axis title (categories)
+                                    },
+                                    categories: [<?php echo $catChartCategoriesString; ?>],  // Categories from PHP
+                                    labels: {
+                                        rotation: -45,  // Rotate labels if they are long
+                                        align: 'right'
+                                    }
+                                },
+                                yAxis: {
+                                    title: {
+                                        text: 'Number of Books'  // Y-axis title (number of books)
+                                    },
+                                    min: 0  // Start Y-axis from 0
+                                },
+                                series: [{
+                                    name: 'Books',
+                                    data: [<?php echo $catChartDataString; ?>],  // Data points from PHP
+                                    color: '#007bff',  // Bar color
+                                    dataLabels: {
+                                        enabled: true,
+                                        format: '{y}'  // Display the number of books on top of the bars
+                                    }
+                                }],
+                                tooltip: {
+                                    headerFormat: '<b>{point.x}</b><br>',
+                                    pointFormat: 'Number of Books: {point.y}'  // Tooltip format
+                                }
+                            });
+                        });
                     </script>
 
                     <!-- Second Chart: Book Stock Chart -->
                     <div id="bookStockChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
-
-                    <script type="text/javascript">
-                        google.charts.load('current', {'packages':['corechart']});
-                        google.charts.setOnLoadCallback(drawChart);
-
-                        function drawChart() {
-                            // Create a DataTable and populate it with the data from PHP
-                            const data = google.visualization.arrayToDataTable([
-                                ['Book Title', 'Total Stock '],  // Column headers
-                                <?php echo $stockChartDataString; ?>  // Dynamic PHP data (book titles and stock counts)
-                            ]);
-
-                            const options = {
-                                title: 'Total Stock per Book',
-                                is3D: true,  // Optional: Adds a 3D effect
-                                slices: {
-                                    0: { offset: 0.1, color: '#28a745' },
-                                    1: { offset: 0.1, color: '#dc3545' },
-                                    2: { offset: 0.1, color: '#007bff' }
-                                    // Add more slices for more books
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            Highcharts.chart('bookStockChart', {
+                                chart: {
+                                    type: 'pie',  // Pie chart type
+                                    options3d: {
+                                        enabled: true,  // Enable 3D effect
+                                        alpha: 45,  // Rotation angle for 3D
+                                        beta: 0  // Rotation angle for 3D
+                                    }
                                 },
-                                pieSliceText: 'percentage',  // Show percentage on slices
-                                legend: { position: 'top' }  // Show legend at the top
-                            };
-
-                            // Create and draw the pie chart
-                            const chart = new google.visualization.PieChart(document.getElementById('bookStockChart'));
-                            chart.draw(data, options);
-                        }
+                                title: {
+                                    text: 'Total Stock per Book'  // Title of the chart
+                                },
+                                tooltip: {
+                                    pointFormat: '{point.name}: {point.y}'  // Display the stock count on the slice
+                                },
+                                plotOptions: {
+                                    pie: {
+                                        allowPointSelect: true,
+                                        cursor: 'pointer',
+                                        dataLabels: {
+                                            enabled: true,
+                                            format: '{point.name}: {point.percentage:.1f}%'  // Display percentage on slices
+                                        },
+                                        showInLegend: true  // Display legend
+                                    }
+                                },
+                                series: [{
+                                    name: 'Stock',
+                                    colorByPoint: true,  // Automatically color the slices
+                                    data: [<?php echo $stockChartDataString; ?>],  // Data from PHP (book title and stock count)
+                                }],
+                                legend: {
+                                    layout: 'vertical',  // Position legend vertically
+                                    align: 'left',  // Align legend to the left
+                                    verticalAlign: 'top',  // Position legend at the top
+                                    x: 50,  // Adjust position if needed
+                                    y: 30  // Adjust position if needed
+                                }
+                            });
+                        });
                     </script>
+                    
                 </div>
                     <hr>
             </div>
@@ -822,30 +980,38 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                 <?php
                     // FIRST CHART
                     // Query to get the count of how many times each book is borrowed
-                    $book_query = "SELECT b.title, COUNT(br.book_id) AS borrow_count
+                    $book_query = "SELECT b.title, COUNT(br.book_id) AS borrow_count, br.status
                         FROM borrow_table br
                         JOIN book_table b ON br.book_id = b.book_id
+                        WHERE br.status = 'Active'
                         GROUP BY b.title
                         ORDER BY borrow_count DESC;";
 
                     $book_result = $conn->query($book_query);
 
                     // Create an array to hold the data for the chart
-                    $bookChartData = [];
-                    $total_borrowed_books = 0;  // Initialize a variable to keep track of total borrowed books
+                    $bookTitles = [];
+                    $borrowCounts = [];
+
+                    // Calculate total borrowed books and prepare data for the chart
+                    $total_borrowed_books = 0;
                     while ($row = $book_result->fetch_assoc()) {
                         $book_title = $row['title'];  // The book title
                         $borrow_count = $row['borrow_count'];  // The number of times the book was borrowed
                         
-                        // Add the data for the chart (book title and borrow count)
-                        $bookChartData[] = "['$book_title', $borrow_count]";
+                        // Add book titles to the categories array
+                        $bookTitles[] = "'$book_title'";
+                        
+                        // Add borrow counts to the data array
+                        $borrowCounts[] = $borrow_count;
                         
                         // Add to the total borrowed count
                         $total_borrowed_books += $borrow_count;
                     }
 
-                    // Convert the chart data into a format that JavaScript can use
-                    $bookChartDataString = implode(", ", $bookChartData);
+                    // Convert arrays into a format for JavaScript
+                    $bookTitlesString = implode(", ", $bookTitles);
+                    $borrowCountsString = implode(", ", $borrowCounts);
 
                     // SECOND CHART
                     // Query to get the count of active (borrowed) and returned books based on status
@@ -883,69 +1049,89 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                     <div id="bookChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
 
                     <script>
-                        google.charts.load('current', {'packages':['corechart', 'bar']});
-                        google.charts.setOnLoadCallback(drawBookChart);
-
-                        function drawBookChart() {
-                            // Create a DataTable and populate it with data from PHP
-                            const data = google.visualization.arrayToDataTable([
-                                ['Book Title', 'Borrow Count '],  // Column headers
-                                <?php echo $bookChartDataString; ?>,  // Dynamic PHP data (book borrow counts)
-                                ['Total Borrowed Books', <?php echo $total_borrowed_books; ?>]  // Add total borrow count as a new row
-                            ]);
-
-                            const options = {
-                                title: 'Books Borrowed',
-                                chartArea: { width: '50%' },
-                                hAxis: {
-                                    title: 'Number of Borrows',
-                                    minValue: 0
+                        document.addEventListener('DOMContentLoaded', function () {
+                            Highcharts.chart('bookChart', {
+                                chart: {
+                                    type: 'column',  // Column chart for vertical bars
+                                    options3d: {
+                                        enabled: true,  // Enable 3D effect
+                                        alpha: 45,      // Angle of 3D effect
+                                        depth: 50       // Depth of the 3D bars
+                                    }
                                 },
-                                vAxis: {
-                                    title: 'Book Title'
+                                title: {
+                                    text: 'Books Borrowed'  // Main chart title
                                 },
-                                bars: 'horizontal', // Makes it a horizontal bar chart
-                                is3D: true,  // Adds 3D effect to the bar chart
-                                colors: ['#4CAF50', '#FF9800'],  // Optional: Customize colors (one for individual books, one for the total)
-                            };
-
-                            // Create and draw the bar chart
-                            const chart = new google.visualization.BarChart(document.getElementById('bookChart'));
-                            chart.draw(data, options);
-                        }
+                                subtitle: {
+                                    text: 'Total Borrowed Books: ' + <?php echo $total_borrowed_books; ?>  // Display total borrowed books in the subtitle
+                                },
+                                xAxis: {
+                                    title: {
+                                        text: 'Book Title'  // Title for the x-axis
+                                    },
+                                    categories: [<?php echo $bookTitlesString; ?>],  // Book titles as categories
+                                },
+                                yAxis: {
+                                    title: {
+                                        text: 'Number of Borrows'  // Title for the y-axis
+                                    },
+                                    min: 0,  // Set minimum value for y-axis to 0
+                                },
+                                tooltip: {
+                                    formatter: function () {
+                                        return `<b>${this.point.category}</b><br>Borrow Count: ${this.point.y}`;  // Tooltip format
+                                    },
+                                },
+                                series: [{
+                                    name: 'Books Borrowed',
+                                    data: [<?php echo $borrowCountsString; ?>]  // Borrow counts for each book
+                                }]
+                            });
+                        });
                     </script>
 
                     <!-- Second Chart: Active and Returned Books -->
                     <div id="activeReturnedChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
 
                     <script>
-                        google.charts.load('current', {'packages':['corechart']});
-                        google.charts.setOnLoadCallback(drawActiveReturnedChart);
-
-                        function drawActiveReturnedChart() {
-                            // Create a DataTable with active and returned books data
-                            const data = google.visualization.arrayToDataTable([
-                                ['Category', 'Book Count '],
-                                ['Active Books', <?php echo $active_books; ?>],  // Active books count
-                                ['Returned Books', <?php echo $returned_books; ?>]  // Returned books count
-                            ]);
-
-                            const options = {
-                                title: 'Active vs Returned Books',
-                                pieSliceText: 'percentage',  // Show percentages on the pie chart
-                                is3D: true,  // Adds 3D effect to the pie chart
-                                slices: {
-                                    0: { offset: 0.1 },  // Optional: Add a little space between slices
-                                    1: { offset: 0.1 }
+                        document.addEventListener('DOMContentLoaded', function () {
+                            Highcharts.chart('activeReturnedChart', {
+                                chart: {
+                                    type: 'pie',  // Pie chart type
+                                    options3d: {
+                                        enabled: true,  // Enable 3D effect
+                                        alpha: 45,      // Angle of the 3D effect
+                                        beta: 0         // Rotation of the 3D effect
+                                    }
                                 },
-                                colors: ['#FF5722', '#4CAF50']  // Optional: Customize colors (red for active, green for returned)
-                            };
-
-                            // Create and draw the pie chart
-                            const chart = new google.visualization.PieChart(document.getElementById('activeReturnedChart'));
-                            chart.draw(data, options);
-                        }
+                                title: {
+                                    text: 'Active vs Returned Books'  // Title of the chart
+                                },
+                                tooltip: {
+                                    pointFormat: '{series.name}: <b>{point.y}</b>'  // Display the actual count (point.y) in the tooltip
+                                },
+                                plotOptions: {
+                                    pie: {
+                                        innerSize: 100,  // Make the chart a donut chart
+                                        depth: 45,       // Depth of the pie chart
+                                        dataLabels: {
+                                            enabled: true,
+                                            format: '{point.name}: {point.percentage:.1f}%'  // Display percentage
+                                        }
+                                    }
+                                },
+                                series: [{
+                                    name: 'Books',
+                                    data: [
+                                        ['Active Books', <?php echo $active_books; ?>],
+                                        ['Returned Books', <?php echo $returned_books; ?>]
+                                    ],
+                                    colors: ['#FF5722', '#4CAF50']  // Color for active (red) and returned (green) books
+                                }]
+                            });
+                        });
                     </script>
+
                 </div>
                     <hr>
             </div>

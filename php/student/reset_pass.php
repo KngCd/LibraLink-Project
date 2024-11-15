@@ -146,7 +146,7 @@ session_start();
                                             confirmButtonText: 'Okay',
                                             confirmButtonColor: '#dc3545',
                                         }).then(() => {
-                                            window.location.href = 'reset_pass.php?student_id=" . urlencode($student_id) . "';
+                                            window.location.href = '" . (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'forgot_password_reset.php') . "';
                                         });
                                     </script>";
                                 // exit();

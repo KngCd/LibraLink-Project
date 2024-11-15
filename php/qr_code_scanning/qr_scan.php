@@ -128,7 +128,7 @@ $currentTime = date('H:i:s');
                                     <div class="d-flex flex-column align-items-start">
                                         <img id="profile_pic" src="" alt="Profile Picture" class="img-fluid mb-3" style="max-width: 350px; height: auto;">
                                         <div>
-                                            <h3>Scanned Data:</h3>
+                                            <!-- <h3>Scanned Data:</h3> -->
                                             <p><strong>Student ID:</strong> <span id="student_id_display"></span></p>
                                             <p><strong>Name:</strong> <span id="student_name_display"></span></p>
                                             <p><strong>Email:</strong> <span id="student_email_display"></span></p>

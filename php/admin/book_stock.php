@@ -348,7 +348,11 @@ $currentTime = date('H:i:s');
             <!-- Navbar -->
             <nav class="navbar navbar-expand-lg" style="height: 80px;">
                 <div class="container">
-                    <a href=""><h1 class="navbar-brand fs-1">Book Stocks</h1></a>
+                    <a href="">
+                        <h1 class="navbar-brand fs-1">
+                            <span style="color: #dd2222; font-weight: bold;">Book</span> Stocks
+                        </h1>
+                    </a>
                     <!-- <button class="navbar-toggler bg-danger text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
                         <span class="navbar-toggler-icon"></span>
                     </button> -->
@@ -365,7 +369,7 @@ $currentTime = date('H:i:s');
         </section>
         
         <!-- BOOK STOCKS -->
-        <section class="container-fluid content active" id="stocks">
+        <section class="container-fluid content active mt-2" id="stocks">
             <div id="total-stocks" class="container p-3">
                 <div class="container">
                     <?php
@@ -393,10 +397,15 @@ $currentTime = date('H:i:s');
 
                         // Status filter
                         if ($selected_status === 'available') {
-                            $where_clauses[] = "i.book_id IS NOT NULL"; // Books that exist in inventory
+                            $where_clauses[] = "i.status = 'available'";  // Filter for 'available' status
                         } elseif ($selected_status === 'not_available') {
-                            $where_clauses[] = "i.book_id IS NULL"; // Books that do not exist in inventory
+                            $where_clauses[] = "i.status = 'not available'";  // Filter for 'not available' status
                         }
+                        // if ($selected_status === 'available') {
+                        //     $where_clauses[] = "i.book_id IS NOT NULL"; // Books that exist in inventory
+                        // } elseif ($selected_status === 'not_available') {
+                        //     $where_clauses[] = "i.book_id IS NULL"; // Books that do not exist in inventory
+                        // }
 
                         // Construct the WHERE query
                         $where_query = '';
@@ -638,7 +647,7 @@ $currentTime = date('H:i:s');
                     ?>
                 
                     <?php
-                        $records_per_page = 3;
+                        $records_per_page = 7;
 
                         // Get the current page from the session or set it to 1
                         if (!isset($_SESSION['scurrent_page'])) {

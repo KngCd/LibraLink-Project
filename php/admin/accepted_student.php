@@ -364,7 +364,11 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
             <nav class="navbar navbar-expand-lg" style="height: 80px;">
                 <div class="container">
                     <!-- <img class="img-fluid logo text-center" src="../../img/libra2.png" alt="Logo" style="height: 40px; width: auto;"> -->
-                    <a href=""> <h1 class="navbar-brand fs-1">Accepted Students</h1></a>
+                    <a href="">
+                        <h1 class="navbar-brand fs-1">
+                            <span style="color: #dd2222; font-weight: bold;">Accepted</span> Students
+                        </h1>
+                    </a>
                     <!-- <button class="navbar-toggler bg-danger text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
                         <span class="navbar-toggler-icon"></span>
                     </button> -->
@@ -640,6 +644,35 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                                     exit;
                                                 }
                                             }
+                                            // Only check for contact number uniqueness if the contact number has changed
+                                            if ($contact_num !== $current_contact_num) {
+                                                // Check if the contact number is unique in both tables
+                                                $contactCheckStmt = $conn->prepare("SELECT contact_num FROM verification_table WHERE contact_num = ?");
+                                                $contactCheckStmt->bind_param("s", $contact_num);
+                                                $contactCheckStmt->execute();
+                                                $contactCheckStmt->store_result();
+
+                                                $contactCheckStmt2 = $conn->prepare("SELECT contact_num FROM student_table WHERE contact_num = ?");
+                                                $contactCheckStmt2->bind_param("s", $contact_num);
+                                                $contactCheckStmt2->execute();
+                                                $contactCheckStmt2->store_result();
+
+                                                // If the contact number exists in either table, show an alert
+                                                if ($contactCheckStmt->num_rows > 0 || $contactCheckStmt2->num_rows > 0) {
+                                                    echo "<script>
+                                                        Swal.fire({
+                                                            icon: 'error',
+                                                            title: 'ERROR',
+                                                            text: 'Contact number already exists!',
+                                                            showConfirmButton: true,
+                                                            confirmButtonColor: '#dc3545',
+                                                        }).then(function() {
+                                                            window.location.href = 'accepted_student.php';
+                                                        });
+                                                    </script>";
+                                                    exit;
+                                                }
+                                            }
 
                                             // Prepare and execute the update query
                                             $updateStmt = $conn->prepare("UPDATE student_table SET contact_num = ?, email = ?, program = ?, department = ? WHERE student_id = ?");
@@ -661,7 +694,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                             }
 
                             if (mysqli_num_rows($query) === 0) {
-                                echo "<tr><td colspan='4'>No records found</td></tr>";
+                                echo "<tr><td colspan='5'>No records found</td></tr>";
                             }
 
                             echo "</tbody>";
