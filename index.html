@@ -6,7 +6,14 @@
     <title>Landing Page</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    
+    <!-- Swiper -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/freeps2/a7rarpress@main/swiper-bundle.min.css">
+    <script src="//cdn.jsdelivr.net/gh/freeps2/a7rarpress@main/swiper-bundle.min.js"></script>
+    <script src="//cdn.jsdelivr.net/gh/freeps2/a7rarpress@main/script.js"></script>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
         *{
@@ -15,200 +22,500 @@
             font-weight: 500;
             font-style: normal;
         }
+        :root {
+            --surface-color: #dd2222;
+            --curve: 40;
+        }
+        section{
+            overflow-x: hidden;
+        }
         .navbar{
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             z-index: 10;
-            backdrop-filter: blur(5px);
-        }
-        .navbar-brand{
-            /* font-family: 'Times New Roman', Times, serif; */
-            font-size: 30px;
-            color: black;
-        }
-        .navbar-brand:hover{
-            color: black;
-            text-decoration: underline;
         }
         .logo {
             transition: transform 0.3s ease;
             cursor: pointer;
         }
-
         .logo:hover {
             transform: scale(1.1);
         }
         .bg {
-            background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url(img/bsu.jpg);
+            background: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url(img/bsulipa.jpg);
             background-size: cover;
             background-attachment: fixed;
         }
-        .btn {
-            text-decoration: none;
-            border-radius: 16px;
+        .bg2 {
+            background: linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url(img/about-pic.jpg);
+            background-size: cover;
+            object-fit: fill;
+            background-position: center center;
+            border-radius: 30px;
         }
-        #contact{
-            background: #efefef;
+        .button{
+            border-radius: 30px !important;
+            max-width: 250px !important;
+            background-color: #dd2222 !important;
+            border: 1px solid white !important;
+            padding: 5px 40px;
+        }
+        li .button:hover{ background-color: #ca1d1d !important; font-weight: 600 !important;}
+        .button2:hover{ background-color: #ca1d1d !important; font-weight: 600 !important;}
+
+        /* Default font size */
+        .text-container h1 {
+            font-weight: 650;
+            font-size: 5rem; /* default for larger screens */
+        }
+
+        /* Smaller font size for medium screens */
+        @media (max-width: 1200px) {
+            .text-container h1 {
+                font-size: 4rem;
+            }
+        }
+
+        /* Smaller font size for small screens */
+        @media (max-width: 992px) {
+            .text-container h1 {
+                font-size: 4rem;
+            }
+        }
+
+        /* Adjust further for smaller mobile screens */
+        @media (max-width: 768px) {
+            .text-container h1 {
+                font-size: 3rem;
+            }
+        }
+
+        /* Font size for very small screens */
+        @media (max-width: 576px) {
+            .text-container h1 {
+                font-size: 2.5rem;
+            }
+        }
+        .container .card{
+            border: none !important;
+            border-radius: 30px !important;
+            height: 100%;
+        }
+        .cards1 {
+            /* display: grid; */
+            /* grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); */
+            /* gap: 2rem;
+            padding: 0; */
+            height: auto;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            list-style-type: none;
+        }
+        ul .card {
+            position: relative;
+            /* display: block; */
+            /* height: 100%;   */
+            border-radius: calc(var(--curve) * 1px);
+            overflow: hidden;
+            text-decoration: none;
+            background-color: #B43D40;
+        }
+        .card__image {      
+            width: 100%;
+            height: auto;
+        }
+        .card__overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1;      
+            border-radius: calc(var(--curve));    
+            background-color: var(--surface-color);      
+            transform: translateY(100%);
+            transition: .2s ease-in-out;
+        }
+        .card:hover .card__overlay {
+            transform: translateY(0);
+        }
+        .card__header {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 1.5em;
+            padding: 1.5em;
+            border-radius: calc(var(--curve) * 1px) 0 0 0;    
+            background-color: var(--surface-color);
+            transform: translateY(-100%);
+            transition: .2s ease-in-out;
+        }
+        .card__arc {
+            width: 80px;
+            height: 80px;
+            position: absolute;
+            bottom: 100%;
+            right: 0;      
+            z-index: 1;
+        }
+        .card__arc path {
+            fill: var(--surface-color);
+            d:path("M 40 80 c 22 0 40 -22 40 -40 v 40 Z");
+        }       
+        .card:hover .card__header {
+            transform: translateY(0);
+        }
+        .card__thumb {
+            flex-shrink: 0;
+            width: 50px;
+            height: 50px;      
+            border-radius: 50%;   
+            object-fit: cover;   
+        }
+        .card__title {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 0 0 .3em;
+            color: #fff;
+        }
+        .card__tagline {
+            display: block;
+            margin: 1em 0;
+            font-size: .8em; 
+            color: #fff;  
+        }
+        .card__status {
+            font-size: .8em;
+            color: #fff;
+        }
+        .card__description {
+            padding: 0 2em 2em;
+            margin: 0;
+            color: #fff;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            line-clamp: 3;
+            overflow: hidden;
+        }
+        /* Style the carousel to center the items properly */
+        .carousel-inner {
+            text-align: center;
+        }
+        .carousel-item img {
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid black;
+            height: 325px;
+            width: 325px;
+        }
+        .nav-link:hover, .nav-item .active {
+            background-color: #ca1d1d;
+            color: white;
+            border-radius: 5px;
+            transition: all 0.3s ease;
         }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark py-4">
-        <div class="container d-flex align-items-center">
-            <!-- <a href="#" class="navbar-brand"> -->
-                <img class="img-fluid logo" src="img/libra2.png" alt="Logo" style="height: 40px; width: auto;">
-            <!-- </a> -->
-            <button class="navbar-toggler bg-danger" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+    <!-- Nav Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #dd2222;">
+        <div class="container-fluid d-flex">
+            <a href="" class="navbar-brand">
+                <img class="img-fluid logo" src="img/librawhite.png" alt="Logo" style="height: 40px; width: auto;">
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <!-- Navigation Links -->
-            <div class="collapse navbar-collapse" id="navmenu">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item mx-2">
-                        <a href="#" class="nav-link text-dark">Home</a>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item mx-4">
+                        <a href="#home" class="nav-link text-light active px-4">Home</a>
                     </li>
-                    <li class="nav-item mx-2">
-                        <a href="#about" class="nav-link text-dark">About</a>
+                    <li class="nav-item mx-4">
+                        <a href="#about" class="nav-link text-light px-4">About</a>
                     </li>
-                    <li class="nav-item mx-2">
-                        <a href="#contact" class="nav-link text-dark">Contact</a>
+                    <li class="nav-item mx-4">
+                        <a href="#contact" class="nav-link text-light px-4">Contact</a>
                     </li>
-                    <li class="nav-item mx-2"></li>
+                    <!-- <li class="nav-item mx-2"></li> -->
                     <li class="nav-item">
-                        <a href="php/admin-student.php" class="btn btn-danger text-light">SIGN-IN</a>
+                        <a href="php/student/student-login.php" class="btn btn-danger button text-light">Sign In</a>
                     </li>
                 </ul>
             </div>
+            <script>
+                var header = document.getElementById("navbarSupportedContent");
+                var btns = header.getElementsByClassName("nav-link");
+
+                for (var i = 0; i < btns.length; i++) {
+                btns[i].addEventListener("click", function() {
+                var current = document.getElementsByClassName("active");
+                current[0].className = current[0].className.replace(" active", "");
+                this.className += " active";
+                });
+                }
+            </script>
+
+
         </div>
     </nav>
 
     <!-- Home Section -->
-    <section class="bg text-dark p-5 d-flex align-items-center justify-content-center vh-100" style="position: relative;">
-        <div class="container text-center">
-            <div class="d-lg-flex align-items-center justify-content-center">
-                <div>
-                    <h1>Welcome to LibraLink!</h1>
-                    <p class="lead my-4 font">
-                        A streamlined platform designed to make library management simple and efficient 
-                        for both students and librarians. Whether you're borrowing materials or managing inventory, 
-                        LibraLink offers a seamless experience tailored for academic environments. 
-                    </p>
-                    <a href="php/student/student_register.php"><button class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#libralink">Start Now</button></a>
-                </div>
-            </div>
+    <section id="home" class="bg text-dark h-100">
+        <!-- Top Logo Container -->
+        <div class="img-container d-flex justify-content-between align-items-center" style="margin-top: 66px;">
+            <img class="img-fluid logo ms-4 d-xxl-block d-xl-block d-lg-block d-md-block d-sm-none d-none" src="img/bsulogo.png" alt="BSU" style="height: 120px; width: 120px; margin-top: -10px;">
+            <img class="img-fluid logo d-xxl-block d-xl-block d-lg-block d-md-block d-sm-none d-none" src="img/redspartan.png" alt="Red Spartan" style="height: 150px; width: 150px;">
+        </div>
+    
+        <div class="text-container ms-4 mb-lg-3 mb-md-3 mb-sm-3 mb-3 text-xxl-start text-xl-start
+        text-lg-start text-md-center text-sm-center text-center mt-xxl-0 mt-xl-0 mt-lg-0 mt-md-0 mt-sm-5 mt-5">
+                <h1>
+                Simplying<br>
+                Student Success<br>
+                One Log at a Time
+            </h1>
+            <a href="php/student/student_register.php" class="btn button2 btn-danger" style="background-color: #dd2222; padding: 10px 40px; border-radius: 30px !important;">Join Us</a>
+        </div>
+
+        <div class="img-container col-6 d-xxl-block d-xl-block d-lg-block d-md-none d-sm-none d-none" style="margin-top: -350px; margin-left: 750px;">
+            <img class="img-fluid" src="img/mother.png" alt="Logo" style="height: 500px; width: auto; object-fit: cover;">
+        </div> 
+
+        <div class="text-center p-3 fs-5 text-light" style="background-color: #dd2222;">
+            Batangas State University - The National Engineering University - Lipa Campus
         </div>
     </section>
 
 
     <!-- About Section -->
-    <section id="about" class="about p-5 bg-light text-dark d-flex align-items-center">
-        <div class="container">
-            <div class="text-center mb-5">
-                <h1>ABOUT US</h1>
-                <p>At LibraLink, we are committed to transforming the way academic libraries 
-                    manage their resources and student interactions. Our platform integrates 
-                    student logging, borrowing, and inventory management into one seamless 
-                    system. Designed for simplicity and efficiency, LibraLink streamlines the 
-                    borrowing process for students while providing librarians with powerful 
-                    tools to track inventory and maintain organized records. We believe that 
-                    an organized library is key to enhancing the academic experience, and our 
-                    solution ensures smooth operations for both users and staff.
+    <section id="about" class="about bg-light text-dark d-flex align-items-center">
+        <div class="container" style="margin-top: 70px;">
+            <div class="text-start mb-5 bg2 p-5">
+                <p class="fs-sm-6 fs-md-4 fs-lg-3 fs-xl-2 fs-1 mb-0" style="font-weight: 650;">About</p>
+                <img class="img-fluid" src="img/libra2-cropped.png" alt="LibraLink" style="height: 60px; width: auto;">
+                <p>LibraLink is an innovative integrated system <br>
+                    designed to streamline student logging, borrowing, <br>
+                    and inventory management. 
                 </p>
+                <a href="" class="btn btn-danger" style="background-color: #dd2222 !important; padding: 5px 40px; border-radius: 30px !important;">Learn More</a>
             </div>
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <div class="about-content">
-                        <h2>Our Mission</h2>
-                        <div class="d-flex align-items-start mb-4">
-                            <div class="me-5">
-                                <i class="bi bi-bar-chart-fill"></i>
+
+            <div class="text-center mb-3">
+                <h2>Why Us?</h2>
+            </div>
+
+            <div class="row">
+                <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 mb-4">
+                    <div class="card p-3" style="background-color: #F4DDD9 !important;">
+                        <div class="card-body">
+                            <div class="mb-3" style="border-radius: 50%; background-color: #B43D40; height: 114px; width: 114px; display: flex; justify-content: center; align-items: center;">
+                                <img src="img/card1.png" alt="Card 1" style="height: 75px; width: 75px;">
                             </div>
-                            <div class="about-text">
-                                <p>Our mission is to provide an all-in-one library management system 
-                                    that enhances the academic experience by streamlining the borrowing 
-                                    and logging processes. We aim to empower librarians with advanced 
-                                    tools for inventory control while offering students a simple and 
-                                    intuitive platform for accessing and borrowing resources.</p>
-                            </div>
-                        </div>
-                        <h2>Our Vision</h2>
-                        <div class="d-flex align-items-start">
-                            <div class="me-5">
-                                <i class="bi bi-lightbulb-fill"></i>
-                            </div>
-                            <div class="about-text">
-                                <p>We envision a future where academic libraries operate with maximum efficiency, 
-                                    offering students seamless access to resources, and allowing librarians to 
-                                    manage inventory effortlessly. LibraLink strives to be at the forefront of 
-                                    this transformation, ensuring that libraries remain dynamic and easily accessible 
-                                    hubs of knowledge and learning.</p>
-                            </div>
+                            <h5 class="card-title fw-bold mb-3">Enhanced Operational Efficiency</h5>
+                            <p class="card-text">Automates student logging, borrowing, and inventory management, reducing administrative workload and allowing staff to focus on improving student services.</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6 text-center">
-                    <img src="img/books.png" class="img-fluid" alt="Books">
+
+                <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 mb-4">
+                    <div class="card p-3" style="background-color: #F4EFE3 !important;">
+                        <div class="card-body">
+                            <div class="mb-3" style="border-radius: 50%; background-color: #CDB88E; height: 114px; width: 114px; display: flex; justify-content: center; align-items: center;">
+                                <img src="img/card2.png" alt="Card 1" style="height: 75px; width: 75px;">
+                            </div>
+                            <h5 class="card-title fw-bold mb-3">Real-Time Inventory Tracking</h5>
+                            <p class="card-text">Provides dynamic tracking of resources, ensuring up-to-date availability information and minimizing overbooking, which enhances resource allocation.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 mb-4">
+                    <div class="card p-3" style="background-color: #E7FBEE !important;">
+                        <div class="card-body">
+                            <div class="mb-3" style="border-radius: 50%; background-color: #6EAC84; height: 114px; width: 114px; display: flex; justify-content: center; align-items: center;">
+                                <img src="img/card3.png" alt="Card 1" style="height: 75px; width: 75px;">
+                            </div>
+                            <h5 class="card-title fw-bold mb-3">User-Friendly Interface</h5>
+                            <p class="card-text">Intuitive design makes it easy for students to manage their accounts and for staff to access reports, fostering a positive experience for the entire campus community.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row mt-3 mb-3">
+                <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12 mb-lg-3 mb-md-3 mb-sm-3 mb-3">
+                    <ul class="cards1">
+                        <li>
+                            <a href="#about" class="card" onclick="event.preventDefault();">
+                            <img src="img/mission.png" class="card__image" alt="Mission" />
+                            <div class="card__overlay">
+                                <div class="card__header">
+                                    <svg class="card__arc" xmlns="http://www.w3.org/2000/svg"><path /></svg>  
+                                    <img class="card__thumb" src="img/cropped-libra2.png" alt="LibraLink" />                   
+                                    <div class="card__header-text">
+                                        <h3 class="card__title">Mission</h3>            
+                                    </div>
+                                </div>
+                                <p class="card__description">To enhance the library experience for students and staff by providing an efficient, user-friendly automated system that streamlines attendance logging and book borrowing processes, 
+                                    ultimately fostering a culture of learning and resource accessibility.</p>
+                            </div>
+                            </a>      
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                    <ul class="cards1">
+                        <li>
+                            <a href="#about" class="card" onclick="event.preventDefault();">
+                            <img src="img/vision.png" class="card__image" alt="Vision" />
+                            <div class="card__overlay">
+                                <div class="card__header">
+                                    <svg class="card__arc" xmlns="http://www.w3.org/2000/svg"><path /></svg>  
+                                    <img class="card__thumb" src="img/cropped-libra2.png" alt="LibraLink" />                                      
+                                    <div class="card__header-text">
+                                        <h3 class="card__title">Vision</h3>            
+                                    </div>
+                                </div>
+                                <p class="card__description">To be a leading library management solution that transforms how educational institutions manage resources, ensuring seamless access to information and 
+                                    promoting academic success through innovative technology and exceptional service.</p>
+                            </div>
+                            </a>      
+                        </li>
+                    </ul>
                 </div>
             </div>
+
         </div>
     </section>
 
 
     <!-- Contact Section -->
-    <section id="contact" class="p-5 text-dark">
+    <section id="contact" class="text-dark h-100">
         <div class="container">
-            <div class="text-center mb-5">
-                <h1>CONTACT US</h1>
-                <p>
-                    At LibraLink, we value your feedback and inquiries. Our team is here to assist you with any 
-                    questions you may have about our library services, resources, or your experience with our 
-                    platform. Don't hesitate to reach out—we're committed to providing you with the best possible support!
-                </p>
+            <div class="text-center mb-5" style="margin-top: 70px;">
+                <h1>Meet the Developers</h1>
             </div>
 
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h3>Opening Hours</h3><br>
-                    <p><b>Monday to Friday</b></p>
-                    <p>7:00 AM - 6:00 PM</p>
-                    <p><b>Saturday</b></p>
-                    <p>8:00 AM - 5:00 PM</p>
+        <div id="carouselExampleInterval" class="container carousel carousel-dark slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <!-- First carousel item -->
+                <div class="carousel-item active" data-bs-interval="1000">
+                    <div class="d-flex justify-content-center">
+                        <!-- Circle Image -->
+                        <img src="img/alyssa.png" class="rounded-circle" alt="Alyssa Mae" width="150" height="150">
+                    </div>
+                    <div class="card mt-3 text-center">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">Atienza, Alyssa Mae V.</h5>
+                            <p class="card-text">Assistant Programmer | BSIT - CICS</p>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="col-md-4 mb-4">
-                    <h3>Get In Touch</h3><br>
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-globe me-2"></i>
-                        <p class="mb-0">library.batstate-u.edu.ph</p>
+                <!-- Second carousel item -->
+                <div class="carousel-item" data-bs-interval="1000">
+                    <div class="d-flex justify-content-center">
+                        <img src="img/carelle.jpg" class="rounded-circle" alt="Carelle Miles" width="150" height="150">
                     </div>
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-telephone-fill me-2"></i>
-                        <p class="mb-0">(+63 43) 980-0385 loc. 3110</p>
+                    <div class="card mt-3 text-center">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">Bobadilla, Carelle Miles M.</h5>
+                            <p class="card-text">Documentation | BSIT - CICS</p>
+                        </div>
                     </div>
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-envelope-fill me-2"></i>
-                        <p class="mb-0">library.lipa@g.batstate-u.edu.ph</p>
+                </div>
+                <!-- Third carousel item -->
+                <div class="carousel-item" data-bs-interval="1000">
+                    <div class="d-flex justify-content-center">
+                        <img src="img/jerome.jpg" class="rounded-circle" alt="King Jerome" width="150" height="150">
                     </div>
-                </div>                
-
-                <div class="col-md-4 mb-4">
-                    <h3>Follow Us</h3>
-                    <ul class="social-icons">
-                        <li><a href="https://www.facebook.com/library.lipa/" class="text-dark"><i class="bi bi-facebook"></i></a></li>
-                    </ul>
+                    <div class="card mt-3 text-center">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">Lacerna, King Jerome P.</h5>
+                            <p class="card-text">Lead Designer | BSIT - CICS</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Fourth carousel item -->
+                <div class="carousel-item" data-bs-interval="1000">
+                    <div class="d-flex justify-content-center">
+                        <img src="img/formal-pic-von.jpg" class="rounded-circle" alt="Von Cedric" width="150" height="150">
+                    </div>
+                    <div class="card mt-3 text-center">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">Latag, Von Cedric R.</h5>
+                            <p class="card-text">Assistance Designer | BSIT - CICS</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Fifth carousel item -->
+                <div class="carousel-item" data-bs-interval="1000">
+                    <div class="d-flex justify-content-center">
+                        <img src="img/ced.jpg" class="rounded-circle" alt="King Cedrick" width="150" height="150">
+                    </div>
+                    <div class="card mt-3 text-center">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">Panaligan, King Cedrick C.</h5>
+                            <p class="card-text">Lead Programmer | BSIT - CICS</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="text-center mt-5">
-                <div class="bottom-bar">
-                    <p>&copy; 2024 LibraLink &#124; All Rights Reserved</p>
-                </div>
-            </div>
+            <!-- Carousel Controls -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+        
         </div>
     </section>
+    
+    <footer class="p-5 text-light" style="background-color: #2B2B2B;">
+        <div class="container">
+            <div class="row">
+                <div class="col-xxl-4 col-xl-4 col-lg-6 col-md-6 col-sm-6 col-6">
+                    <img class="img-fluid" src="img/librawhite.png" alt="Logo" style="max-height: 150px; width: auto;">
+                    <p class="text-center text-break fs-sm-6 fs-md-4 fs-lg-3 fs-xl-2 fs-6" style="font-weight: 300;">
+                        Integrated System for Student Logging, <br>Borrowing, and Inventory Management
+                    </p>
+                </div>
+
+                <div class="col-4 d-flex justify-content-between align-items-center
+                    d-xxl-flex d-xl-flex d-lg-none d-md-none d-sm-none d-none">
+                    <img class="img-fluid" src="img/bsulogo.png" alt="BSU" style="height: 120px; width: 120px;">
+                    <img class="img-fluid" src="img/redspartan.png" alt="Red Spartan" style="height: 150px; width: 150px;">
+                </div>
+
+                <div class="col-xxl-4 col-xl-4 col-lg-6 col-md-6 col-sm-6 col-6">
+                    <h2 style="color: #F1B716; font-weight: bold;">Contact Us</h2>
+                    <h6><strong>Phone: </strong>(+63) 912 - 345 - 6789</h6>
+                    <h6><strong>Email: </strong>libralink@gmail.com</h6>
+                    <h6><strong>Location: </strong>Brgy. Marawoy, Lipa City, Batangas</h6>
+
+                    <div class="icons d-flex align-items-center justify-content-between mt-3" style="min-width: 150px; max-width: 200px;">
+                        <i class="bi bi-facebook"></i>
+                        <i class="bi bi-twitter-x"></i>
+                        <i class="bi bi-instagram"></i>
+                        <i class="bi bi-linkedin"></i>
+                        <i class="bi bi-discord"></i>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </footer>
 
     <script src="js/bootstrap.bundle.min.js"></script>
 </body>
