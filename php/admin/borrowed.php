@@ -374,7 +374,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         </section>
 
         <!-- BORROWED BOOKS -->
-        <section class="container-fluid content active" id="total-borrowed">
+        <section class="container-fluid content active mt-2" id="total-borrowed">
              <div id="total-borrowed-books" class="container p-3">
                 <div class="container">
                     <?php
@@ -610,11 +610,11 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                         // Fetch the borrowed books with their details
                         $start_from = ($_SESSION['bbcurrent_page'] - 1) * $records_per_page;
                         $query = mysqli_query($conn, "SELECT s.student_id, s.first_name, s.last_name, s.email, s.contact_num, s.program, s.department, s.profile_pic,
-                                                        b.title, br.borrow_id, br.status, br.date_borrowed, br.due_date, br.penalty, br.is_renewed
+                                                        b.title, br.borrow_id, br.status, br.date_borrowed, br.due_date, br.penalty, br.is_renewed, br.returned_date
                                                         FROM borrow_table AS br
                                                         INNER JOIN student_table AS s ON br.student_id = s.student_id
                                                         INNER JOIN book_table AS b ON br.book_id = b.book_id
-                                                        $where_query ORDER BY br.penalty DESC
+                                                        $where_query ORDER BY br.penalty DESC, s.first_name, s.last_name
                                                         LIMIT $start_from, $records_per_page");
 
                         // echo "Total: $total_borrowed";
@@ -625,8 +625,13 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 
                             // Display the rows
                             echo "<div class='table-responsive'>";
+                            echo "<div class='d-flex justify-content-between align-items-center mb-3'>"; // Flex container for caption and button
+                            echo "<caption class='me-3'>Total: $total_borrowed</caption>"; // Add margin on the right to separate caption and button
+                            echo "<form action='update_penalties.php' class='d-flex' method='post'>
+                                    <button class='btn btn-outline-danger' type='submit' name='update_penalties'>Update Penalties</button>
+                                </form>";
+                            echo "</div>";
                             echo "<table class='table table-hover caption-top'>";
-                            echo "<caption>Total: $total_borrowed</caption>";
                             echo "<tr>";
                             echo "<th>Name</th>";
                             echo "<th>Profile</th>";
@@ -634,6 +639,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                             echo "<th>Status</th>";
                             echo "<th>Date Borrowed</th>";
                             echo "<th>Due Date</th>";
+                            echo "<th>Returned Date</th>";
                             echo "<th>Penalty</th>";
                             echo "<th>Renewal</th>";
                             echo "</tr>";
@@ -684,6 +690,14 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 
                                 echo "<td>" . $row['date_borrowed'] . "</td>";
                                 echo "<td>" . $row['due_date'] . "</td>";
+                                // Check if the returned date exists and display it
+                                $returned_date = isset($row['returned_date']) && $row['returned_date'] != NULL 
+                                    ? date('Y-m-d H:i:s', strtotime($row['returned_date'])) 
+                                    : 'Not Returned Yet';
+
+                                // Output the returned date in the table cell
+                                echo "<td>" . $returned_date . "</td>";
+
                                 echo "<td>" . $row['penalty'] . "</td>";
                                 echo "<td>";
                                 if ($row['status'] == 'Active') {
@@ -720,12 +734,12 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                             }
                                 // Display totals
                                 echo "<tr>";
-                                echo "<td colspan='6' class='text-center'><b>Total</b></td>";
+                                echo "<td colspan='7' class='text-center'><b>Total</b></td>";
                                 echo "<td class='text-danger'><b>" . $total_penalty . "</b></td>";
                                 echo "</tr>";
 
                             if (mysqli_num_rows($query) === 0) {
-                                echo "<td colspan='11'>No records found</td>"; 
+                                echo "<td colspan='12'>No records found</td>"; 
                             }
                             echo "</tr>";
                             echo "</tbody>";

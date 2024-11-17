@@ -96,6 +96,52 @@ session_start();
     .button{
         border-radius: 30px !important;
     }
+    #otpSection {
+        width: 100%;
+        /* display: flex;
+        gap: 20px;
+        align-items: center;
+        justify-content: center; */
+    }
+    #otpSection input {
+        border: 2px solid #dd2222;
+        background-color: white;
+        color: black;
+        font-size: 32px;
+        text-align: center;
+        padding: 10px;
+        width: 100%;
+        max-width: 70px;
+        height: 70px;
+        border-radius: 4px;
+        /* outline: 2px solid rgb(66, 66, 66); */
+    }
+    #otpSection input:focus-visible {
+        outline: 2px solid #dd2222;
+    }
+    #otpSection input.filled {
+        outline: 2px solid rgb(7, 192, 99);
+    }
+    /* Loader Styles */
+    .loader-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999; /* Ensure it appears on top of all content */
+    }
+
+    /* Optional: Customize spinner size */
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+        border-width: 0.25em;
+    }
 </style>
 
 <body>
@@ -109,6 +155,13 @@ session_start();
             <a href="student-login.php" class="btn btn-light button fs-sm-6 fs-md-4 fs-lg-3 fs-xl-2 fs-6">← Back</a>
         </div>
     </nav>
+
+    <!-- Loading Animation -->
+    <div id="loader" class="loader-container">
+        <div class="spinner-border text-danger" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
 
     <main class="bg">
         <section class="vh-100 d-flex align-items-center justify-content-center">
@@ -178,8 +231,9 @@ session_start();
                                 //     exit(); // Prevent further code execution
                                 // }
 
-                                if (isset($_POST['otp']) && isset($_GET['student_id'])) {
-                                    $enteredOtp = mysqli_real_escape_string($conn, $_POST['otp']);
+                                if (isset($_POST['otp1'], $_POST['otp2'], $_POST['otp3'], $_POST['otp4'], $_POST['otp5'], $_POST['otp6'])  && isset($_GET['student_id'])) {
+                                    // Collect OTP digits entered by the user
+                                    $enteredOtp = $_POST['otp1'] . $_POST['otp2'] . $_POST['otp3'] . $_POST['otp4'] . $_POST['otp5'] . $_POST['otp6'];
                                     $student_id = $_GET['student_id'];  // Get student_id from query string
 
                                     $sql = "SELECT otp, expiry_time FROM otp_requests WHERE student_id = '$student_id' ORDER BY created_at DESC LIMIT 1";
@@ -247,16 +301,62 @@ session_start();
                                 <!-- HTML Form for OTP Verification -->
                                 <form id="otpSection" action="verify_otp.php?student_id=<?php echo $_GET['student_id']; ?>" method="post" style="border-radius: 16px; background: #efefef; border-style: solid; border-color: black;">
                                     <h3>Enter OTP</h3><br>
-                                    <div class="input-group mb-3">
-                                        <span class="input-group-text"><i class="bi bi-key"></i></span>
-                                        <input type="text" class="form-control" id="otp" name="otp" autocomplete="off" placeholder="Enter OTP">
-                                    </div>
-
+                                    <!-- <div class="input-group mb-3"> -->
+                                        <!-- <span class="input-group-text"><i class="bi bi-key"></i></span> -->
+                                        <!-- OTP Input Fields (One for each digit) -->
+                                        <div class="otp-inputs d-flex justify-content-between mb-3">
+                                            <input type="text" id="otp1" name="otp1" class="otp-input" maxlength="1" autocomplete="off" oninput="moveFocus(this, 'otp2'); checkOtpComplete()" />
+                                            <input type="text" id="otp2" name="otp2" class="otp-input" maxlength="1" autocomplete="off" oninput="moveFocus(this, 'otp3'); checkOtpComplete()" />
+                                            <input type="text" id="otp3" name="otp3" class="otp-input" maxlength="1" autocomplete="off" oninput="moveFocus(this, 'otp4'); checkOtpComplete()" />
+                                            <input type="text" id="otp4" name="otp4" class="otp-input" maxlength="1" autocomplete="off" oninput="moveFocus(this, 'otp5'); checkOtpComplete()" />
+                                            <input type="text" id="otp5" name="otp5" class="otp-input" maxlength="1" autocomplete="off" oninput="moveFocus(this, 'otp6'); checkOtpComplete()" />
+                                            <input type="text" id="otp6" name="otp6" class="otp-input" maxlength="1" autocomplete="off" oninput="checkOtpComplete()"/>
+                                        </div>
+                                    <!-- </div> -->
                                     <div class="d-flex align-items-center justify-content-center">
-                                        <button type="submit" class="btn btn-danger w-100">Verify OTP</button>
+                                        <button type="submit" class="btn btn-danger w-100" id="verifyButton" disabled>Verify OTP</button>
                                     </div>
                                 </form>
 
+                                <script>
+                                    // Move focus to the next field automatically when a digit is entered
+                                    function moveFocus(current, nextFieldId) {
+                                        if (current.value.length === 1) {
+                                            document.getElementById(nextFieldId).focus();
+                                        }
+                                    }
+
+                                    // Handle backspace to move focus to previous field if necessary
+                                    document.querySelectorAll('.otp-input').forEach(function(input, index) {
+                                        input.addEventListener('keydown', function(event) {
+                                            if (event.key === 'Backspace' && index > 0 && input.value === '') {
+                                                document.querySelectorAll('.otp-input')[index - 1].focus();
+                                            }
+                                        });
+                                    });
+
+                                    // Function to check if all OTP input fields are filled
+                                    function checkOtpComplete() {
+                                        // Get all OTP input elements
+                                        const otpInputs = document.querySelectorAll('.otp-input');
+                                        let allFilled = true;
+
+                                        // Check if all input fields have values
+                                        otpInputs.forEach(function(input) {
+                                            if (input.value === '') {
+                                                allFilled = false;
+                                            }
+                                        });
+
+                                        // Enable/Disable the Verify OTP button based on whether all fields are filled
+                                        const verifyButton = document.getElementById('verifyButton');
+                                        if (allFilled) {
+                                            verifyButton.disabled = false;
+                                        } else {
+                                            verifyButton.disabled = true;
+                                        }
+                                    }
+                                </script>
 
                             <!-- Display Error and Success Messages -->
                             <?php
@@ -279,6 +379,12 @@ session_start();
     <script src="../../js/bootstrap.min.js"></script>
     <script src="../../js/loginValidate.js"></script>
     <script>
+        // When the page is fully loaded, hide the loader
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('loader');
+            loader.style.display = 'none'; // Hide the loader
+        });
+
         $(document).ready(function(){
 
             $("#otpSection").validate({

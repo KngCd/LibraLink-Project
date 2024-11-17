@@ -3,6 +3,8 @@
 session_start();
 require_once '../db_config.php';
 
+date_default_timezone_set('Asia/Manila');
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $borrow_id = $_POST['borrow_id'];
     $status = $_POST['status'];
@@ -65,6 +67,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $bookStmt->bind_result($book_title);
             $bookStmt->fetch();
             $bookStmt->close();
+
+            // Get the current timestamp for returned date
+            $returned_date = date('Y-m-d H:i:s');
+
+            // Update the borrow_table with the returned date
+            $update_date_stmt = $conn->prepare("UPDATE borrow_table SET returned_date = ? WHERE borrow_id = ?");
+            $update_date_stmt->bind_param("si", $returned_date, $borrow_id);
+            $update_date_stmt->execute();
+            $update_date_stmt->close();
 
             // Log the return action with the book title
             $action = 'Return';

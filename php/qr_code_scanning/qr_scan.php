@@ -126,7 +126,9 @@ $currentTime = date('H:i:s');
                             <div class="card-body" style="padding: 20px; height: 450px; overflow: hidden;">
                                 <div id="result" style="display: none;">
                                     <div class="d-flex flex-column align-items-start">
-                                        <img id="profile_pic" src="" alt="Profile Picture" class="img-fluid mb-3" style="max-width: 350px; height: auto;">
+                                        <div class="mb-3 d-flex justify-content-center align-items-center" style="max-width: 350px; height: 250px; overflow: hidden;">
+                                            <img id="profile_pic" src="" alt="Profile Picture" class="img-fluid w-100 h-100 object-fit-cover">
+                                        </div>
                                         <div>
                                             <!-- <h3>Scanned Data:</h3> -->
                                             <p><strong>Student ID:</strong> <span id="student_id_display"></span></p>

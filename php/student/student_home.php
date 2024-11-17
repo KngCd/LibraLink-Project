@@ -344,6 +344,11 @@ if (!isset($_SESSION['user_id'])) {
                         <li><strong>Early returns:</strong> You can return the books early if you wish.</li>
                     </ul>
                     <p>By confirming borrowing, you agree to the above policies.</p>
+                        <!-- Cancellation Information -->
+    <div class="mt-3">
+        <h6><strong>Canceling Your Borrowing</strong></h6>
+        <p>If you wish to cancel your borrowing, please email us at <strong><a href="mailto:library@example.com">library@example.com</a></strong> with your student ID, the title(s) of the book(s), and the reason for cancellation. We will process your request as soon as possible.</p>
+    </div>
                 </div>
 
             </div>
