@@ -664,11 +664,11 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                                 </div>
 
                                                 <div class='modal-body'>
-                                                    <div style='float: left; width: 150px; margin-right: 20px;'>
+                                                    <div style='float: left; width: 150px; margin-right: 0;'>
                                                         <img src='data:image/jpeg;base64," . base64_encode($row['profile_pic']) . "' alt='Profile Picture' style='width: 100%; height: 150px; border-radius: 10px; object-fit: cover;'>
                                                         <p style='text-align: center;'><b>" . $row['first_name'] . ' ' . $row['last_name'] . "</b></p>
                                                     </div>
-                                                    <div style='flex: 1; float: left; text-align: left;'>
+                                                    <div class='text-light' style='padding: 11px; flex: 1; float: right; text-align: left; background-color: #dd2222; border-radius: 30px !important;'>
                                                         <!-- <h2>Student Profile</h2> -->
                                                         <p><strong>Student ID:</strong> " . $row['student_id'] . "</p>
                                                         <p><strong>Contact Number: </strong>" . $row['contact_num'] . "</p>

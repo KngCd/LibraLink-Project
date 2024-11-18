@@ -23,7 +23,7 @@
             font-style: normal;
         }
         :root {
-            --surface-color: #dd2222;
+            --surface-color: #ca1d1d;
             --curve: 40;
         }
         section{
@@ -52,7 +52,7 @@
             background: linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url(img/about-pic.jpg);
             background-size: cover;
             object-fit: fill;
-            background-position: center center;
+            background-position: center;
             border-radius: 30px;
         }
         .button{
@@ -121,7 +121,11 @@
             border-radius: calc(var(--curve) * 1px);
             overflow: hidden;
             text-decoration: none;
-            background-color: #B43D40;
+            background-color: #dd2222;
+            background-image: url(img/bsulogo.png);
+            background-position: center;
+            background-size: cover;
+            background-blend-mode: overlay;
         }
         .card__image {      
             width: 100%;

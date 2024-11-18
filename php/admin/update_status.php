@@ -27,31 +27,58 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Check if the status is being changed to 'Active'
     if ($status == 'Active') {
-        // Count the number of active books for this student
-        $stmt = $conn->prepare("SELECT COUNT(*) as active_count FROM borrow_table WHERE student_id = ? AND book_id = ?  AND status = 'Active'");
-        $stmt->bind_param("ii", $student_id, $book_id);
+        // Count the number of active borrows for this book
+        $stmt = $conn->prepare("SELECT COUNT(*) as active_borrow_count FROM borrow_table WHERE book_id = ? AND status = 'Active'");
+        $stmt->bind_param("i", $book_id);
         $stmt->execute();
         $result = $stmt->get_result();
         $count_row = $result->fetch_assoc();
-        
-        $active_count = $count_row['active_count'];
+        $active_borrow_count = $count_row['active_borrow_count'];
+
+        // Get the current available stock for this book
+        $stmt2 = $conn->prepare("SELECT stocks FROM inventory_table WHERE book_id = ?");
+        $stmt2->bind_param("i", $book_id);
+        $stmt2->execute();
+        $result2 = $stmt2->get_result();
+        $stock_row = $result2->fetch_assoc();
+
+        if (!$stock_row) {
+            echo "ERROR: Book stock not found.";
+            exit();
+        }
+
+        $total_stock = $stock_row['stocks'];
+        $available_stock = $total_stock - $active_borrow_count;
+
+        // Check if the available stock is less than or equal to the active borrow count
+        if ($available_stock <= 0) {
+            $_SESSION['alert2'] = "ERROR: No available stock for this book. Cannot mark it as 'Active'.";
+            header("Location: borrowed.php");
+            exit();
+        }
+
+        // Count the number of active books for this student
+        $stmt3 = $conn->prepare("SELECT COUNT(*) as active_count FROM borrow_table WHERE student_id = ? AND book_id = ? AND status = 'Active'");
+        $stmt3->bind_param("ii", $student_id, $book_id);
+        $stmt3->execute();
+        $result3 = $stmt3->get_result();
+        $count_row3 = $result3->fetch_assoc();
+        $active_count = $count_row3['active_count'];
 
         // If the student already has the book marked as active, prevent the status change
         if ($active_count > 0) {
-            // Set a session alert and redirect back
             $_SESSION['alert2'] = "ERROR: You already have this book marked as 'Active'. Cannot mark it as 'Active' again.";
             header("Location: borrowed.php");
             exit();
         }
 
         // Check if the student already has 5 active books in total
-        $stmt2 = $conn->prepare("SELECT COUNT(*) as active_book_count FROM borrow_table WHERE student_id = ? AND status = 'Active'");
-        $stmt2->bind_param("i", $student_id);
-        $stmt2->execute();
-        $resul2t = $stmt2->get_result();
-        $count_row2 = $result2->fetch_assoc();
-        
-        $active_book_count = $count_row2['active_book_count'];
+        $stmt4 = $conn->prepare("SELECT COUNT(*) as active_book_count FROM borrow_table WHERE student_id = ? AND status = 'Active'");
+        $stmt4->bind_param("i", $student_id);
+        $stmt4->execute();
+        $result4 = $stmt4->get_result();
+        $count_row4 = $result4->fetch_assoc();
+        $active_book_count = $count_row4['active_book_count'];
 
         // If the student already has 5 active books, prevent the status change
         if ($active_book_count >= 5) {
@@ -75,6 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     if ($stmt->execute()) {
         $_SESSION['alert2'] = "Status Updated Successfully!";
+
         // If the status is changed to 'Returned', log the action
         if ($status == 'Returned') {
             // Get the book title

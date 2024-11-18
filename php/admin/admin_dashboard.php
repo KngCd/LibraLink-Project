@@ -172,6 +172,8 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         flex-wrap: nowrap;        
         overflow-x: auto;
         scroll-snap-type: x mandatory;
+        gap: 20px;
+        padding: 10px;
     }
     .card-container::-webkit-scrollbar {
         height: 8px;
@@ -231,6 +233,34 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     #mostBorrowedBooksChart, #progDept {
         height: 470px !important;
         width: 50% !important; /* Adjust width as needed */
+    }
+    .card-content {
+        padding: 20px;
+        border-radius: 15px;
+        height: 245px;
+    }
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+    .title {
+        font-size: 1.2rem;
+        margin: 0;
+    }
+    .body {
+        background-color: white; /* Optional: to differentiate background color of the body */
+        border-radius: 50px 10px; /* Custom radius for the main body */
+        padding: 20px;
+        text-align: center;
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .count-text {
+        margin: 0;
     }
 </style>
 
@@ -468,60 +498,72 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         </section>
 
         <!-- HOME -->
-        <section class="container-fluid content active mt-3" id="home">
+        <section class="container-fluid content active mt-3 mb-2" id="home">
             <div class="container">
-                <div class="card-container"> <!-- Add this container to allow horizontal scrolling -->
+                <div class="card-container">
                     <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Total Student Register</h5>
-                                <hr>
-                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $result ?></b></h6>
+                        <div class="card-content" style="background-color: #F7D16A;">
+                            <div class="header">
+                                <p class="title text-light">Total Student Register</p>
+                                <img src="../../img/register.png" alt="Icon" height="30" width="30">
+                            </div>
+                            <div class="body">
+                                <h1 class="count-text"><?php echo $result ?></b></h1>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Total Student Accepted</h5>
-                                <hr>
-                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $result2 ?></b></h6>
+                        <div class="card-content" style="background-color: #F7946A;">
+                            <div class="header">
+                                <p class="title text-light">Total Student Accepted</p>
+                                <img src="../../img/accepted.png" alt="Icon" height="30" width="30">
+                            </div>
+                            <div class="body">
+                                <h1 class="count-text"><?php echo $result2 ?></b></h1>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Total Books Available</h5>
-                                <hr>
-                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $result3 ?></b></h6>
+                        <div class="card-content" style="background-color: #F76A6A;">
+                            <div class="header">
+                                <p class="title text-light">Total Books Available</p>
+                                <img src="../../img/total-books.png" alt="Icon" height="30" width="30">
+                            </div>
+                            <div class="body">
+                                <h1 class="count-text"><?php echo $result3 ?></b></h1>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Total Stocks of Book</h5>
-                                <hr>
-                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $sum_stocks ?></b></h6>
+                        <div class="card-content" style="background-color: #6ADBF7;">
+                            <div class="header">
+                                <p class="title text-light">Books Stocks</p>
+                                <img src="../../img/stocks.png" alt="Icon" height="30" width="30">
+                            </div>
+                            <div class="body">
+                                <h1 class="count-text"><?php echo $sum_stocks ?></b></h1>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Total Borrowed Book</h5>
-                                <hr>
-                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $total_borrow ?></b></h6>
+                        <div class="card-content" style="background-color: #6AF78D;">
+                            <div class="header">
+                                <p class="title text-light">Borrowed Books</p>
+                                <img src="../../img/borrowed.png" alt="Icon" height="30" width="30">
+                            </div>
+                            <div class="body">
+                                <h1 class="count-text"><?php echo $total_borrow ?></b></h1>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-6 col-sm-12 col-12 mb-md-3 mb-sm-3 mb-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Total Available Stocks</h5>
-                                <hr>
-                                <h6 class="card-text mb-4 text-center fs-3"><b><?php echo $sum_stocks - $total_borrow ?></b></h6>
+                        <div class="card-content" style="background-color: #F76ABF;">
+                            <div class="header">
+                                <p class="title text-light">Borrowed Books</p>
+                                <img src="../../img/total-books.png" alt="Icon" height="30" width="30">
+                            </div>
+                            <div class="body">
+                                <h1 class="count-text"><?php echo $sum_stocks - $total_borrow ?></b></h1>
                             </div>
                         </div>
                     </div>
@@ -631,7 +673,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                 <h4 class="text-muted">Students</h4>
                 <!-- Row containing first four charts -->
                  <div class="stats">
-                    <div class="row" class="d-flex justify-content-between h-100" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
+                    <div class="row mb-2" class="d-flex justify-content-between h-100" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
                         <!-- First Chart: Registered vs Accepted Students -->
                         <div id="myChart" class="col-12 col-md-6" style="height: 470px; flex-shrink: 0; width: 50%;"></div>
 
@@ -643,7 +685,10 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                             options3d: {
                                                 enabled: true,
                                                 alpha: 45 // Control the 3D rotation angle
-                                            }
+                                            },
+                                            backgroundColor: '#F2F2F2',
+                                            borderRadius: 50,
+                                            spacing: [10, 10, 10, 10]
                                         },
                                         title: {
                                             text: 'Student Registration and Acceptance Status'
@@ -680,7 +725,10 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                             options3d: {
                                                 enabled: true,
                                                 alpha: 45 // 3D effect angle
-                                            }
+                                            },
+                                            backgroundColor: '#F2F2F2',
+                                            borderRadius: 50,
+                                            spacing: [10, 10, 10, 10]
                                         },
                                         title: {
                                             text: 'Student Distribution by Department and Program'
@@ -718,6 +766,9 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                 Highcharts.chart('attendanceChart', {
                                     chart: {
                                         type: 'line',
+                                        backgroundColor: '#F2F2F2',
+                                        borderRadius: 50,
+                                        spacing: [10, 10, 10, 10]
                                     },
                                     title: {
                                         text: 'Attendance Log'
@@ -778,6 +829,9 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                 Highcharts.chart('mostBorrowedBooksChart', {
                                     chart: {
                                         type: 'bar',
+                                        backgroundColor: '#F2F2F2',
+                                        borderRadius: 50,
+                                        spacing: [10, 10, 10, 10]
                                     },
                                     title: {
                                         text: 'Top 10 Students with the Most Borrowed Books (Active/Returned)'
@@ -882,13 +936,16 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                 <!-- Row containing third two charts -->
                 <div class="row" class="d-flex flex-wrap justify-content-between h-100 m-0 p-0" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
                     <!-- First Chart: Book Category -->
-                    <div id="categoryChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
+                    <div id="categoryChart" class="col-12 col-lg-5 col-md-6" style="height: 470px;"></div>
 
                     <script>
                         document.addEventListener('DOMContentLoaded', function () {
                             Highcharts.chart('categoryChart', {
                                 chart: {
-                                    type: 'column',  // Change from 'bar' to 'column' for a vertical chart
+                                    type: 'column',
+                                    backgroundColor: '#F2F2F2',
+                                    borderRadius: 50,
+                                    spacing: [10, 10, 10, 10] 
                                 },
                                 title: {
                                     text: 'Total Books by Category'  // Title of the chart
@@ -927,7 +984,8 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                     </script>
 
                     <!-- Second Chart: Book Stock Chart -->
-                    <div id="bookStockChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
+                    <div id="bookStockChart" class="col-12 col-lg-7 col-md-6" style="height: 470px;"></div>
+
                     <script>
                         document.addEventListener('DOMContentLoaded', function () {
                             Highcharts.chart('bookStockChart', {
@@ -937,7 +995,10 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                         enabled: true,  // Enable 3D effect
                                         alpha: 45,  // Rotation angle for 3D
                                         beta: 0  // Rotation angle for 3D
-                                    }
+                                    },
+                                    backgroundColor: '#F2F2F2',
+                                    borderRadius: 50,
+                                    spacing: [10, 10, 10, 10]
                                 },
                                 title: {
                                     text: 'Total Stock per Book'  // Title of the chart
@@ -1046,7 +1107,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                 <!-- Row containing second two charts -->
                 <div class="row" class="d-flex flex-wrap justify-content-between h-100 m-0 p-0" style="max-width: 100%; overflow-x: auto; overflow-y: hidden;">
                     <!-- First Chart: Total Borrowed Books -->
-                    <div id="bookChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
+                    <div id="bookChart" class="col-12 col-lg-5 col-md-6" style="height: 470px;"></div>
 
                     <script>
                         document.addEventListener('DOMContentLoaded', function () {
@@ -1057,7 +1118,10 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                         enabled: true,  // Enable 3D effect
                                         alpha: 45,      // Angle of 3D effect
                                         depth: 50       // Depth of the 3D bars
-                                    }
+                                    },
+                                    backgroundColor: '#F2F2F2',
+                                    borderRadius: 50,
+                                    spacing: [10, 10, 10, 10]
                                 },
                                 title: {
                                     text: 'Books Borrowed'  // Main chart title
@@ -1091,7 +1155,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                     </script>
 
                     <!-- Second Chart: Active and Returned Books -->
-                    <div id="activeReturnedChart" class="col-12 col-lg-6 col-md-6" style="height: 470px;"></div>
+                    <div id="activeReturnedChart" class="col-12 col-lg-7 col-md-6" style="height: 470px;"></div>
 
                     <script>
                         document.addEventListener('DOMContentLoaded', function () {
@@ -1102,7 +1166,10 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                         enabled: true,  // Enable 3D effect
                                         alpha: 45,      // Angle of the 3D effect
                                         beta: 0         // Rotation of the 3D effect
-                                    }
+                                    },
+                                    backgroundColor: '#F2F2F2',
+                                    borderRadius: 50,
+                                    spacing: [10, 10, 10, 10]
                                 },
                                 title: {
                                     text: 'Active vs Returned Books'  // Title of the chart

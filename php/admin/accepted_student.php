@@ -548,18 +548,25 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                                             <p style='text-align: left;'>Department: <b>" . $row['department']. "</b></p>
                                                             <p style='text-align: left;'>Program: <b>" . $row['program'] . "</b></p>
                                                         </div>
-                                                        <div style='flex: 1; text-align: left;'>
+                                                        <div class='text-light' style='flex: 1; text-align: left;'>
                                                             <form id='updateForm' action='' method='post'>
-                                                                <input type='hidden' name='student_id' value='" . $row['student_id'] . "'>
-                                                                <div class='mb-3'>
-                                                                    <label for='contact_num' class='form-label'>Contact Number</label>
-                                                                    <input type='text' class='form-control' name='contact_num' value='" . htmlspecialchars($row['contact_num']) . "'>
+                                                                <div class='p-4 mb-4' style='background-color: #dd2222; border-radius: 30px !important;'>
+                                                                    <h4>Contact Details</h4>
+                                                                    <input type='hidden' name='student_id' value='" . $row['student_id'] . "'>
+                                                                    <div class='mb-3'>
+                                                                        <label for='contact_num' class='form-label'>Contact Number</label>
+                                                                        <input type='text' class='form-control' name='contact_num' value='" . htmlspecialchars($row['contact_num']) . "'>
+                                                                    </div>
+                                                                    <div class='mb-1'>
+                                                                        <label for='email' class='form-label'>Email</label>
+                                                                        <input type='email' class='form-control' name='email' value='" . htmlspecialchars($row['email']) . "'>
+                                                                    </div>
                                                                 </div>
-                                                                <div class='mb-5'>
-                                                                    <label for='email' class='form-label'>Email</label>
-                                                                    <input type='email' class='form-control' name='email' value='" . htmlspecialchars($row['email']) . "'>
+                                                                    <!-- Using Flexbox for right alignment -->
+                                                                <div class='d-flex justify-content-end'> <!-- Flex container with right alignment -->
+                                                                    <button type='submit' name='updateBtn' class='btn btn-success w-50'>Update</button>
                                                                 </div>
-                                                                <button type='submit' name='updateBtn' class='btn btn-success w-50'>Update</button>
+
                                                             </form>
                                                         </div>
                                                     </div>
