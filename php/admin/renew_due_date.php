@@ -20,10 +20,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         return $newDueDate;
     }
 
-    $new_due_date = calculateNewDueDate($current_due_date, 1);
+    $new_due_date = calculateNewDueDate($current_due_date, 7);
 
     // Update the due date and set is_renewed to true
-    $stmt = $conn->prepare("UPDATE borrow_table SET due_date = ?, is_renewed = 1 WHERE borrow_id = ?");
+    $stmt = $conn->prepare("UPDATE borrow_table SET due_date = ?, is_renewed = 1, penalty = 0.00 WHERE borrow_id = ?");
     $stmt->bind_param("si", $new_due_date, $borrow_id);
 
     if ($stmt->execute()) {

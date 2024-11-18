@@ -35,7 +35,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     *{
         font-family: "Work Sans", sans-serif;
         font-optical-sizing: auto;
-        font-weight: 500;
+        /* font-weight: 500; */
         font-style: normal;
     }
     .navbar-brand{
@@ -78,6 +78,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     .offcanvas {
         width: 300px !important;
         background-color: #dd2222;
+        font-weight: 500;
     }
     .content {
         display: none; /* Hide all content sections by default */
@@ -614,7 +615,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                                         FROM borrow_table AS br
                                                         INNER JOIN student_table AS s ON br.student_id = s.student_id
                                                         INNER JOIN book_table AS b ON br.book_id = b.book_id
-                                                        $where_query ORDER BY br.penalty DESC, s.first_name, s.last_name
+                                                        $where_query ORDER BY br.penalty DESC, s.first_name, s.last_name, br.status ASC
                                                         LIMIT $start_from, $records_per_page");
 
                         // echo "Total: $total_borrowed";
@@ -652,22 +653,28 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                 echo "<td>" . $row['first_name'] . ' ' . $row['last_name'] . "</td>";
                                 
                                 echo "<td>
-                                    <button class='btn btn-danger' data-bs-toggle='modal' data-bs-target='#view-profile-{$row['student_id']}'>View Profile</button>
+                                    <button class='btn btn-danger' data-bs-toggle='modal' data-bs-target='#view-profile-{$row['student_id']}' style='min-width: 150px;'>View Profile</button>
                                     <div class='modal fade' id='view-profile-{$row['student_id']}' tabindex='-1' aria-labelledby='exampleModalLabel' aria-hidden='true'>
                                         <div class='modal-dialog modal-dialog-centered'>
                                             <div class='modal-content'>
+
+                                                <div class='modal-header'>
+                                                    <h1 class='modal-title fs-5' style='color: #dd2222; font-weight: bold;'>Personal Information</h1>
+                                                    <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                                </div>
+
                                                 <div class='modal-body'>
                                                     <div style='float: left; width: 150px; margin-right: 20px;'>
                                                         <img src='data:image/jpeg;base64," . base64_encode($row['profile_pic']) . "' alt='Profile Picture' style='width: 100%; height: 150px; border-radius: 10px; object-fit: cover;'>
                                                         <p style='text-align: center;'><b>" . $row['first_name'] . ' ' . $row['last_name'] . "</b></p>
                                                     </div>
-                                                    <div style='flex: 1; float: left;'>
-                                                        <h2>Student Profile</h2>
-                                                        <p>Student ID: " . $row['student_id'] . "</p>
-                                                        <p>Contact Number: " . $row['contact_num'] . "</p>
-                                                        <p>Email: " . $row['email'] . "</p>
-                                                        <p>Program: " . $row['program'] . "</p>
-                                                        <p>Department: " . $row['department'] . "</p>
+                                                    <div style='flex: 1; float: left; text-align: left;'>
+                                                        <!-- <h2>Student Profile</h2> -->
+                                                        <p><strong>Student ID:</strong> " . $row['student_id'] . "</p>
+                                                        <p><strong>Contact Number: </strong>" . $row['contact_num'] . "</p>
+                                                        <p><strong>Email: </strong>" . $row['email'] . "</p>
+                                                        <p><strong>Program: </strong>" . $row['program'] . "</p>
+                                                        <p><strong>Department: </strong>" . $row['department'] . "</p>
                                                     </div>
                                                 </div>
                                             </div>

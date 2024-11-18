@@ -18,7 +18,7 @@ session_start();
     *{
         font-family: "Work Sans", sans-serif;
         font-optical-sizing: auto;
-        font-weight: 500;
+        /* font-weight: 500; */
         font-style: normal;
     }
     .navbar-brand{
@@ -68,6 +68,7 @@ session_start();
     .offcanvas {
         width: 300px !important;
         background-color: #dd2222;
+        font-weight: 500;
     }
     .content {
         display: none; /* Hide all content sections by default */
@@ -357,33 +358,37 @@ session_start();
                     }
 
                     // Due date filter
-                    if (!empty($due_date_filter)) {
-                        $today = date('Y-m-d');
-                        $start_of_week = date('Y-m-d', strtotime('monday this week'));
-                        $end_of_week = date('Y-m-d', strtotime('sunday this week'));
-                        $start_of_month = date('Y-m-01');
-                        $end_of_month = date('Y-m-t');
-                        $start_of_next_month = date('Y-m-d', strtotime('first day of next month'));
-                        $end_of_next_month = date('Y-m-d', strtotime('last day of next month'));
+                    // if (!empty($due_date_filter)) {
+                    //     $today = date('Y-m-d');
+                    //     $start_of_week = date('Y-m-d', strtotime('monday this week'));
+                    //     $end_of_week = date('Y-m-d', strtotime('sunday this week'));
+                    //     $start_of_month = date('Y-m-01');
+                    //     $end_of_month = date('Y-m-t');
+                    //     $start_of_next_month = date('Y-m-d', strtotime('first day of next month'));
+                    //     $end_of_next_month = date('Y-m-d', strtotime('last day of next month'));
 
-                        switch ($due_date_filter) {
-                            case 'today':
-                                $where_clauses[] = "br.due_date = '$today'";
-                                break;
-                            case 'this_week':
-                                $where_clauses[] = "br.due_date BETWEEN '$start_of_week' AND '$end_of_week'";
-                                break;
-                            case 'this_month':
-                                $where_clauses[] = "br.due_date BETWEEN '$start_of_month' AND '$end_of_month'";
-                                break;
-                            case 'next_month':
-                                $where_clauses[] = "br.due_date BETWEEN '$start_of_next_month' AND '$end_of_next_month'";
-                                break;
-                            // New case for Past Due Dates
-                            case 'past_due':
-                                $where_clauses[] = "br.due_date < '$today' AND br.status != 'Returned'";
-                                break;
-                        }
+                    //     switch ($due_date_filter) {
+                    //         case 'today':
+                    //             $where_clauses[] = "br.due_date = '$today'";
+                    //             break;
+                    //         case 'this_week':
+                    //             $where_clauses[] = "br.due_date BETWEEN '$start_of_week' AND '$end_of_week'";
+                    //             break;
+                    //         case 'this_month':
+                    //             $where_clauses[] = "br.due_date BETWEEN '$start_of_month' AND '$end_of_month'";
+                    //             break;
+                    //         case 'next_month':
+                    //             $where_clauses[] = "br.due_date BETWEEN '$start_of_next_month' AND '$end_of_next_month'";
+                    //             break;
+                    //         // New case for Past Due Dates
+                    //         case 'past_due':
+                    //             $where_clauses[] = "br.due_date < '$today' AND br.status != 'Returned'";
+                    //             break;
+                    //     }
+                    // }
+
+                    if (!empty($due_date_filter)) {
+                        $where_clauses[] = "DATE(due_date) = '$due_date_filter'"; // Filter by the selected due date
                     }
 
                     $where_query = '';
@@ -400,15 +405,17 @@ session_start();
                         <option value="returned" <?= $selected_status === 'returned' ? 'selected' : '' ?>>Returned</option>
                     </select>
 
-                    <select name="due_date_filter" class="form-select w-25 me-2" style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
+                    <!-- <select name="due_date_filter" class="form-select w-25 me-2" style="border-radius: 16px; border: solid, 1px, black; width: 100%; display: block; font-size: 16px;">
                         <option value="">All Due Dates</option>
-                        <!-- New Option for Past Due Dates -->
                         <option value="past_due" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'past_due' ? 'selected' : '' ?>>Past Due Dates</option>
                         <option value="today" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'today' ? 'selected' : '' ?>>Today</option>
                         <option value="this_week" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'this_week' ? 'selected' : '' ?>>This Week</option>
                         <option value="this_month" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'this_month' ? 'selected' : '' ?>>This Month</option>
                         <option value="next_month" <?= isset($_GET['due_date_filter']) && $_GET['due_date_filter'] === 'next_month' ? 'selected' : '' ?>>Next Month</option>
-                    </select>
+                    </select> -->
+
+                    <!-- Date Picker for selecting specific due date -->
+                    <input type="date" name="due_date_filter" class="form-control w-25 me-2" value="<?= isset($_GET['due_date_filter']) ? htmlspecialchars($_GET['due_date_filter']) : '' ?>" style="border-radius: 16px; border: solid 1px black; width: 100%; display: block; font-size: 16px;" />
 
                     <button class="btn btn-outline-danger" type="submit">Search</button>
                 </form>
@@ -494,7 +501,7 @@ session_start();
                                 echo "</tr>";
 
                             if (mysqli_num_rows($query) === 0) {
-                                echo "<td colspan='5'>No records found</td>"; 
+                                echo "<td colspan='5' class='text-center'>No records found</td>"; 
                             }
                             echo "</tr>";
                             echo "</tbody>";

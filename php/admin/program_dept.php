@@ -25,6 +25,9 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Sweet Alert -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.js"></script>
 </head>
 
 <style>
@@ -32,7 +35,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     *{
         font-family: "Work Sans", sans-serif;
         font-optical-sizing: auto;
-        font-weight: 500;
+        /* font-weight: 500; */
         font-style: normal;
     }
     .navbar-brand{
@@ -75,6 +78,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     .offcanvas {
         width: 300px !important;
         background-color: #dd2222;
+        font-weight: 500;
     }
     .content {
         display: none; /* Hide all content sections by default */
@@ -412,17 +416,17 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                         }
                     ?>
 
-                <form class="d-flex" method="GET">
-                    <input class="form-control me-2 w-50" type="search" name="search" placeholder="Search for Department or Program" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
+                    <form class="d-flex" method="GET">
+                        <input class="form-control me-2 w-50" type="search" name="search" placeholder="Search for Department or Program" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
-                    <select class="form-select me-2" style="width: 350px;" name="filter" aria-label="Filter">
-                        <option value="" <?= empty($_GET['filter']) ? 'selected' : '' ?>>Show all departments and programs</option>
-                        <option value="with_programs" <?= isset($_GET['filter']) && $_GET['filter'] === 'with_programs' ? 'selected' : '' ?>>Show departments with programs</option>
-                        <option value="no_programs" <?= isset($_GET['filter']) && $_GET['filter'] === 'no_programs' ? 'selected' : '' ?>>Show departments without programs</option>
-                    </select>
+                        <select class="form-select me-2" style="width: 350px;" name="filter" aria-label="Filter">
+                            <option value="" <?= empty($_GET['filter']) ? 'selected' : '' ?>>Show all departments and programs</option>
+                            <option value="with_programs" <?= isset($_GET['filter']) && $_GET['filter'] === 'with_programs' ? 'selected' : '' ?>>Show departments with programs</option>
+                            <option value="no_programs" <?= isset($_GET['filter']) && $_GET['filter'] === 'no_programs' ? 'selected' : '' ?>>Show departments without programs</option>
+                        </select>
 
-                    <button class="btn btn-outline-danger" type="submit">Search</button>
-                </form>
+                        <button class="btn btn-outline-danger" type="submit">Search</button>
+                    </form>
 
                 </div>
 
@@ -459,7 +463,19 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                                 mysqli_stmt_bind_param($stmt, 'i', $program_id);
                                 mysqli_stmt_execute($stmt);
                                 mysqli_stmt_close($stmt);
-                                $_SESSION['message'] = "Program deleted successfully.";
+                                // $_SESSION['message'] = "Program deleted successfully.";
+                                echo "<script>
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Success',
+                                        text: 'Program deleted successfully.',
+                                        showConfirmButton: true,
+                                        confirmButtonColor: '#198754',
+                                    }).then(function() {
+                                        window.location.href = 'program_dept.php';
+                                    });
+                                </script>";
+                                exit;
                             } else {
                                 $_SESSION['message'] = "Error deleting program: " . mysqli_error($conn);
                             }

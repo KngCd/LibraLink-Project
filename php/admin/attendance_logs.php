@@ -3,6 +3,13 @@ session_start();
 require_once '../db_config.php';
 date_default_timezone_set('Asia/Manila');
 $currentTime = date('H:i:s');
+
+// Check if the admin is logged in
+if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
+    // If the session variable is not set or is false, redirect to the login page
+    header('Location: admin-login.php');
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -19,7 +26,7 @@ $currentTime = date('H:i:s');
     *{
         font-family: "Work Sans", sans-serif;
         font-optical-sizing: auto;
-        font-weight: 500;
+        /* font-weight: 500; */
         font-style: normal;
     }
     .navbar-brand{
@@ -62,6 +69,7 @@ $currentTime = date('H:i:s');
     .offcanvas {
         width: 300px !important;
         background-color: #dd2222;
+        font-weight: 500;
     }
     .content {
         display: none; /* Hide all content sections by default */
@@ -268,7 +276,7 @@ $currentTime = date('H:i:s');
                 </a>
             </div>
             <div class="dashboard-item">
-                <a href="#" class="dashboard-link">
+                <a href="accepted_student.php" class="dashboard-link">
                     <i class="bi bi-person-fill-check"></i>
                     <span>Accepted</span>
                 </a>

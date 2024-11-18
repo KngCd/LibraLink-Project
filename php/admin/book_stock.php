@@ -29,7 +29,7 @@ $currentTime = date('H:i:s');
     *{
         font-family: "Work Sans", sans-serif;
         font-optical-sizing: auto;
-        font-weight: 500;
+        /* font-weight: 500; */
         font-style: normal;
     }
     .navbar-brand{
@@ -72,6 +72,7 @@ $currentTime = date('H:i:s');
     .offcanvas {
         width: 300px !important;
         background-color: #dd2222;
+        font-weight: 500;
     }
     .content {
         display: none; /* Hide all content sections by default */

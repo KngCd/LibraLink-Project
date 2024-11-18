@@ -28,23 +28,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Check if the status is being changed to 'Active'
     if ($status == 'Active') {
         // Count the number of active books for this student
-        $stmt = $conn->prepare("SELECT COUNT(*) as active_count FROM borrow_table WHERE student_id = ? AND status = 'Active'");
-        $stmt->bind_param("i", $student_id);
+        $stmt = $conn->prepare("SELECT COUNT(*) as active_count FROM borrow_table WHERE student_id = ? AND book_id = ?  AND status = 'Active'");
+        $stmt->bind_param("ii", $student_id, $book_id);
         $stmt->execute();
         $result = $stmt->get_result();
         $count_row = $result->fetch_assoc();
         
         $active_count = $count_row['active_count'];
 
-        // Check if the student already has 5 active books
-        if ($active_count >= 5) {
+        // If the student already has the book marked as active, prevent the status change
+        if ($active_count > 0) {
+            // Set a session alert and redirect back
+            $_SESSION['alert2'] = "ERROR: You already have this book marked as 'Active'. Cannot mark it as 'Active' again.";
+            header("Location: borrowed.php");
+            exit();
+        }
+
+        // Check if the student already has 5 active books in total
+        $stmt2 = $conn->prepare("SELECT COUNT(*) as active_book_count FROM borrow_table WHERE student_id = ? AND status = 'Active'");
+        $stmt2->bind_param("i", $student_id);
+        $stmt2->execute();
+        $resul2t = $stmt2->get_result();
+        $count_row2 = $result2->fetch_assoc();
+        
+        $active_book_count = $count_row2['active_book_count'];
+
+        // If the student already has 5 active books, prevent the status change
+        if ($active_book_count >= 5) {
             $_SESSION['alert2'] = "ERROR: The student cannot have more than 5 active books.";
             header("Location: borrowed.php");
             exit();
         }
 
         // Prevent changing status from Returned to Active if the limit is reached
-        if ($current_status == 'Returned' && $active_count >= 5) {
+        if ($current_status == 'Returned' && $active_book_count >= 5) {
             $_SESSION['alert2'] = "ERROR: Cannot change status from Returned to Active when the student has 5 active books.";
             header("Location: borrowed.php");
             exit();
