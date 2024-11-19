@@ -417,9 +417,9 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                     ?>
 
                     <form class="d-flex" method="GET">
-                        <input class="form-control me-2 w-50" type="search" name="search" placeholder="Search for Department or Program" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
+                        <input class="form-control me-2 w-50 border border-danger focus-ring" style="--bs-focus-ring-color: rgba(var(--bs-danger-rgb), .25)" type="search" name="search" placeholder="Search for Department or Program" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
-                        <select class="form-select me-2" style="width: 350px;" name="filter" aria-label="Filter">
+                        <select class="form-select me-2 border border-danger focus-ring" style="width: 350px; --bs-focus-ring-color: rgba(var(--bs-danger-rgb), .25)" name="filter" aria-label="Filter">
                             <option value="" <?= empty($_GET['filter']) ? 'selected' : '' ?>>Show all departments and programs</option>
                             <option value="with_programs" <?= isset($_GET['filter']) && $_GET['filter'] === 'with_programs' ? 'selected' : '' ?>>Show departments with programs</option>
                             <option value="no_programs" <?= isset($_GET['filter']) && $_GET['filter'] === 'no_programs' ? 'selected' : '' ?>>Show departments without programs</option>

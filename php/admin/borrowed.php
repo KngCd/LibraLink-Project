@@ -508,9 +508,9 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                     ?>
 
                     <form class="d-flex" method="GET">
-                        <input class="form-control me-2 w-75" type="search" name="search" placeholder="Search for Name, Email, or Title" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
+                        <input class="form-control me-2 w-75 border border-danger focus-ring" style="--bs-focus-ring-color: rgba(var(--bs-danger-rgb), .25)" type="search" name="search" placeholder="Search for Name, Email, or Title" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
-                        <select name="program" class="form-select w-25" style="width: fit-content;">
+                        <select name="program" class="form-select w-25 me-2 border border-danger focus-ring" style="width: fit-content; --bs-focus-ring-color: rgba(var(--bs-danger-rgb), .25)">
                             <option value="">All Programs</option>
                             <?php foreach ($programs as $program): ?>
                                 <option value="<?= htmlspecialchars($program) ?>" <?= $selected_program === $program ? 'selected' : '' ?>>
@@ -519,7 +519,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                             <?php endforeach; ?>
                         </select>
 
-                        <select name="department" class="form-select w-25 me-2" style="width: fit-content;">
+                        <select name="department" class="form-select w-25 me-2 border border-danger focus-ring" style="width: fit-content; --bs-focus-ring-color: rgba(var(--bs-danger-rgb), .25)">
                             <option value="">All Departments</option>
                             <?php foreach ($departments as $department): ?>
                                 <option value="<?= htmlspecialchars($department) ?>" <?= $selected_department === $department ? 'selected' : '' ?>>
@@ -538,7 +538,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                             <option value="past_month" <?= isset($_GET['borrow_date_filter']) && $_GET['borrow_date_filter'] === 'past_month' ? 'selected' : '' ?>>Past Month</option>
                         </select> -->
 
-                        <select name="status" class="form-select w-25 me-2">
+                        <select name="status" class="form-select w-25 me-2 border border-danger focus-ring" style="--bs-focus-ring-color: rgba(var(--bs-danger-rgb), .25)">
                             <option value="">All Status</option>
                             <option value="active" <?= $selected_status === 'active' ? 'selected' : '' ?>>Active</option>
                             <option value="returned" <?= $selected_status === 'returned' ? 'selected' : '' ?>>Returned</option>
@@ -554,7 +554,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                         </select> -->
 
                         <!-- Date Picker for selecting specific due date -->
-                        <input type="date" name="due_date_filter" class="form-control w-25 me-2" value="<?= isset($_GET['due_date_filter']) ? htmlspecialchars($_GET['due_date_filter']) : '' ?>" />
+                        <input type="date" name="due_date_filter" class="form-control w-25 me-2 border border-danger focus-ring" style="--bs-focus-ring-color: rgba(var(--bs-danger-rgb), .25)" value="<?= isset($_GET['due_date_filter']) ? htmlspecialchars($_GET['due_date_filter']) : '' ?>" />
 
                         <button class="btn btn-outline-danger" type="submit">Search</button>
                     </form>

@@ -491,7 +491,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 
                     <!-- Search and Filter Form -->
                     <form class="d-flex" method="GET">
-                        <input class="form-control me-2 w-50 me-5" type="search" name="search" placeholder="Search for Name" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
+                        <input class="form-control me-2 w-50 me-5 border border-danger focus-ring" style="--bs-focus-ring-color: rgba(var(--bs-danger-rgb), .25)" type="search" name="search" placeholder="Search for Name" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
                         <!-- <select name="date_filter" class="form-select w-25 me-2" style="width: fit-content;">
                             <option value="">All Dates</option>
@@ -504,7 +504,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                             <option value="previous_month" <?= isset($_GET['date_filter']) && $_GET['date_filter'] === 'previous_month' ? 'selected' : '' ?>>Previous Month</option>
                         </select> -->
                         <!-- Date Picker for selecting specific date -->
-                        <input type="date" name="date_filter" class="form-control w-25 me-2" value="<?= isset($_GET['date_filter']) ? htmlspecialchars($_GET['date_filter']) : '' ?>" />
+                        <input type="date" name="date_filter" class="form-control w-25 me-2 border border-danger focus-ring" style="--bs-focus-ring-color: rgba(var(--bs-danger-rgb), .25)" value="<?= isset($_GET['date_filter']) ? htmlspecialchars($_GET['date_filter']) : '' ?>" />
 
                         <!-- OPTIONAL -->
                         <!-- <select name="date_sort" class="form-select w-25 me-2" style="width: fit-content;">

@@ -364,10 +364,9 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
             <!-- Navbar -->
             <nav class="navbar navbar-expand-lg" style="height: 80px;">
                 <div class="container">
-                    <!-- <img class="img-fluid logo text-center" src="../../img/libra2.png" alt="Logo" style="height: 40px; width: auto;"> -->
                     <a href="">
                         <h1 class="navbar-brand fs-1">
-                            <span style="color: #dd2222; font-weight: bold;">Accepted</span> Students
+                            <span style="color: #dd2222; font-weight: bold;">Accepted</span> Student
                         </h1>
                     </a>
                     <!-- <button class="navbar-toggler bg-danger text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
@@ -386,7 +385,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         </section>
 
         <!-- ACCEPTED STUDENT -->
-        <section class="container-fluid content active" id="total-accepted">
+        <section class="container-fluid content active mt-2" id="total-accepted">
             <div id="accepted-student" class="container p-3">
                 <div class="container">
                     <?php
@@ -434,9 +433,9 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                     ?>
 
                     <form class="d-flex" method="GET">
-                        <input class="form-control me-2 w-50" type="search" name="search" placeholder="Search for Name or Email" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
+                        <input class="form-control me-2 w-50 border border-danger focus-ring" style="--bs-focus-ring-color: rgba(var(--bs-danger-rgb), .25)" type="search" name="search" placeholder="Search for Name or Email" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
-                        <select name="department" class="form-select w-25 me-3">
+                        <select name="department" class="form-select w-25 me-3 border border-danger focus-ring" style="--bs-focus-ring-color: rgba(var(--bs-danger-rgb), .25)">
                             <option value="">All Departments</option>
                             <?php foreach ($departments as $department): ?>
                                 <option value="<?= htmlspecialchars($department) ?>" <?= $selected_department === $department ? 'selected' : '' ?>>
@@ -445,7 +444,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                             <?php endforeach; ?>
                         </select>
 
-                        <select name="program" class="form-select w-25 me-3">
+                        <select name="program" class="form-select w-25 me-3 border border-danger focus-ring" style="--bs-focus-ring-color: rgba(var(--bs-danger-rgb), .25)">
                             <option value="">All Programs</option>
                             <?php foreach ($programs as $program): ?>
                                 <option value="<?= htmlspecialchars($program) ?>" <?= $selected_program === $program ? 'selected' : '' ?>>
@@ -461,7 +460,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                 <div class="container p-3">
                     <?php
                         // Set the number of records per page
-                        $records_per_page = 3;
+                        $records_per_page = 6;
 
                         // Get the current page from the session or set it to 1
                         if (!isset($_SESSION['acurrent_page'])) {

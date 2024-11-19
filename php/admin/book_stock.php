@@ -432,9 +432,9 @@ $currentTime = date('H:i:s');
                     ?>
 
                     <form class="d-flex" method="GET">
-                        <input class="form-control me-2 w-50 me-5" type="search" name="search" placeholder="Search for Title or Author" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
+                        <input class="form-control me-2 w-50 me-5 border border-danger focus-ring" style="--bs-focus-ring-color: rgba(var(--bs-danger-rgb), .25)" type="search" name="search" placeholder="Search for Title or Author" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
-                        <select name="status" class="form-select w-25 ms-5 me-3">
+                        <select name="status" class="form-select w-25 ms-5 me-3 border border-danger focus-ring" style="--bs-focus-ring-color: rgba(var(--bs-danger-rgb), .25)">
                             <option value="">All Status</option>
                             <option value="available" <?php echo ($selected_status === 'available') ? 'selected' : ''; ?>>Available</option>
                             <option value="not_available" <?php echo ($selected_status === 'not_available') ? 'selected' : ''; ?>>Not Available</option>
@@ -702,7 +702,7 @@ $currentTime = date('H:i:s');
                             echo "<th>Stocks</th>";
                             echo "<th>Borrowed</th>";
                             echo "<th>Available Stocks</th>";
-                            echo "<th>Add Stocks</th>";
+                            echo "<th>Stocks</th>";
                             echo "</tr>";
                             echo "<tbody class='table-group-divider'>";
 
@@ -755,7 +755,7 @@ $currentTime = date('H:i:s');
                                             <input type='hidden' name='book_id' value='" . htmlspecialchars($row['book_id']) . "' />
                                             <div class='input-group'>
                                                 <input class='form-control me-2' type='number' name='stocks' value='0' required style='border-radius: 0.375rem;'>
-                                                <span><button type='submit' name='add' value='add' class='btn btn-success'>Add</button></span>
+                                                <span><button type='submit' name='add' value='add' class='btn btn-success'>Update</button></span>
                                             </div>
                                         </form>
                                     </td>";

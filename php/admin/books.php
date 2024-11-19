@@ -376,7 +376,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         </section>
 
         <!-- BOOKS AVAILABLE -->
-        <section class="container-fluid content active" id="total-books">
+        <section class="container-fluid content active mt-2" id="total-books">
             <?php
                 require_once '../db_config.php';
 
@@ -475,9 +475,9 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
             <div id="books" class="container p-3">
                 <div class="container">
                     <form class="d-flex" method="GET">
-                        <input class="form-control me-2 w-50 me-5" type="search" name="search" placeholder="Search for Title or Author" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
+                        <input class="form-control me-2 w-50 me-5 border border-danger focus-ring" style="--bs-focus-ring-color: rgba(var(--bs-danger-rgb), .25)" type="search" name="search" placeholder="Search for Title or Author" aria-label="Search" value="<?= htmlspecialchars($search) ?>">
 
-                        <select name="category" class="form-select w-25 ms-5 me-3">
+                        <select name="category" class="form-select w-25 ms-5 me-3 border border-danger focus-ring" style="--bs-focus-ring-color: rgba(var(--bs-danger-rgb), .25)">
                             <option value="">All Category</option>
                             <?php foreach ($categories as $category): ?>
                                 <option value="<?= htmlspecialchars($category) ?>" <?= $selected_category === $category ? 'selected' : '' ?>>
@@ -507,7 +507,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                             </thead>
                                 <?php
                                 // Set the number of records per page
-                                $records_per_page = 3;
+                                $records_per_page = 7;
 
                                 // Get the current page from the session or set it to 1
                                 if (!isset($_SESSION['bcurrent_page'])) {
